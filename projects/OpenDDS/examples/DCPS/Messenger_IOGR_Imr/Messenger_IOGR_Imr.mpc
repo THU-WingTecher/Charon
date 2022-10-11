@@ -1,0 +1,54 @@
+project(DDS*idl): dcps_idl_only_lib {
+  requires += no_opendds_safety_profile
+  idlflags      += -Wb,stub_export_include=Messenger_IOGR_Imr_export.h \
+                   -Wb,stub_export_macro=Messenger_IOGR_Imr_Export
+  dcps_ts_flags += -Wb,export_macro=Messenger_IOGR_Imr_Export
+  dynamicflags  += MESSENGER_IOGR_IMR_BUILD_DLL
+
+  TypeSupport_Files {
+    Messenger.idl
+  }
+}
+
+project(DDS*Aggregator) : portableserver, orbsvcsexe, iormanip, ftorb, dds_macros {
+  exename = Aggregator
+  requires += tao_orbsvcs
+  requires += no_opendds_safety_profile
+
+  IDL_Files {
+  }
+
+  Source_Files {
+    Aggregator.cpp
+  }
+}
+
+project(DDS*Publisher) : dcpsexe {
+  requires += no_opendds_safety_profile
+  exename = publisher
+  after  += DDS*idl
+  libs   += DDS*idl
+
+  Idl_Files {
+  }
+
+  Source_Files {
+    publisher.cpp
+    Writer.cpp
+  }
+}
+
+project(DDS*Subscriber) : dcpsexe {
+  requires += no_opendds_safety_profile
+  exename = subscriber
+  after  += DDS*idl
+  libs   += DDS*idl
+
+  Idl_Files {
+  }
+
+  Source_Files {
+    subscriber.cpp
+    DataReaderListener.cpp
+  }
+}

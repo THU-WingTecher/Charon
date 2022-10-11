@@ -1,0 +1,18 @@
+project: dcpslib, install {
+  requires += built_in_topics
+  avoids += uses_wchar
+  dynamicflags = OPENDDS_FACE_BUILD_DLL
+
+  Source_Files {
+    .
+    ./config
+  }
+
+  Header_Files {
+    ../../FACE
+  }
+
+  specific {
+    install_dir = dds/FACE
+  }
+}

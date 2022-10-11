@@ -1,0 +1,38 @@
+project(DDS*Publisher) : dcpsexe, dcps_test, dcps_cm, dcps_transports_for_test {
+  exename = publisher
+  requires += built_in_topics
+
+  Idl_Files {
+  }
+
+  Source_Files {
+    publisher.cpp
+    Writer.cpp
+  }
+}
+
+project(DDS*Subscriber) : dcpsexe, dcps_test, dcps_cm, dcps_transports_for_test {
+  exename = subscriber
+  requires += built_in_topics
+
+  Idl_Files {
+  }
+
+  Source_Files {
+    subscriber.cpp
+    DataReaderListener.cpp
+  }
+}
+
+
+project(DDS*Monitor) : dcpsexe, dcps_test, dcps_cm, dcps_transports_for_test {
+  exename   = monitor
+  requires += built_in_topics
+
+  Source_Files {
+    monitor.cpp
+  }
+
+  Idl_Files {
+  }
+}

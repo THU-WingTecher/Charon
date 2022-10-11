@@ -1,0 +1,3 @@
+project: dcpsexe, dcps_test, dcps_rtps {
+  exename = RtpsMessagesTest
+}

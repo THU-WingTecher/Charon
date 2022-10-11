@@ -1,0 +1,6 @@
+#
+#
+
+org.opendds.jms.transport.spi.TcpTransport
+org.opendds.jms.transport.spi.UdpTransport
+org.opendds.jms.transport.spi.MulticastTransport

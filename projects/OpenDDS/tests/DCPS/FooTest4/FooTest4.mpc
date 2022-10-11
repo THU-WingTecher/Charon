@@ -1,0 +1,13 @@
+project(DcpsFooTest4): dcpsexe, dcps_test, dcps_transports_for_test {
+  exename   = FooTest4
+  libpaths += ../FooType4
+  libpaths += ../common
+  libs     +=  DcpsFooType4 common
+  after    += DcpsFooType4 common
+
+  Source_Files {
+    main.cpp
+    Reader.cpp
+    Writer.cpp
+  }
+}

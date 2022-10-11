@@ -1,0 +1,264 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - libiec51850_basic_io.info - asn1c/BIT_STRING.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">asn1c</a> - BIT_STRING.c<span style="font-size: 80%;"> (source / <a href="BIT_STRING.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">libiec51850_basic_io.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">71</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-06 14:11:04</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*-</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2003, 2004 Lev Walkin &lt;vlm@lionet.info&gt;. All rights reserved.
+<span class="lineNum">       3 </span>            :  * Redistribution and modifications are permitted subject to BSD license.
+<span class="lineNum">       4 </span>            :  */
+<span class="lineNum">       5 </span>            : #include &lt;asn_internal.h&gt;
+<span class="lineNum">       6 </span>            : #include &lt;BIT_STRING.h&gt;
+<span class="lineNum">       7 </span>            : #include &lt;asn_internal.h&gt;
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : /*
+<span class="lineNum">      10 </span>            :  * BIT STRING basic type description.
+<span class="lineNum">      11 </span>            :  */
+<span class="lineNum">      12 </span>            : static ber_tlv_tag_t asn_DEF_BIT_STRING_tags[] = {
+<span class="lineNum">      13 </span>            :         (ASN_TAG_CLASS_UNIVERSAL | (3 &lt;&lt; 2))
+<span class="lineNum">      14 </span>            : };
+<span class="lineNum">      15 </span>            : static asn_OCTET_STRING_specifics_t asn_DEF_BIT_STRING_specs = {
+<span class="lineNum">      16 </span>            :         sizeof(BIT_STRING_t),
+<span class="lineNum">      17 </span>            :         offsetof(BIT_STRING_t, _asn_ctx),
+<span class="lineNum">      18 </span>            :         1,      /* Special indicator that this is a BIT STRING type */
+<span class="lineNum">      19 </span>            : };
+<span class="lineNum">      20 </span>            : asn_TYPE_descriptor_t asn_DEF_BIT_STRING = {
+<span class="lineNum">      21 </span>            :         &quot;BIT STRING&quot;,
+<span class="lineNum">      22 </span>            :         &quot;BIT_STRING&quot;,
+<span class="lineNum">      23 </span>            :         OCTET_STRING_free,         /* Implemented in terms of OCTET STRING */
+<span class="lineNum">      24 </span>            :         BIT_STRING_print,
+<span class="lineNum">      25 </span>            :         BIT_STRING_constraint,
+<span class="lineNum">      26 </span>            :         OCTET_STRING_decode_ber,   /* Implemented in terms of OCTET STRING */
+<span class="lineNum">      27 </span>            :         OCTET_STRING_encode_der,   /* Implemented in terms of OCTET STRING */
+<span class="lineNum">      28 </span>            :         OCTET_STRING_decode_xer_binary,
+<span class="lineNum">      29 </span>            :         BIT_STRING_encode_xer,
+<span class="lineNum">      30 </span>            :         OCTET_STRING_decode_uper,       /* Unaligned PER decoder */
+<span class="lineNum">      31 </span>            :         OCTET_STRING_encode_uper,       /* Unaligned PER encoder */
+<span class="lineNum">      32 </span>            :         0, /* Use generic outmost tag fetcher */
+<span class="lineNum">      33 </span>            :         asn_DEF_BIT_STRING_tags,
+<span class="lineNum">      34 </span>            :         sizeof(asn_DEF_BIT_STRING_tags)
+<span class="lineNum">      35 </span>            :           / sizeof(asn_DEF_BIT_STRING_tags[0]),
+<span class="lineNum">      36 </span>            :         asn_DEF_BIT_STRING_tags,        /* Same as above */
+<span class="lineNum">      37 </span>            :         sizeof(asn_DEF_BIT_STRING_tags)
+<span class="lineNum">      38 </span>            :           / sizeof(asn_DEF_BIT_STRING_tags[0]),
+<span class="lineNum">      39 </span>            :         0,      /* No PER visible constraints */
+<span class="lineNum">      40 </span>            :         0, 0,   /* No members */
+<span class="lineNum">      41 </span>            :         &amp;asn_DEF_BIT_STRING_specs
+<span class="lineNum">      42 </span>            : };
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : /*
+<span class="lineNum">      45 </span>            :  * BIT STRING generic constraint.
+<a name="46"><span class="lineNum">      46 </span>            :  */</a>
+<span class="lineNum">      47 </span>            : int
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 : BIT_STRING_constraint(asn_TYPE_descriptor_t *td, const void *sptr,</span>
+<span class="lineNum">      49 </span>            :                 asn_app_constraint_failed_f *ctfailcb, void *app_key) {
+<span class="lineNum">      50 </span><span class="lineNoCov">          0 :         const BIT_STRING_t *st = (const BIT_STRING_t *)sptr;</span>
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :         if(st &amp;&amp; st-&gt;buf) {</span>
+<span class="lineNum">      53 </span><span class="lineNoCov">          0 :                 if(st-&gt;size == 1 &amp;&amp; st-&gt;bits_unused) {</span>
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :                         _ASN_CTFAIL(app_key, td,</span>
+<span class="lineNum">      55 </span>            :                                 &quot;%s: invalid padding byte (%s:%d)&quot;,
+<span class="lineNum">      56 </span><span class="lineNoCov">          0 :                                 td-&gt;name, __FILE__, __LINE__);</span>
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :                         return -1;</span>
+<span class="lineNum">      58 </span>            :                 }
+<span class="lineNum">      59 </span>            :         } else {
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :                 _ASN_CTFAIL(app_key, td,</span>
+<span class="lineNum">      61 </span>            :                         &quot;%s: value not given (%s:%d)&quot;,
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 :                         td-&gt;name, __FILE__, __LINE__);</span>
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :                 return -1;</span>
+<span class="lineNum">      64 </span>            :         }
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">      67 </span>            : }
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            : static char *_bit_pattern[16] = {
+<span class="lineNum">      70 </span>            :         &quot;0000&quot;, &quot;0001&quot;, &quot;0010&quot;, &quot;0011&quot;, &quot;0100&quot;, &quot;0101&quot;, &quot;0110&quot;, &quot;0111&quot;,
+<span class="lineNum">      71 </span>            :         &quot;1000&quot;, &quot;1001&quot;, &quot;1010&quot;, &quot;1011&quot;, &quot;1100&quot;, &quot;1101&quot;, &quot;1110&quot;, &quot;1111&quot;
+<span class="lineNum">      72 </span>            : };
+<a name="73"><span class="lineNum">      73 </span>            : </a>
+<span class="lineNum">      74 </span>            : asn_enc_rval_t
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 : BIT_STRING_encode_xer(asn_TYPE_descriptor_t *td, void *sptr,</span>
+<span class="lineNum">      76 </span>            :         int ilevel, enum xer_encoder_flags_e flags,
+<span class="lineNum">      77 </span>            :                 asn_app_consume_bytes_f *cb, void *app_key) {
+<span class="lineNum">      78 </span>            :         asn_enc_rval_t er;
+<span class="lineNum">      79 </span>            :         char scratch[128];
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :         char *p = scratch;</span>
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :         char *scend = scratch + (sizeof(scratch) - 10);</span>
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :         const BIT_STRING_t *st = (const BIT_STRING_t *)sptr;</span>
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :         int xcan = (flags &amp; XER_F_CANONICAL);</span>
+<span class="lineNum">      84 </span>            :         uint8_t *buf;
+<span class="lineNum">      85 </span>            :         uint8_t *end;
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :         if(!st || !st-&gt;buf)</span>
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :                 _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :         er.encoded = 0;</span>
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :         buf = st-&gt;buf;</span>
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :         end = buf + st-&gt;size - 1;    /* Last byte is special */</span>
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span>            :         /*
+<span class="lineNum">      96 </span>            :          * Binary dump
+<span class="lineNum">      97 </span>            :          */
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :         for(; buf &lt; end; buf++) {</span>
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :                 int v = *buf;</span>
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :                 int nline = xcan?0:(((buf - st-&gt;buf) % 8) == 0);</span>
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :                 if(p &gt;= scend || nline) {</span>
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :                         er.encoded += p - scratch;</span>
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :                         _ASN_CALLBACK(scratch, p - scratch);</span>
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :                         p = scratch;</span>
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :                         if(nline) _i_ASN_TEXT_INDENT(1, ilevel);</span>
+<span class="lineNum">     106 </span>            :                 }
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :                 memcpy(p + 0, _bit_pattern[v &gt;&gt; 4], 4);</span>
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :                 memcpy(p + 4, _bit_pattern[v &amp; 0x0f], 4);</span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :                 p += 8;</span>
+<span class="lineNum">     110 </span>            :         }
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :         if(!xcan &amp;&amp; ((buf - st-&gt;buf) % 8) == 0)</span>
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :                 _i_ASN_TEXT_INDENT(1, ilevel);</span>
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :         er.encoded += p - scratch;</span>
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :         _ASN_CALLBACK(scratch, p - scratch);</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :         p = scratch;</span>
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :         if(buf == end) {</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :                 int v = *buf;</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :                 int ubits = st-&gt;bits_unused;</span>
+<span class="lineNum">     121 </span>            :                 int i;
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :                 for(i = 7; i &gt;= ubits; i--)</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :                         *p++ = (v &amp; (1 &lt;&lt; i)) ? 0x31 : 0x30;</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :                 er.encoded += p - scratch;</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :                 _ASN_CALLBACK(scratch, p - scratch);</span>
+<span class="lineNum">     126 </span>            :         }
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :         if(!xcan) _i_ASN_TEXT_INDENT(1, ilevel - 1);</span>
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :         _ASN_ENCODED_OK(er);</span>
+<span class="lineNum">     131 </span>            : cb_failed:
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :         _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">     133 </span>            : }
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span>            : /*
+<span class="lineNum">     137 </span>            :  * BIT STRING specific contents printer.
+<a name="138"><span class="lineNum">     138 </span>            :  */</a>
+<span class="lineNum">     139 </span>            : int
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 : BIT_STRING_print(asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,</span>
+<span class="lineNum">     141 </span>            :                 asn_app_consume_bytes_f *cb, void *app_key) {
+<span class="lineNum">     142 </span>            :         static const char *h2c = &quot;0123456789ABCDEF&quot;;
+<span class="lineNum">     143 </span>            :         char scratch[64];
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :         const BIT_STRING_t *st = (const BIT_STRING_t *)sptr;</span>
+<span class="lineNum">     145 </span>            :         uint8_t *buf;
+<span class="lineNum">     146 </span>            :         uint8_t *end;
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :         char *p = scratch;</span>
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            :         (void)td;       /* Unused argument */
+<span class="lineNum">     150 </span>            : 
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :         if(!st || !st-&gt;buf)</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :                 return (cb(&quot;&lt;absent&gt;&quot;, 8, app_key) &lt; 0) ? -1 : 0;</span>
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :         ilevel++;</span>
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :         buf = st-&gt;buf;</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :         end = buf + st-&gt;size;</span>
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span>            :         /*
+<span class="lineNum">     159 </span>            :          * Hexadecimal dump.
+<span class="lineNum">     160 </span>            :          */
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :         for(; buf &lt; end; buf++) {</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :                 if((buf - st-&gt;buf) % 16 == 0 &amp;&amp; (st-&gt;size &gt; 16)</span>
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :                                 &amp;&amp; buf != st-&gt;buf) {</span>
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :                         _i_INDENT(1);</span>
+<span class="lineNum">     165 </span>            :                         /* Dump the string */
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :                         if(cb(scratch, p - scratch, app_key) &lt; 0) return -1;</span>
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :                         p = scratch;</span>
+<span class="lineNum">     168 </span>            :                 }
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :                 *p++ = h2c[*buf &gt;&gt; 4];</span>
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 :                 *p++ = h2c[*buf &amp; 0x0F];</span>
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :                 *p++ = 0x20;</span>
+<span class="lineNum">     172 </span>            :         }
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :         if(p &gt; scratch) {</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :                 p--;    /* Eat the tailing space */</span>
+<span class="lineNum">     176 </span>            : 
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :                 if((st-&gt;size &gt; 16)) {</span>
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :                         _i_INDENT(1);</span>
+<span class="lineNum">     179 </span>            :                 }
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span>            :                 /* Dump the incomplete 16-bytes row */
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :                 if(cb(scratch, p - scratch, app_key) &lt; 0)</span>
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :                         return -1;</span>
+<span class="lineNum">     184 </span>            :         }
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     187 </span>            : }
+<span class="lineNum">     188 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

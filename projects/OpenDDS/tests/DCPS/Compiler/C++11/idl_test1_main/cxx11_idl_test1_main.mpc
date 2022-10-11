@@ -1,0 +1,11 @@
+project: dcpsexe, dcps_test, opendds_cxx11 {
+  exename   = idl_test1
+  libs     += cxx11_idl_test1_lib
+  libpaths += ../idl_test1_lib
+  after    += cxx11_idl_test1_lib
+  includes += ../idl_test1_lib
+
+  Source_Files {
+    main.cpp
+  }
+}

@@ -1,0 +1,4 @@
+/classic/*
+!/classic/MultiTopicTest_Classic.mpc
+/cpp11/*
+!/cpp11/MultiTopicTest_Cpp11.mpc

@@ -1,0 +1,17 @@
+project(*pub) : dcpsexe, dcps_test, dcps_rtps_udp, ../TestMsg/TestMsg {
+
+  exename = publisher
+
+  Source_Files {
+    publisher.cpp
+  }
+}
+
+project(*sub) : dcpsexe, dcps_test, dcps_rtps_udp, ../TestMsg/TestMsg {
+
+  exename = subscriber
+
+  Source_Files {
+    subscriber.cpp
+  }
+}

@@ -1,0 +1,492 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - libiec51850_basic_io.info - /root/libiec61850/src/goose/goose_publisher.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">root/libiec61850/src/goose</a> - goose_publisher.c<span style="font-size: 80%;"> (source / <a href="goose_publisher.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">libiec51850_basic_io.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">166</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-06 14:11:04</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *  goose_publisher.c
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *  Copyright 2013-2018 Michael Zillgith
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  *  This file is part of libIEC61850.
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  libIEC61850 is free software: you can redistribute it and/or modify
+<span class="lineNum">       9 </span>            :  *  it under the terms of the GNU General Public License as published by
+<span class="lineNum">      10 </span>            :  *  the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">      11 </span>            :  *  (at your option) any later version.
+<span class="lineNum">      12 </span>            :  *
+<span class="lineNum">      13 </span>            :  *  libIEC61850 is distributed in the hope that it will be useful,
+<span class="lineNum">      14 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      15 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      16 </span>            :  *  GNU General Public License for more details.
+<span class="lineNum">      17 </span>            :  *
+<span class="lineNum">      18 </span>            :  *  You should have received a copy of the GNU General Public License
+<span class="lineNum">      19 </span>            :  *  along with libIEC61850.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      20 </span>            :  *
+<span class="lineNum">      21 </span>            :  *  See COPYING file for the complete license text.
+<span class="lineNum">      22 </span>            :  */
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : #include &quot;libiec61850_platform_includes.h&quot;
+<span class="lineNum">      25 </span>            : #include &quot;stack_config.h&quot;
+<span class="lineNum">      26 </span>            : #include &quot;goose_publisher.h&quot;
+<span class="lineNum">      27 </span>            : #include &quot;hal_ethernet.h&quot;
+<span class="lineNum">      28 </span>            : #include &quot;ber_encoder.h&quot;
+<span class="lineNum">      29 </span>            : #include &quot;mms_server_internal.h&quot;
+<span class="lineNum">      30 </span>            : #include &quot;mms_value_internal.h&quot;
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : #ifndef DEBUG_GOOSE_PUBLISHER
+<span class="lineNum">      33 </span>            : #define DEBUG_GOOSE_PUBLISHER 0
+<span class="lineNum">      34 </span>            : #endif
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : #define GOOSE_MAX_MESSAGE_SIZE 1518
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            : static bool
+<span class="lineNum">      39 </span>            : prepareGooseBuffer(GoosePublisher self, CommParameters* parameters, const char* interfaceID, bool useVlanTags);
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            : struct sGoosePublisher {
+<span class="lineNum">      42 </span>            :     uint8_t* buffer;
+<span class="lineNum">      43 </span>            :     /* uint16_t appId; */
+<span class="lineNum">      44 </span>            :     EthernetSocket ethernetSocket;
+<span class="lineNum">      45 </span>            :     int lengthField;
+<span class="lineNum">      46 </span>            :     int payloadStart;
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            :     char* goID;
+<span class="lineNum">      49 </span>            :     char* goCBRef;
+<span class="lineNum">      50 </span>            :     char* dataSetRef;
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            :     /* uint16_t minTime; */
+<span class="lineNum">      53 </span>            :     /* uint16_t maxTime; */
+<span class="lineNum">      54 </span>            :     /* bool fixedOffs; */
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            :     uint32_t confRev;
+<span class="lineNum">      57 </span>            :     uint32_t stNum;
+<span class="lineNum">      58 </span>            :     uint32_t sqNum;
+<span class="lineNum">      59 </span>            :     uint32_t timeAllowedToLive;
+<span class="lineNum">      60 </span>            :     bool needsCommission;
+<span class="lineNum">      61 </span>            :     bool simulation;
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span>            :     MmsValue* timestamp; /* time when stNum is increased */
+<span class="lineNum">      64 </span>            : };
+<a name="65"><span class="lineNum">      65 </span>            : </a>
+<span class="lineNum">      66 </span>            : GoosePublisher
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 : GoosePublisher_createEx(CommParameters* parameters, const char* interfaceID, bool useVlanTag)</span>
+<span class="lineNum">      68 </span>            : {
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :     GoosePublisher self = (GoosePublisher) GLOBAL_CALLOC(1, sizeof(struct sGoosePublisher));</span>
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :     if (self) {</span>
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :         if (prepareGooseBuffer(self, parameters, interfaceID, useVlanTag)) {</span>
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :             self-&gt;timestamp = MmsValue_newUtcTimeByMsTime(Hal_getTimeInMs());</span>
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :             GoosePublisher_reset(self);</span>
+<span class="lineNum">      77 </span>            :         }
+<span class="lineNum">      78 </span>            :         else {
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :             GoosePublisher_destroy(self);</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :             self = NULL;</span>
+<span class="lineNum">      81 </span>            :         }
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            :     }
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :     return self;</span>
+<span class="lineNum">      86 </span>            : }
+<a name="87"><span class="lineNum">      87 </span>            : </a>
+<span class="lineNum">      88 </span>            : GoosePublisher
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 : GoosePublisher_create(CommParameters* parameters, const char* interfaceID)</span>
+<span class="lineNum">      90 </span>            : {
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :     return GoosePublisher_createEx(parameters, interfaceID, true);</span>
+<span class="lineNum">      92 </span>            : }
+<a name="93"><span class="lineNum">      93 </span>            : </a>
+<span class="lineNum">      94 </span>            : void
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 : GoosePublisher_destroy(GoosePublisher self)</span>
+<span class="lineNum">      96 </span>            : {
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :     if (self-&gt;ethernetSocket) {</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :         Ethernet_destroySocket(self-&gt;ethernetSocket);</span>
+<span class="lineNum">      99 </span>            :     }
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :     MmsValue_delete(self-&gt;timestamp);</span>
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :     if (self-&gt;goID != NULL)</span>
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :         GLOBAL_FREEMEM(self-&gt;goID);</span>
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :     if (self-&gt;goCBRef != NULL)</span>
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :         GLOBAL_FREEMEM(self-&gt;goCBRef);</span>
+<span class="lineNum">     108 </span>            : 
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :     if (self-&gt;dataSetRef != NULL)</span>
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :         GLOBAL_FREEMEM(self-&gt;dataSetRef);</span>
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :     if (self-&gt;buffer)</span>
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :         GLOBAL_FREEMEM(self-&gt;buffer);</span>
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :     GLOBAL_FREEMEM(self);</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 : }</span>
+<a name="117"><span class="lineNum">     117 </span>            : </a>
+<span class="lineNum">     118 </span>            : void
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 : GoosePublisher_setGoID(GoosePublisher self, char* goID)</span>
+<span class="lineNum">     120 </span>            : {
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :     self-&gt;goID = StringUtils_copyString(goID);</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 : }</span>
+<a name="123"><span class="lineNum">     123 </span>            : </a>
+<span class="lineNum">     124 </span>            : void
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 : GoosePublisher_setGoCbRef(GoosePublisher self, char* goCbRef)</span>
+<span class="lineNum">     126 </span>            : {
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :     self-&gt;goCBRef = StringUtils_copyString(goCbRef);</span>
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 : }</span>
+<a name="129"><span class="lineNum">     129 </span>            : </a>
+<span class="lineNum">     130 </span>            : void
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 : GoosePublisher_setDataSetRef(GoosePublisher self, char* dataSetRef)</span>
+<span class="lineNum">     132 </span>            : {
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :     self-&gt;dataSetRef = StringUtils_copyString(dataSetRef);</span>
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 : }</span>
+<a name="135"><span class="lineNum">     135 </span>            : </a>
+<span class="lineNum">     136 </span>            : void
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 : GoosePublisher_setConfRev(GoosePublisher self, uint32_t confRev)</span>
+<span class="lineNum">     138 </span>            : {
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :     self-&gt;confRev = confRev;</span>
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 : }</span>
+<a name="141"><span class="lineNum">     141 </span>            : </a>
+<span class="lineNum">     142 </span>            : void
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 : GoosePublisher_setSimulation(GoosePublisher self, bool simulation)</span>
+<span class="lineNum">     144 </span>            : {
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :     self-&gt;simulation = simulation;</span>
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 : }</span>
+<a name="147"><span class="lineNum">     147 </span>            : </a>
+<span class="lineNum">     148 </span>            : void
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 : GoosePublisher_setNeedsCommission(GoosePublisher self, bool ndsCom)</span>
+<span class="lineNum">     150 </span>            : {
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :     self-&gt;needsCommission = ndsCom;</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 : }</span>
+<a name="153"><span class="lineNum">     153 </span>            : </a>
+<span class="lineNum">     154 </span>            : uint64_t
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 : GoosePublisher_increaseStNum(GoosePublisher self)</span>
+<span class="lineNum">     156 </span>            : {
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :     uint64_t currentTime = Hal_getTimeInMs();</span>
+<span class="lineNum">     158 </span>            : 
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :     MmsValue_setUtcTimeMs(self-&gt;timestamp, currentTime);</span>
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :     self-&gt;stNum++;</span>
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span>            :     /* check for overflow */
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :     if (self-&gt;stNum == 0)</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :         self-&gt;stNum = 1;</span>
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :     self-&gt;sqNum = 0;</span>
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :     return currentTime;</span>
+<span class="lineNum">     170 </span>            : }
+<a name="171"><span class="lineNum">     171 </span>            : </a>
+<span class="lineNum">     172 </span>            : void
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 : GoosePublisher_reset(GoosePublisher self) {</span>
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :     self-&gt;sqNum = 0;</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :     self-&gt;stNum = 1;</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 : }</span>
+<a name="177"><span class="lineNum">     177 </span>            : </a>
+<span class="lineNum">     178 </span>            : void
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 : GoosePublisher_setTimeAllowedToLive(GoosePublisher self, uint32_t timeAllowedToLive)</span>
+<span class="lineNum">     180 </span>            : {
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :     self-&gt;timeAllowedToLive = timeAllowedToLive;</span>
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 : }</span>
+<a name="183"><span class="lineNum">     183 </span>            : </a>
+<span class="lineNum">     184 </span>            : static bool
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 : prepareGooseBuffer(GoosePublisher self, CommParameters* parameters, const char* interfaceID, bool useVlanTags)</span>
+<span class="lineNum">     186 </span>            : {
+<span class="lineNum">     187 </span>            :     uint8_t srcAddr[6];
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 :     if (interfaceID != NULL)</span>
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :         Ethernet_getInterfaceMACAddress(interfaceID, srcAddr);</span>
+<span class="lineNum">     191 </span>            :     else
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :         Ethernet_getInterfaceMACAddress(CONFIG_ETHERNET_INTERFACE_ID, srcAddr);</span>
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :     uint8_t defaultDstAddr[] = CONFIG_GOOSE_DEFAULT_DST_ADDRESS;</span>
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span>            :     uint8_t* dstAddr;
+<span class="lineNum">     197 </span>            :     uint8_t priority;
+<span class="lineNum">     198 </span>            :     uint16_t vlanId;
+<span class="lineNum">     199 </span>            :     uint16_t appId;
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :     if (parameters == NULL) {</span>
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :         dstAddr = defaultDstAddr;</span>
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :         priority = CONFIG_GOOSE_DEFAULT_PRIORITY;</span>
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :         vlanId = CONFIG_GOOSE_DEFAULT_VLAN_ID;</span>
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :         appId = CONFIG_GOOSE_DEFAULT_APPID;</span>
+<span class="lineNum">     206 </span>            :     }
+<span class="lineNum">     207 </span>            :     else {
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :         dstAddr = parameters-&gt;dstAddress;</span>
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :         priority = parameters-&gt;vlanPriority;</span>
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :         vlanId = parameters-&gt;vlanId;</span>
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :         appId = parameters-&gt;appId;</span>
+<span class="lineNum">     212 </span>            :     }
+<span class="lineNum">     213 </span>            : 
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :     if (interfaceID != NULL)</span>
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :         self-&gt;ethernetSocket = Ethernet_createSocket(interfaceID, dstAddr);</span>
+<span class="lineNum">     216 </span>            :     else
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :         self-&gt;ethernetSocket = Ethernet_createSocket(CONFIG_ETHERNET_INTERFACE_ID, dstAddr);</span>
+<span class="lineNum">     218 </span>            : 
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :     if (self-&gt;ethernetSocket) {</span>
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :         self-&gt;buffer = (uint8_t*) GLOBAL_MALLOC(GOOSE_MAX_MESSAGE_SIZE);</span>
+<span class="lineNum">     221 </span>            : 
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :         memcpy(self-&gt;buffer, dstAddr, 6);</span>
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :         memcpy(self-&gt;buffer + 6, srcAddr, 6);</span>
+<span class="lineNum">     224 </span>            : 
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :         int bufPos = 12;</span>
+<span class="lineNum">     226 </span>            : 
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :         if (useVlanTags) {</span>
+<span class="lineNum">     228 </span>            :             /* Priority tag - IEEE 802.1Q */
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :             self-&gt;buffer[bufPos++] = 0x81;</span>
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :             self-&gt;buffer[bufPos++] = 0x00;</span>
+<span class="lineNum">     231 </span>            : 
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :             uint8_t tci1 = priority &lt;&lt; 5;</span>
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :             tci1 += vlanId / 256;</span>
+<span class="lineNum">     234 </span>            : 
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :             uint8_t tci2 = vlanId % 256;</span>
+<span class="lineNum">     236 </span>            : 
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :             self-&gt;buffer[bufPos++] = tci1; /* Priority + VLAN-ID */</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :             self-&gt;buffer[bufPos++] = tci2; /* VLAN-ID */</span>
+<span class="lineNum">     239 </span>            :         }
+<span class="lineNum">     240 </span>            : 
+<span class="lineNum">     241 </span>            :         /* EtherType GOOSE */
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :         self-&gt;buffer[bufPos++] = 0x88;</span>
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :         self-&gt;buffer[bufPos++] = 0xB8;</span>
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span>            :         /* APPID */
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :         self-&gt;buffer[bufPos++] = appId / 256;</span>
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :         self-&gt;buffer[bufPos++] = appId % 256;</span>
+<span class="lineNum">     248 </span>            : 
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :         self-&gt;lengthField = bufPos;</span>
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span>            :         /* Length */
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :         self-&gt;buffer[bufPos++] = 0x00;</span>
+<span class="lineNum">     253 </span><span class="lineNoCov">          0 :         self-&gt;buffer[bufPos++] = 0x08;</span>
+<span class="lineNum">     254 </span>            : 
+<span class="lineNum">     255 </span>            :         /* Reserved1 */
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :         self-&gt;buffer[bufPos++] = 0x00;</span>
+<span class="lineNum">     257 </span><span class="lineNoCov">          0 :         self-&gt;buffer[bufPos++] = 0x00;</span>
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span>            :         /* Reserved2 */
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :         self-&gt;buffer[bufPos++] = 0x00;</span>
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :         self-&gt;buffer[bufPos++] = 0x00;</span>
+<span class="lineNum">     262 </span>            : 
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :         self-&gt;payloadStart = bufPos;</span>
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :         return true;</span>
+<span class="lineNum">     266 </span>            :     }
+<span class="lineNum">     267 </span>            :     else {
+<span class="lineNum">     268 </span><span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">     269 </span>            :     }
+<span class="lineNum">     270 </span>            : }
+<a name="271"><span class="lineNum">     271 </span>            : </a>
+<span class="lineNum">     272 </span>            : static int32_t
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 : createGoosePayload(GoosePublisher self, LinkedList dataSetValues, uint8_t* buffer, size_t maxPayloadSize) {</span>
+<span class="lineNum">     274 </span>            : 
+<span class="lineNum">     275 </span>            :     /* Step 1 - calculate length fields */
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :     uint32_t goosePduLength = 0;</span>
+<span class="lineNum">     277 </span>            : 
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :     goosePduLength += BerEncoder_determineEncodedStringSize(self-&gt;goCBRef);</span>
+<span class="lineNum">     279 </span>            : 
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :     uint32_t timeAllowedToLive = self-&gt;timeAllowedToLive;</span>
+<span class="lineNum">     281 </span>            : 
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :     goosePduLength += 2 + BerEncoder_UInt32determineEncodedSize(timeAllowedToLive);</span>
+<span class="lineNum">     283 </span>            : 
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :     goosePduLength += BerEncoder_determineEncodedStringSize(self-&gt;dataSetRef);</span>
+<span class="lineNum">     285 </span>            : 
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :     if (self-&gt;goID != NULL)</span>
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :         goosePduLength += BerEncoder_determineEncodedStringSize(self-&gt;goID);</span>
+<span class="lineNum">     288 </span>            :     else
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :         goosePduLength += BerEncoder_determineEncodedStringSize(self-&gt;goCBRef);</span>
+<span class="lineNum">     290 </span>            : 
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :     goosePduLength += 2 + 8; /* for T (UTCTIME) */</span>
+<span class="lineNum">     292 </span>            : 
+<span class="lineNum">     293 </span><span class="lineNoCov">          0 :     goosePduLength += 2 + BerEncoder_UInt32determineEncodedSize(self-&gt;sqNum);</span>
+<span class="lineNum">     294 </span>            : 
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 :     goosePduLength += 2 + BerEncoder_UInt32determineEncodedSize(self-&gt;stNum);</span>
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 :     goosePduLength += 2 + BerEncoder_UInt32determineEncodedSize(self-&gt;confRev);</span>
+<span class="lineNum">     298 </span>            : 
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :     goosePduLength += 6; /* for ndsCom and simulation */</span>
+<span class="lineNum">     300 </span>            : 
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 :     uint32_t numberOfDataSetEntries = LinkedList_size(dataSetValues);</span>
+<span class="lineNum">     302 </span>            : 
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :     goosePduLength += 2 + BerEncoder_UInt32determineEncodedSize(numberOfDataSetEntries);</span>
+<span class="lineNum">     304 </span>            : 
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :     uint32_t dataSetSize = 0;</span>
+<span class="lineNum">     306 </span>            : 
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :     LinkedList element = LinkedList_getNext(dataSetValues);</span>
+<span class="lineNum">     308 </span>            : 
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 :     while (element != NULL) {</span>
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :         MmsValue* dataSetEntry = (MmsValue*) element-&gt;data;</span>
+<span class="lineNum">     311 </span>            : 
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :         dataSetSize += MmsValue_encodeMmsData(dataSetEntry, NULL, 0, false);</span>
+<span class="lineNum">     313 </span>            : 
+<span class="lineNum">     314 </span><span class="lineNoCov">          0 :         element = LinkedList_getNext(element);</span>
+<span class="lineNum">     315 </span>            :     }
+<span class="lineNum">     316 </span>            : 
+<span class="lineNum">     317 </span><span class="lineNoCov">          0 :     uint32_t allDataSize = dataSetSize + BerEncoder_determineLengthSize(dataSetSize) + 1;</span>
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 :     goosePduLength += allDataSize;</span>
+<span class="lineNum">     320 </span>            : 
+<span class="lineNum">     321 </span><span class="lineNoCov">          0 :     uint32_t payloadSize = 1 + BerEncoder_determineLengthSize(goosePduLength) + goosePduLength;</span>
+<span class="lineNum">     322 </span>            : 
+<span class="lineNum">     323 </span><span class="lineNoCov">          0 :     if (payloadSize &gt; maxPayloadSize)</span>
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :         return -1;</span>
+<span class="lineNum">     325 </span>            : 
+<span class="lineNum">     326 </span>            :     /* Step 2 - encode to buffer */
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :     int32_t bufPos = 0;</span>
+<span class="lineNum">     329 </span>            : 
+<span class="lineNum">     330 </span>            :     /* Encode GOOSE PDU */
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :     bufPos = BerEncoder_encodeTL(0x61, goosePduLength, buffer, bufPos);</span>
+<span class="lineNum">     332 </span>            : 
+<span class="lineNum">     333 </span>            :     /* Encode gocbRef */
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :     bufPos = BerEncoder_encodeStringWithTag(0x80, self-&gt;goCBRef, buffer, bufPos);</span>
+<span class="lineNum">     335 </span>            : 
+<span class="lineNum">     336 </span>            :     /* Encode timeAllowedToLive */
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :     bufPos = BerEncoder_encodeUInt32WithTL(0x81, timeAllowedToLive, buffer, bufPos);</span>
+<span class="lineNum">     338 </span>            : 
+<span class="lineNum">     339 </span>            :     /* Encode datSet reference */
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :     bufPos = BerEncoder_encodeStringWithTag(0x82, self-&gt;dataSetRef, buffer, bufPos);</span>
+<span class="lineNum">     341 </span>            : 
+<span class="lineNum">     342 </span>            :     /* Encode goID */
+<span class="lineNum">     343 </span><span class="lineNoCov">          0 :     if (self-&gt;goID != NULL)</span>
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :         bufPos = BerEncoder_encodeStringWithTag(0x83, self-&gt;goID, buffer, bufPos);</span>
+<span class="lineNum">     345 </span>            :     else
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :         bufPos = BerEncoder_encodeStringWithTag(0x83, self-&gt;goCBRef, buffer, bufPos);</span>
+<span class="lineNum">     347 </span>            : 
+<span class="lineNum">     348 </span>            :     /* Encode t */
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :     bufPos = BerEncoder_encodeOctetString(0x84, self-&gt;timestamp-&gt;value.utcTime, 8, buffer, bufPos);</span>
+<span class="lineNum">     350 </span>            : 
+<span class="lineNum">     351 </span>            :     /* Encode stNum */
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :     bufPos = BerEncoder_encodeUInt32WithTL(0x85, self-&gt;stNum, buffer, bufPos);</span>
+<span class="lineNum">     353 </span>            : 
+<span class="lineNum">     354 </span>            :     /* Encode sqNum */
+<span class="lineNum">     355 </span><span class="lineNoCov">          0 :     bufPos = BerEncoder_encodeUInt32WithTL(0x86, self-&gt;sqNum, buffer, bufPos);</span>
+<span class="lineNum">     356 </span>            : 
+<span class="lineNum">     357 </span>            :     /* Encode simulation */
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :     bufPos = BerEncoder_encodeBoolean(0x87, self-&gt;simulation, buffer, bufPos);</span>
+<span class="lineNum">     359 </span>            : 
+<span class="lineNum">     360 </span>            :     /* Encode confRef */
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :     bufPos = BerEncoder_encodeUInt32WithTL(0x88, self-&gt;confRev, buffer, bufPos);</span>
+<span class="lineNum">     362 </span>            : 
+<span class="lineNum">     363 </span>            :     /* Encode ndsCom */
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :     bufPos = BerEncoder_encodeBoolean(0x89, self-&gt;needsCommission, buffer, bufPos);</span>
+<span class="lineNum">     365 </span>            : 
+<span class="lineNum">     366 </span>            :     /* Encode numDatSetEntries */
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 :     bufPos = BerEncoder_encodeUInt32WithTL(0x8a, numberOfDataSetEntries, buffer, bufPos);</span>
+<span class="lineNum">     368 </span>            : 
+<span class="lineNum">     369 </span>            :     /* Encode all data */
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :     bufPos = BerEncoder_encodeTL(0xab, dataSetSize, buffer, bufPos);</span>
+<span class="lineNum">     371 </span>            : 
+<span class="lineNum">     372 </span>            :     /* Encode data set entries */
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :     element = LinkedList_getNext(dataSetValues);</span>
+<span class="lineNum">     374 </span>            : 
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :     while (element != NULL) {</span>
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :         MmsValue* dataSetEntry = (MmsValue*) element-&gt;data;</span>
+<span class="lineNum">     377 </span>            : 
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :         bufPos = MmsValue_encodeMmsData(dataSetEntry, buffer, bufPos, true);</span>
+<span class="lineNum">     379 </span>            : 
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :         element = LinkedList_getNext(element);</span>
+<span class="lineNum">     381 </span>            :     }
+<span class="lineNum">     382 </span>            : 
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :     return bufPos;</span>
+<span class="lineNum">     384 </span>            : }
+<a name="385"><span class="lineNum">     385 </span>            : </a>
+<span class="lineNum">     386 </span>            : int
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 : GoosePublisher_publish(GoosePublisher self, LinkedList dataSet)</span>
+<span class="lineNum">     388 </span>            : {
+<span class="lineNum">     389 </span><span class="lineNoCov">          0 :     uint8_t* buffer = self-&gt;buffer + self-&gt;payloadStart;</span>
+<span class="lineNum">     390 </span>            : 
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :     size_t maxPayloadSize = GOOSE_MAX_MESSAGE_SIZE - self-&gt;payloadStart;</span>
+<span class="lineNum">     392 </span>            : 
+<span class="lineNum">     393 </span><span class="lineNoCov">          0 :     int32_t payloadLength = createGoosePayload(self, dataSet, buffer, maxPayloadSize);</span>
+<span class="lineNum">     394 </span>            : 
+<span class="lineNum">     395 </span><span class="lineNoCov">          0 :     if (payloadLength == -1)</span>
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :         return -1;</span>
+<span class="lineNum">     397 </span>            : 
+<span class="lineNum">     398 </span><span class="lineNoCov">          0 :     self-&gt;sqNum++;</span>
+<span class="lineNum">     399 </span>            : 
+<span class="lineNum">     400 </span><span class="lineNoCov">          0 :     if (self-&gt;sqNum == 0)</span>
+<span class="lineNum">     401 </span><span class="lineNoCov">          0 :         self-&gt;sqNum = 1;</span>
+<span class="lineNum">     402 </span>            : 
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 :     int lengthIndex = self-&gt;lengthField;</span>
+<span class="lineNum">     404 </span>            : 
+<span class="lineNum">     405 </span><span class="lineNoCov">          0 :     size_t gooseLength = payloadLength + 8;</span>
+<span class="lineNum">     406 </span>            : 
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :     self-&gt;buffer[lengthIndex] = gooseLength / 256;</span>
+<span class="lineNum">     408 </span><span class="lineNoCov">          0 :     self-&gt;buffer[lengthIndex + 1] = gooseLength &amp; 0xff;</span>
+<span class="lineNum">     409 </span>            : 
+<span class="lineNum">     410 </span>            :     if (DEBUG_GOOSE_PUBLISHER)
+<span class="lineNum">     411 </span>            :         printf(&quot;GOOSE_PUBLISHER: send GOOSE message\n&quot;);
+<span class="lineNum">     412 </span>            : 
+<span class="lineNum">     413 </span><span class="lineNoCov">          0 :     Ethernet_sendPacket(self-&gt;ethernetSocket, self-&gt;buffer, self-&gt;payloadStart + payloadLength);</span>
+<span class="lineNum">     414 </span>            : 
+<span class="lineNum">     415 </span><span class="lineNoCov">          0 :     return 0;</span>
+<span class="lineNum">     416 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

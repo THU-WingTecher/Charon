@@ -1,0 +1,167 @@
+project : dds_suppress_any_support, dcps_ts_defaults, dds_versioning_idl_defaults {
+  idlflags += -Wb,pch_include=DCPS/DdsDcps_pch.h \
+              -Wb,export_macro=OpenDDS_Dcps_Export \
+              -Wb,export_include=dds/DCPS/dcps_export.h \
+              -SS \
+              -I$(DDS_ROOT)
+
+  dcps_ts_flags += -Wb,pch_include=DCPS/DdsDcps_pch.h \
+                   -Wb,export_macro=OpenDDS_Dcps_Export \
+                   -Wb,export_include=dds/DCPS/dcps_export.h \
+                   -Wb,versioning_begin=OPENDDS_BEGIN_VERSIONED_NAMESPACE_DECL \
+                   -Wb,versioning_end=OPENDDS_END_VERSIONED_NAMESPACE_DECL \
+                   -Wb,versioning_name=OPENDDS_VERSIONED_NAMESPACE_NAME
+}
+
+feature(no_opendds_safety_profile, built_in_topics) : dds_suppress_any_support, dcps_ts_defaults, dds_versioning_idl_defaults {
+  // Process with tao_idl for the InfoRepo.
+  IDL_Files {
+    DdsDcpsGuid.idl
+    DdsDcpsCore.idl
+    OpenddsDcpsExt.idl
+    DdsDcpsInfoUtils.idl
+    DdsDcpsConditionSeq.idl
+    DdsDcpsDataReaderSeq.idl
+    DdsSecurityParams.idl
+    DdsSecurityCore.idl
+  }
+
+  TypeSupport_Files {
+    DdsDcpsGuid.idl
+    DdsDcpsCore.idl
+    OpenddsDcpsExt.idl
+    DdsDcpsInfrastructure.idl
+  }
+
+  IDL_Files {
+    DdsDcpsGuidTypeSupport.idl
+    DdsDcpsCoreTypeSupport.idl
+    OpenddsDcpsExtTypeSupport.idl
+    DdsDcpsInfrastructureTypeSupport.idl
+  }
+
+  TypeSupport_Files {
+    dcps_ts_flags += -SI
+    DdsDcpsInfoUtils.idl
+    DdsSecurityParams.idl
+    DdsSecurityCore.idl
+  }
+
+  Header_Files {
+    DdsDcpsConditionSeqS.h
+    DdsDcpsCoreS.h
+    OpenddsDcpsExtS.h
+    DdsDcpsDataReaderSeqS.h
+    DdsDcpsGuidTypeSupportS.h
+    DdsDcpsCoreTypeSupportS.h
+    OpenddsDcpsExtTypeSupportS.h
+    DdsDcpsInfrastructureTypeSupportS.h
+  }
+}
+
+feature(no_opendds_safety_profile, !built_in_topics) : dds_suppress_any_support, dcps_ts_defaults, dds_versioning_idl_defaults {
+  // Process with tao_idl for the InfoRepo.
+
+  IDL_Files {
+    DdsDcpsGuid.idl
+    DdsDcpsCore.idl
+    OpenddsDcpsExt.idl
+    DdsDcpsInfoUtils.idl
+    DdsDcpsConditionSeq.idl
+    DdsDcpsDataReaderSeq.idl
+    DdsSecurityParams.idl
+    DdsSecurityCore.idl
+  }
+
+  TypeSupport_Files {
+    dcps_ts_flags += -SI
+    DdsDcpsGuid.idl
+    DdsDcpsCore.idl
+    OpenddsDcpsExt.idl
+    DdsDcpsInfoUtils.idl
+    DdsSecurityParams.idl
+    DdsSecurityCore.idl
+  }
+
+  TypeSupport_Files {
+    DdsDcpsInfrastructure.idl
+  }
+
+  IDL_Files {
+    DdsDcpsInfrastructureTypeSupport.idl
+  }
+
+  Header_Files {
+    DdsDcpsConditionSeqS.h
+    DdsDcpsCoreS.h
+    OpenddsDcpsExtS.h
+    DdsDcpsDataReaderSeqS.h
+    DdsDcpsInfrastructureTypeSupportS.h
+  }
+}
+
+feature(!no_opendds_safety_profile, built_in_topics) : dds_suppress_any_support, dcps_ts_defaults, dds_versioning_idl_defaults {
+  TypeSupport_Files {
+    dcps_ts_flags += -SI -Lspcpp
+    DdsDcpsGuid.idl
+    DdsDcpsInfoUtils.idl
+    DdsSecurityParams.idl
+  }
+
+  TypeSupport_Files {
+    dcps_ts_flags += -SI -Sx -Lspcpp -Wb,ts_cpp_include=DdsDcpsInfrastructureC.h
+    DdsDcpsConditionSeq.idl
+  }
+
+  TypeSupport_Files {
+    dcps_ts_flags += -SI -Sx -Lspcpp -Wb,ts_cpp_include=DdsDcpsSubscriptionC.h
+    DdsDcpsDataReaderSeq.idl
+  }
+
+  TypeSupport_Files {
+    dcps_ts_flags += -Lspcpp
+    DdsDcpsCore.idl
+    OpenddsDcpsExt.idl
+  }
+
+  IDL_Files {
+    DdsDcpsCoreTypeSupport.idl
+    OpenddsDcpsExtTypeSupport.idl
+  }
+
+  Header_Files {
+    DdsDcpsCoreTypeSupportS.h
+  }
+}
+
+feature(!no_opendds_safety_profile, !built_in_topics) : dds_suppress_any_support, dcps_ts_defaults, dds_versioning_idl_defaults {
+  TypeSupport_Files {
+    dcps_ts_flags += -SI -Lspcpp
+    DdsDcpsGuid.idl
+    DdsDcpsInfoUtils.idl
+    DdsSecurityParams.idl
+    DdsDcpsCore.idl
+    OpenddsDcpsExt.idl
+  }
+
+  TypeSupport_Files {
+    dcps_ts_flags += -SI -Sx -Lspcpp -Wb,ts_cpp_include=DdsDcpsInfrastructureC.h
+    DdsDcpsConditionSeq.idl
+  }
+
+  TypeSupport_Files {
+    dcps_ts_flags += -SI -Sx -Lspcpp -Wb,ts_cpp_include=DdsDcpsSubscriptionC.h
+    DdsDcpsDataReaderSeq.idl
+  }
+}
+
+feature(no_opendds_safety_profile) {
+  TypeSupport_Files {
+    dcps_ts_flags += -o CorbaSeq -SI -Wb,tao_include_prefix=tao/
+    gendir = CorbaSeq
+    CorbaSeq/*.idl
+  }
+  verbatim(gnuace, bottom, 1) {
+    idl_stubs: $(foreach f,$(wildcard CorbaSeq/*.idl),$(f:.idl=TypeSupportImpl.h))
+  }
+}

@@ -1,0 +1,11 @@
+project : dcps_test_idl_only_lib {
+  sharedname     = idl_test2_lib
+  idlflags      += -Wb,export_macro=FooLib_Export -Wb,export_include=foolib_export.h -SS
+  dynamicflags   = FOOLIB_BUILD_DLL
+  dcps_ts_flags += -Wb,export_macro=FooLib_Export
+
+  TypeSupport_Files {
+    FooDef.idl
+    BazDef.idl
+  }
+}

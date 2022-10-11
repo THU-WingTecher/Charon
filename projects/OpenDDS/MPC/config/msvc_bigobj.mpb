@@ -1,0 +1,5 @@
+project {
+  specific (prop:microsoft) {
+    compile_flags += /bigobj
+  }
+}

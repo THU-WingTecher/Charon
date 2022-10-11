@@ -1,0 +1,260 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - libiec51850_basic_io.info - server/mms_domain.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">server</a> - mms_domain.c<span style="font-size: 80%;"> (source / <a href="mms_domain.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">libiec51850_basic_io.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">37</td>
+            <td class="headerCovTableEntry">69</td>
+            <td class="headerCovTableEntryLo">53.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-06 13:31:57</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryLo">54.5 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *      mms_domain.c
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *  Copyright 2013, 2014 Michael Zillgith
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  *  This file is part of libIEC61850.
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  libIEC61850 is free software: you can redistribute it and/or modify
+<span class="lineNum">       9 </span>            :  *  it under the terms of the GNU General Public License as published by
+<span class="lineNum">      10 </span>            :  *  the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">      11 </span>            :  *  (at your option) any later version.
+<span class="lineNum">      12 </span>            :  *
+<span class="lineNum">      13 </span>            :  *  libIEC61850 is distributed in the hope that it will be useful,
+<span class="lineNum">      14 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      15 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      16 </span>            :  *  GNU General Public License for more details.
+<span class="lineNum">      17 </span>            :  *
+<span class="lineNum">      18 </span>            :  *  You should have received a copy of the GNU General Public License
+<span class="lineNum">      19 </span>            :  *  along with libIEC61850.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      20 </span>            :  *
+<span class="lineNum">      21 </span>            :  *  See COPYING file for the complete license text.
+<span class="lineNum">      22 </span>            :  */
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : #include &quot;libiec61850_platform_includes.h&quot;
+<span class="lineNum">      25 </span>            : #include &quot;mms_device_model.h&quot;
+<span class="lineNum">      26 </span>            : #include &quot;mms_server_internal.h&quot;
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<span class="lineNum">      28 </span>            : static void
+<span class="lineNum">      29 </span><span class="lineCov">          1 : freeNamedVariables(MmsVariableSpecification** variables, int variablesCount)</span>
+<span class="lineNum">      30 </span>            : {
+<span class="lineNum">      31 </span>            :         int i;
+<span class="lineNum">      32 </span><span class="lineCov">          4 :         for (i = 0; i &lt; variablesCount; i++) {</span>
+<span class="lineNum">      33 </span><span class="lineCov">          3 :             MmsVariableSpecification_destroy(variables[i]);</span>
+<span class="lineNum">      34 </span>            :         }
+<span class="lineNum">      35 </span><span class="lineCov">          1 : }</span>
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<span class="lineNum">      37 </span>            : MmsDomain*
+<span class="lineNum">      38 </span><span class="lineCov">          1 : MmsDomain_create(char* domainName)</span>
+<span class="lineNum">      39 </span>            : {
+<span class="lineNum">      40 </span><span class="lineCov">          1 :         MmsDomain* self = (MmsDomain*) GLOBAL_CALLOC(1, sizeof(MmsDomain));</span>
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span><span class="lineCov">          1 :         self-&gt;domainName = StringUtils_copyString(domainName);</span>
+<span class="lineNum">      43 </span><span class="lineCov">          1 :         self-&gt;namedVariableLists = LinkedList_create();</span>
+<span class="lineNum">      44 </span><span class="lineCov">          1 :         self-&gt;journals = NULL;</span>
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span><span class="lineCov">          1 :         return self;</span>
+<span class="lineNum">      47 </span>            : }
+<a name="48"><span class="lineNum">      48 </span>            : </a>
+<span class="lineNum">      49 </span>            : void
+<span class="lineNum">      50 </span><span class="lineCov">          1 : MmsDomain_destroy(MmsDomain* self)</span>
+<span class="lineNum">      51 </span>            : {
+<span class="lineNum">      52 </span><span class="lineCov">          1 :         GLOBAL_FREEMEM(self-&gt;domainName);</span>
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span><span class="lineCov">          1 :         if (self-&gt;namedVariables != NULL) {</span>
+<span class="lineNum">      55 </span><span class="lineCov">          1 :                 freeNamedVariables(self-&gt;namedVariables,</span>
+<span class="lineNum">      56 </span>            :                                 self-&gt;namedVariablesCount);
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span><span class="lineCov">          1 :                 GLOBAL_FREEMEM(self-&gt;namedVariables);</span>
+<span class="lineNum">      59 </span>            :         }
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span><span class="lineCov">          1 :         if (self-&gt;journals != NULL) {</span>
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 :             LinkedList_destroyDeep(self-&gt;journals, (LinkedListValueDeleteFunction) MmsJournal_destroy);</span>
+<span class="lineNum">      63 </span>            :         }
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span><span class="lineCov">          1 :         LinkedList_destroyDeep(self-&gt;namedVariableLists, (LinkedListValueDeleteFunction) MmsNamedVariableList_destroy);</span>
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span><span class="lineCov">          1 :         GLOBAL_FREEMEM(self);</span>
+<span class="lineNum">      68 </span><span class="lineCov">          1 : }</span>
+<a name="69"><span class="lineNum">      69 </span>            : </a>
+<span class="lineNum">      70 </span>            : char*
+<span class="lineNum">      71 </span><span class="lineCov">         10 : MmsDomain_getName(MmsDomain* self)</span>
+<span class="lineNum">      72 </span>            : {
+<span class="lineNum">      73 </span><span class="lineCov">         10 :         return self-&gt;domainName;</span>
+<span class="lineNum">      74 </span>            : }
+<a name="75"><span class="lineNum">      75 </span>            : </a>
+<span class="lineNum">      76 </span>            : void
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 : MmsDomain_addJournal(MmsDomain* self, const char* name)</span>
+<span class="lineNum">      78 </span>            : {
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :     if (self-&gt;journals == NULL)</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :         self-&gt;journals = LinkedList_create();</span>
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :     MmsJournal journal = MmsJournal_create(name);</span>
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :     LinkedList_add(self-&gt;journals, (void*) journal);</span>
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      86 </span>            : 
+<a name="87"><span class="lineNum">      87 </span>            : </a>
+<span class="lineNum">      88 </span>            : MmsJournal
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 : MmsDomain_getJournal(MmsDomain* self, const char* name)</span>
+<span class="lineNum">      90 </span>            : {
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :     if (self-&gt;journals != NULL) {</span>
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :         LinkedList journal = LinkedList_getNext(self-&gt;journals);</span>
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :         while (journal != NULL) {</span>
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :             MmsJournal mmsJournal = (MmsJournal) LinkedList_getData(journal);</span>
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :             if (strcmp(mmsJournal-&gt;name, name) == 0)</span>
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :                 return mmsJournal;</span>
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :             journal = LinkedList_getNext(journal);</span>
+<span class="lineNum">     103 </span>            :         }
+<span class="lineNum">     104 </span>            :     }
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">     107 </span>            : }
+<a name="108"><span class="lineNum">     108 </span>            : </a>
+<span class="lineNum">     109 </span>            : bool
+<span class="lineNum">     110 </span><span class="lineCov">          3 : MmsDomain_addNamedVariableList(MmsDomain* self, MmsNamedVariableList variableList)</span>
+<span class="lineNum">     111 </span>            : {
+<span class="lineNum">     112 </span><span class="lineCov">          3 :         LinkedList_add(self-&gt;namedVariableLists, variableList);</span>
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span><span class="lineCov">          3 :         return true;</span>
+<span class="lineNum">     115 </span>            : }
+<a name="116"><span class="lineNum">     116 </span>            : </a>
+<span class="lineNum">     117 </span>            : MmsNamedVariableList
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 : MmsDomain_getNamedVariableList(MmsDomain* self, const char* variableListName)</span>
+<span class="lineNum">     119 </span>            : {
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :         MmsNamedVariableList variableList = NULL;</span>
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :         if (self == NULL)</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :             goto exit_function;</span>
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :         variableList = mmsServer_getNamedVariableListWithName(self-&gt;namedVariableLists, variableListName);</span>
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span>            : exit_function:
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :         return variableList;</span>
+<span class="lineNum">     129 </span>            : }
+<a name="130"><span class="lineNum">     130 </span>            : </a>
+<span class="lineNum">     131 </span>            : void
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 : MmsDomain_deleteNamedVariableList(MmsDomain* self, char* variableListName)</span>
+<span class="lineNum">     133 </span>            : {
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :         mmsServer_deleteVariableList(self-&gt;namedVariableLists, variableListName);</span>
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 : }</span>
+<a name="136"><span class="lineNum">     136 </span>            : </a>
+<span class="lineNum">     137 </span>            : LinkedList
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 : MmsDomain_getNamedVariableLists(MmsDomain* self)</span>
+<span class="lineNum">     139 </span>            : {
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :         return self-&gt;namedVariableLists;</span>
+<span class="lineNum">     141 </span>            : }
+<a name="142"><span class="lineNum">     142 </span>            : </a>
+<span class="lineNum">     143 </span>            : MmsVariableSpecification*
+<span class="lineNum">     144 </span><span class="lineCov">        129 : MmsDomain_getNamedVariable(MmsDomain* self, char* nameId)</span>
+<span class="lineNum">     145 </span>            : {
+<span class="lineNum">     146 </span><span class="lineCov">        129 :         if (self-&gt;namedVariables != NULL) {</span>
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span><span class="lineCov">        129 :                 char* separator = strchr(nameId, '$');</span>
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            :                 int i;
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span><span class="lineCov">        129 :                 if (separator == NULL) {</span>
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :                         for (i = 0; i &lt; self-&gt;namedVariablesCount; i++) {</span>
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :                                 if (strcmp(self-&gt;namedVariables[i]-&gt;name, nameId) == 0) {</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :                                         return self-&gt;namedVariables[i];</span>
+<span class="lineNum">     157 </span>            :                                 }
+<span class="lineNum">     158 </span>            :                         }
+<span class="lineNum">     159 </span>            : 
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :                         return NULL;</span>
+<span class="lineNum">     161 </span>            :                 }
+<span class="lineNum">     162 </span>            :                 else {
+<span class="lineNum">     163 </span><span class="lineCov">        129 :                         MmsVariableSpecification* namedVariable = NULL;</span>
+<span class="lineNum">     164 </span>            : 
+<span class="lineNum">     165 </span><span class="lineCov">        340 :                         for (i = 0; i &lt; self-&gt;namedVariablesCount; i++) {</span>
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span><span class="lineCov">        340 :                                 if (strlen(self-&gt;namedVariables[i]-&gt;name) == (unsigned) (separator - nameId)) {</span>
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span><span class="lineCov">        230 :                                         if (strncmp(self-&gt;namedVariables[i]-&gt;name, nameId, separator - nameId) == 0) {</span>
+<span class="lineNum">     170 </span><span class="lineCov">        129 :                                                 namedVariable = self-&gt;namedVariables[i];</span>
+<span class="lineNum">     171 </span><span class="lineCov">        129 :                                                 break;</span>
+<span class="lineNum">     172 </span>            :                                         }
+<span class="lineNum">     173 </span>            :                                 }
+<span class="lineNum">     174 </span>            :                         }
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span><span class="lineCov">        129 :                         if (namedVariable != NULL) {</span>
+<span class="lineNum">     177 </span><span class="lineCov">        129 :                                 namedVariable = MmsVariableSpecification_getNamedVariableRecursive(namedVariable, separator + 1);</span>
+<span class="lineNum">     178 </span>            :                         }
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span><span class="lineCov">        129 :                         return namedVariable;</span>
+<span class="lineNum">     181 </span>            :                 }
+<span class="lineNum">     182 </span>            :         }
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :         return NULL;</span>
+<span class="lineNum">     184 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

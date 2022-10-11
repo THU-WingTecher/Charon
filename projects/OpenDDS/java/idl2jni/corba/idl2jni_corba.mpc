@@ -1,0 +1,18 @@
+project: java, dds_macros, install {
+
+  avoids += java_pre_jpms
+
+  libout = $(DDS_ROOT)/lib
+
+  specific {
+    jarname = i2jrt_corba
+  }
+
+  Java_Files {
+    org/omg/CORBA
+  }
+
+  verbatim(gnuace, postinstall) {
+"	cp $(DDS_ROOT)/lib/i2jrt_corba.jar $(DESTDIR)$(INSTALL_PREFIX)/$(INSTALL_LIB)"
+  }
+}

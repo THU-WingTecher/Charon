@@ -1,0 +1,750 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - libiec51850_basic_io.info - /root/libiec61850/hal/socket/linux/socket_linux.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">root/libiec61850/hal/socket/linux</a> - socket_linux.c<span style="font-size: 80%;"> (source / <a href="socket_linux.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">libiec51850_basic_io.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">92</td>
+            <td class="headerCovTableEntry">259</td>
+            <td class="headerCovTableEntryLo">35.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-06 13:31:57</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">28</td>
+            <td class="headerCovTableEntryLo">42.9 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *  socket_linux.c
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *  Copyright 2013-2020 Michael Zillgith
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  *  This file is part of libIEC61850.
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  libIEC61850 is free software: you can redistribute it and/or modify
+<span class="lineNum">       9 </span>            :  *  it under the terms of the GNU General Public License as published by
+<span class="lineNum">      10 </span>            :  *  the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">      11 </span>            :  *  (at your option) any later version.
+<span class="lineNum">      12 </span>            :  *
+<span class="lineNum">      13 </span>            :  *  libIEC61850 is distributed in the hope that it will be useful,
+<span class="lineNum">      14 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      15 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      16 </span>            :  *  GNU General Public License for more details.
+<span class="lineNum">      17 </span>            :  *
+<span class="lineNum">      18 </span>            :  *  You should have received a copy of the GNU General Public License
+<span class="lineNum">      19 </span>            :  *  along with libIEC61850.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      20 </span>            :  *
+<span class="lineNum">      21 </span>            :  *  See COPYING file for the complete license text.
+<span class="lineNum">      22 </span>            :  */
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : #include &quot;hal_socket.h&quot;
+<span class="lineNum">      25 </span>            : #include &lt;sys/types.h&gt;
+<span class="lineNum">      26 </span>            : #include &lt;sys/socket.h&gt;
+<span class="lineNum">      27 </span>            : #include &lt;netdb.h&gt;
+<span class="lineNum">      28 </span>            : #include &lt;sys/select.h&gt;
+<span class="lineNum">      29 </span>            : #include &lt;arpa/inet.h&gt;
+<span class="lineNum">      30 </span>            : #include &lt;unistd.h&gt;
+<span class="lineNum">      31 </span>            : #include &lt;string.h&gt;
+<span class="lineNum">      32 </span>            : #include &lt;errno.h&gt;
+<span class="lineNum">      33 </span>            : #include &lt;stdio.h&gt;
+<span class="lineNum">      34 </span>            : #include &lt;fcntl.h&gt;
+<span class="lineNum">      35 </span>            : #include &lt;netinet/tcp.h&gt; /* required for TCP keepalive */
+<span class="lineNum">      36 </span>            : #include &lt;linux/version.h&gt;
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            : #define _GNU_SOURCE
+<span class="lineNum">      39 </span>            : #include &lt;signal.h&gt;
+<span class="lineNum">      40 </span>            : #include &lt;poll.h&gt;
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : #include &quot;linked_list.h&quot;
+<span class="lineNum">      44 </span>            : #include &quot;hal_thread.h&quot;
+<span class="lineNum">      45 </span>            : #include &quot;lib_memory.h&quot;
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            : #ifndef DEBUG_SOCKET
+<span class="lineNum">      48 </span>            : #define DEBUG_SOCKET 0
+<span class="lineNum">      49 </span>            : #endif
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            : struct sSocket {
+<span class="lineNum">      52 </span>            :     int fd;
+<span class="lineNum">      53 </span>            :     uint32_t connectTimeout;
+<span class="lineNum">      54 </span>            : };
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            : struct sServerSocket {
+<span class="lineNum">      57 </span>            :     int fd;
+<span class="lineNum">      58 </span>            :     int backLog;
+<span class="lineNum">      59 </span>            : };
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span>            : struct sHandleSet {
+<span class="lineNum">      62 </span>            :     LinkedList sockets;
+<span class="lineNum">      63 </span>            :     bool pollfdIsUpdated;
+<span class="lineNum">      64 </span>            :     struct pollfd* fds;
+<span class="lineNum">      65 </span>            :     int nfds;
+<span class="lineNum">      66 </span>            : };
+<a name="67"><span class="lineNum">      67 </span>            : </a>
+<span class="lineNum">      68 </span>            : HandleSet
+<span class="lineNum">      69 </span><span class="lineCov">          1 : Handleset_new(void)</span>
+<span class="lineNum">      70 </span>            : {
+<span class="lineNum">      71 </span><span class="lineCov">          1 :    HandleSet self = (HandleSet) GLOBAL_MALLOC(sizeof(struct sHandleSet));</span>
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span><span class="lineCov">          1 :    if (self) {</span>
+<span class="lineNum">      74 </span><span class="lineCov">          1 :        self-&gt;sockets = LinkedList_create();</span>
+<span class="lineNum">      75 </span><span class="lineCov">          1 :        self-&gt;pollfdIsUpdated = false;</span>
+<span class="lineNum">      76 </span><span class="lineCov">          1 :        self-&gt;fds = NULL;</span>
+<span class="lineNum">      77 </span><span class="lineCov">          1 :        self-&gt;nfds = 0;</span>
+<span class="lineNum">      78 </span>            :    }
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span><span class="lineCov">          1 :    return self;</span>
+<span class="lineNum">      81 </span>            : }
+<a name="82"><span class="lineNum">      82 </span>            : </a>
+<span class="lineNum">      83 </span>            : void
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 : Handleset_reset(HandleSet self)</span>
+<span class="lineNum">      85 </span>            : {
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :     if (self) {</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :         if (self-&gt;sockets) {</span>
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :             LinkedList_destroyStatic(self-&gt;sockets);</span>
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :             self-&gt;sockets = LinkedList_create();</span>
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :             self-&gt;pollfdIsUpdated = false;</span>
+<span class="lineNum">      91 </span>            :         }
+<span class="lineNum">      92 </span>            :     }
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 : }</span>
+<a name="94"><span class="lineNum">      94 </span>            : </a>
+<span class="lineNum">      95 </span>            : void
+<span class="lineNum">      96 </span><span class="lineCov">          1 : Handleset_addSocket(HandleSet self, const Socket sock)</span>
+<span class="lineNum">      97 </span>            : {
+<span class="lineNum">      98 </span><span class="lineCov">          1 :    if (self != NULL &amp;&amp; sock != NULL &amp;&amp; sock-&gt;fd != -1) {</span>
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span><span class="lineCov">          1 :        LinkedList_add(self-&gt;sockets, sock);</span>
+<span class="lineNum">     101 </span><span class="lineCov">          1 :        self-&gt;pollfdIsUpdated = false;</span>
+<span class="lineNum">     102 </span>            :    }
+<span class="lineNum">     103 </span><span class="lineCov">          1 : }</span>
+<a name="104"><span class="lineNum">     104 </span>            : </a>
+<span class="lineNum">     105 </span>            : void
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 : Handleset_removeSocket(HandleSet self, const Socket sock)</span>
+<span class="lineNum">     107 </span>            : {
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :     if (self &amp;&amp; self-&gt;sockets &amp;&amp; sock) {</span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :         LinkedList_remove(self-&gt;sockets, sock);</span>
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :         self-&gt;pollfdIsUpdated = false;</span>
+<span class="lineNum">     111 </span>            :     }
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 : }</span>
+<a name="113"><span class="lineNum">     113 </span>            : </a>
+<span class="lineNum">     114 </span>            : int
+<span class="lineNum">     115 </span><span class="lineCov">       1990 : Handleset_waitReady(HandleSet self, unsigned int timeoutMs)</span>
+<span class="lineNum">     116 </span>            : {
+<span class="lineNum">     117 </span>            :     /* check if pollfd array is updated */
+<span class="lineNum">     118 </span><span class="lineCov">       1990 :     if (self-&gt;pollfdIsUpdated == false) {</span>
+<span class="lineNum">     119 </span><span class="lineCov">          1 :         if (self-&gt;fds) {</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :             GLOBAL_FREEMEM(self-&gt;fds);</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :             self-&gt;fds = NULL;</span>
+<span class="lineNum">     122 </span>            :         }
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span><span class="lineCov">          1 :         self-&gt;nfds = LinkedList_size(self-&gt;sockets);</span>
+<span class="lineNum">     125 </span>            : 
+<span class="lineNum">     126 </span><span class="lineCov">          1 :         self-&gt;fds = GLOBAL_CALLOC(self-&gt;nfds, sizeof(struct pollfd));</span>
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span>            :         int i;
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span><span class="lineCov">          2 :         for (i = 0; i &lt; self-&gt;nfds; i++) {</span>
+<span class="lineNum">     131 </span><span class="lineCov">          1 :             LinkedList sockElem = LinkedList_get(self-&gt;sockets, i);</span>
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span><span class="lineCov">          1 :             if (sockElem) {</span>
+<span class="lineNum">     134 </span><span class="lineCov">          1 :                 Socket sock = (Socket) LinkedList_getData(sockElem);</span>
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span><span class="lineCov">          1 :                 if (sock) {</span>
+<span class="lineNum">     137 </span><span class="lineCov">          1 :                     self-&gt;fds[i].fd = sock-&gt;fd;</span>
+<span class="lineNum">     138 </span><span class="lineCov">          1 :                     self-&gt;fds[i].events = POLL_IN;</span>
+<span class="lineNum">     139 </span>            :                 }
+<span class="lineNum">     140 </span>            :             }
+<span class="lineNum">     141 </span>            :         }
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span><span class="lineCov">          1 :         self-&gt;pollfdIsUpdated = true;</span>
+<span class="lineNum">     144 </span>            :     }
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span><span class="lineCov">       1990 :     if (self-&gt;fds &amp;&amp; self-&gt;nfds &gt; 0) {</span>
+<span class="lineNum">     147 </span><span class="lineCov">       1990 :         int result = poll(self-&gt;fds, self-&gt;nfds, timeoutMs);</span>
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            :         if (result == -1) {
+<span class="lineNum">     150 </span>            :             if (DEBUG_SOCKET)
+<span class="lineNum">     151 </span>            :                 printf(&quot;SOCKET: poll error (errno: %i)\n&quot;, errno);
+<span class="lineNum">     152 </span>            :         }
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span><span class="lineCov">       1990 :         return result;</span>
+<span class="lineNum">     155 </span>            :     }
+<span class="lineNum">     156 </span>            :     else {
+<span class="lineNum">     157 </span>            :         /* there is no socket to wait for */
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     159 </span>            :     }
+<span class="lineNum">     160 </span>            : }
+<a name="161"><span class="lineNum">     161 </span>            : </a>
+<span class="lineNum">     162 </span>            : void
+<span class="lineNum">     163 </span><span class="lineCov">          1 : Handleset_destroy(HandleSet self)</span>
+<span class="lineNum">     164 </span>            : {
+<span class="lineNum">     165 </span><span class="lineCov">          1 :     if (self) {</span>
+<span class="lineNum">     166 </span><span class="lineCov">          1 :         if (self-&gt;sockets)</span>
+<span class="lineNum">     167 </span><span class="lineCov">          1 :             LinkedList_destroyStatic(self-&gt;sockets);</span>
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span><span class="lineCov">          1 :         if (self-&gt;fds)</span>
+<span class="lineNum">     170 </span><span class="lineCov">          1 :             GLOBAL_FREEMEM(self-&gt;fds);</span>
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span><span class="lineCov">          1 :         GLOBAL_FREEMEM(self);</span>
+<span class="lineNum">     173 </span>            :     }
+<span class="lineNum">     174 </span><span class="lineCov">          1 : }</span>
+<a name="175"><span class="lineNum">     175 </span>            : </a>
+<span class="lineNum">     176 </span>            : void
+<span class="lineNum">     177 </span><span class="lineCov">          1 : Socket_activateTcpKeepAlive(Socket self, int idleTime, int interval, int count)</span>
+<span class="lineNum">     178 </span>            : {
+<span class="lineNum">     179 </span>            : #if defined SO_KEEPALIVE
+<span class="lineNum">     180 </span>            :     int optval;
+<span class="lineNum">     181 </span><span class="lineCov">          1 :     socklen_t optlen = sizeof(optval);</span>
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span><span class="lineCov">          1 :     optval = 1;</span>
+<span class="lineNum">     184 </span>            : 
+<span class="lineNum">     185 </span><span class="lineCov">          1 :     if (setsockopt(self-&gt;fd, SOL_SOCKET, SO_KEEPALIVE, &amp;optval, optlen)) {</span>
+<span class="lineNum">     186 </span>            :         if (DEBUG_SOCKET)
+<span class="lineNum">     187 </span>            :             printf(&quot;Failed to enable TCP keepalive\n&quot;);
+<span class="lineNum">     188 </span>            :     }
+<span class="lineNum">     189 </span>            : 
+<span class="lineNum">     190 </span>            : #if defined TCP_KEEPCNT
+<span class="lineNum">     191 </span><span class="lineCov">          1 :     optval = idleTime;</span>
+<span class="lineNum">     192 </span><span class="lineCov">          1 :     if (setsockopt(self-&gt;fd, IPPROTO_TCP, TCP_KEEPIDLE, &amp;optval, optlen)) {</span>
+<span class="lineNum">     193 </span>            :         if (DEBUG_SOCKET)
+<span class="lineNum">     194 </span>            :             printf(&quot;Failed to set TCP keepalive TCP_KEEPIDLE parameter\n&quot;);
+<span class="lineNum">     195 </span>            :     }
+<span class="lineNum">     196 </span>            : 
+<span class="lineNum">     197 </span><span class="lineCov">          1 :     optval = interval;</span>
+<span class="lineNum">     198 </span><span class="lineCov">          1 :     if (setsockopt(self-&gt;fd, IPPROTO_TCP, TCP_KEEPINTVL, &amp;optval, optlen)) {</span>
+<span class="lineNum">     199 </span>            :         if (DEBUG_SOCKET)
+<span class="lineNum">     200 </span>            :             printf(&quot;Failed to set TCP keepalive TCP_KEEPINTVL parameter\n&quot;);
+<span class="lineNum">     201 </span>            :     }
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span><span class="lineCov">          1 :     optval = count;</span>
+<span class="lineNum">     204 </span><span class="lineCov">          1 :     if (setsockopt(self-&gt;fd, IPPROTO_TCP, TCP_KEEPCNT, &amp;optval, optlen)) {</span>
+<span class="lineNum">     205 </span>            :         if (DEBUG_SOCKET)
+<span class="lineNum">     206 </span>            :             printf(&quot;Failed to set TCP keepalive TCP_KEEPCNT parameter\n&quot;);
+<span class="lineNum">     207 </span>            :     }
+<span class="lineNum">     208 </span>            : #endif /* TCP_KEEPCNT */
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span>            : #endif /* SO_KEEPALIVE */
+<span class="lineNum">     211 </span><span class="lineCov">          1 : }</span>
+<a name="212"><span class="lineNum">     212 </span>            : </a>
+<span class="lineNum">     213 </span>            : static bool
+<span class="lineNum">     214 </span><span class="lineCov">          1 : prepareServerAddress(const char* address, int port, struct sockaddr_in* sockaddr)</span>
+<span class="lineNum">     215 </span>            : {
+<span class="lineNum">     216 </span><span class="lineCov">          1 :     bool retVal = true;</span>
+<span class="lineNum">     217 </span>            : 
+<span class="lineNum">     218 </span><span class="lineCov">          1 :     memset((char *) sockaddr, 0, sizeof(struct sockaddr_in));</span>
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span><span class="lineCov">          1 :     if (address != NULL) {</span>
+<span class="lineNum">     221 </span>            :         struct addrinfo addressHints;
+<span class="lineNum">     222 </span>            :         struct addrinfo *lookupResult;
+<span class="lineNum">     223 </span>            :         int result;
+<span class="lineNum">     224 </span>            : 
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :         memset(&amp;addressHints, 0, sizeof(struct addrinfo));</span>
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :         addressHints.ai_family = AF_INET;</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :         result = getaddrinfo(address, NULL, &amp;addressHints, &amp;lookupResult);</span>
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :         if (result != 0) {</span>
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :             retVal = false;</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :             goto exit_function;</span>
+<span class="lineNum">     232 </span>            :         }
+<span class="lineNum">     233 </span>            : 
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :         memcpy(sockaddr, lookupResult-&gt;ai_addr, sizeof(struct sockaddr_in));</span>
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :         freeaddrinfo(lookupResult);</span>
+<span class="lineNum">     236 </span>            :     }
+<span class="lineNum">     237 </span>            :     else
+<span class="lineNum">     238 </span><span class="lineCov">          1 :         sockaddr-&gt;sin_addr.s_addr = htonl(INADDR_ANY);</span>
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span><span class="lineCov">          1 :     sockaddr-&gt;sin_family = AF_INET;</span>
+<span class="lineNum">     241 </span><span class="lineCov">          1 :     sockaddr-&gt;sin_port = htons(port);</span>
+<span class="lineNum">     242 </span>            : 
+<span class="lineNum">     243 </span>            : exit_function:
+<span class="lineNum">     244 </span><span class="lineCov">          1 :     return retVal;</span>
+<span class="lineNum">     245 </span>            : }
+<a name="246"><span class="lineNum">     246 </span>            : </a>
+<span class="lineNum">     247 </span>            : static void
+<span class="lineNum">     248 </span><span class="lineCov">          1 : setSocketNonBlocking(Socket self)</span>
+<span class="lineNum">     249 </span>            : {
+<span class="lineNum">     250 </span><span class="lineCov">          1 :     int flags = fcntl(self-&gt;fd, F_GETFL, 0);</span>
+<span class="lineNum">     251 </span><span class="lineCov">          1 :     fcntl(self-&gt;fd, F_SETFL, flags | O_NONBLOCK);</span>
+<span class="lineNum">     252 </span><span class="lineCov">          1 : }</span>
+<a name="253"><span class="lineNum">     253 </span>            : </a>
+<span class="lineNum">     254 </span>            : static void
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 : activateTcpNoDelay(Socket self)</span>
+<span class="lineNum">     256 </span>            : {
+<span class="lineNum">     257 </span>            :     /* activate TCP_NODELAY option - packets will be sent immediately */
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :     int flag = 1;</span>
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :     setsockopt(self-&gt;fd, IPPROTO_TCP, TCP_NODELAY, (char *) &amp;flag, sizeof(int));</span>
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 : }</span>
+<a name="261"><span class="lineNum">     261 </span>            : </a>
+<span class="lineNum">     262 </span>            : ServerSocket
+<span class="lineNum">     263 </span><span class="lineCov">          1 : TcpServerSocket_create(const char* address, int port)</span>
+<span class="lineNum">     264 </span>            : {
+<span class="lineNum">     265 </span><span class="lineCov">          1 :     ServerSocket serverSocket = NULL;</span>
+<span class="lineNum">     266 </span>            : 
+<span class="lineNum">     267 </span>            :     int fd;
+<span class="lineNum">     268 </span>            : 
+<span class="lineNum">     269 </span><span class="lineCov">          1 :     if ((fd = socket(AF_INET, SOCK_STREAM, 0)) &gt;= 0) {</span>
+<span class="lineNum">     270 </span>            :         struct sockaddr_in serverAddress;
+<span class="lineNum">     271 </span>            : 
+<span class="lineNum">     272 </span><span class="lineCov">          1 :         if (!prepareServerAddress(address, port, &amp;serverAddress)) {</span>
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :             close(fd);</span>
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :             return NULL;</span>
+<span class="lineNum">     275 </span>            :         }
+<span class="lineNum">     276 </span>            : 
+<span class="lineNum">     277 </span><span class="lineCov">          1 :         int optionReuseAddr = 1;</span>
+<span class="lineNum">     278 </span><span class="lineCov">          1 :         setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &amp;optionReuseAddr, sizeof(int));</span>
+<span class="lineNum">     279 </span>            : 
+<span class="lineNum">     280 </span>            : #if LINUX_VERSION_CODE &gt;= KERNEL_VERSION(2, 6, 37)
+<span class="lineNum">     281 </span><span class="lineCov">          1 :         int tcpUserTimeout = 10000;</span>
+<span class="lineNum">     282 </span><span class="lineCov">          1 :         int result = setsockopt(fd, SOL_TCP,  TCP_USER_TIMEOUT, &amp;tcpUserTimeout, sizeof(tcpUserTimeout));</span>
+<span class="lineNum">     283 </span>            : 
+<span class="lineNum">     284 </span>            :         if (result &lt; 0) {
+<span class="lineNum">     285 </span>            :             if (DEBUG_SOCKET)
+<span class="lineNum">     286 </span>            :                 printf(&quot;SOCKET: failed to set TCP_USER_TIMEOUT\n&quot;);
+<span class="lineNum">     287 </span>            :         }
+<span class="lineNum">     288 </span>            : #else
+<span class="lineNum">     289 </span>            : #warning &quot;TCP_USER_TIMEOUT not supported by linux kernel&quot;
+<span class="lineNum">     290 </span>            : #endif
+<span class="lineNum">     291 </span>            : 
+<span class="lineNum">     292 </span><span class="lineCov">          1 :         if (bind(fd, (struct sockaddr *) &amp;serverAddress, sizeof(serverAddress)) &gt;= 0) {</span>
+<span class="lineNum">     293 </span><span class="lineCov">          1 :             serverSocket = (ServerSocket) GLOBAL_MALLOC(sizeof(struct sServerSocket));</span>
+<span class="lineNum">     294 </span><span class="lineCov">          1 :             serverSocket-&gt;fd = fd;</span>
+<span class="lineNum">     295 </span><span class="lineCov">          1 :             serverSocket-&gt;backLog = 2;</span>
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span><span class="lineCov">          1 :             setSocketNonBlocking((Socket) serverSocket);</span>
+<span class="lineNum">     298 </span>            :         }
+<span class="lineNum">     299 </span>            :         else {
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 :             close(fd);</span>
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 :             return NULL ;</span>
+<span class="lineNum">     302 </span>            :         }
+<span class="lineNum">     303 </span>            :     }
+<span class="lineNum">     304 </span>            : 
+<span class="lineNum">     305 </span><span class="lineCov">          1 :     return serverSocket;</span>
+<span class="lineNum">     306 </span>            : }
+<a name="307"><span class="lineNum">     307 </span>            : </a>
+<span class="lineNum">     308 </span>            : void
+<span class="lineNum">     309 </span><span class="lineCov">          1 : ServerSocket_listen(ServerSocket self)</span>
+<span class="lineNum">     310 </span>            : {
+<span class="lineNum">     311 </span><span class="lineCov">          1 :     listen(self-&gt;fd, self-&gt;backLog);</span>
+<span class="lineNum">     312 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     313 </span>            : 
+<a name="314"><span class="lineNum">     314 </span>            : /* CHANGED TO MAKE NON-BLOCKING --&gt; RETURNS NULL IF NO CONNECTION IS PENDING */</a>
+<span class="lineNum">     315 </span>            : Socket
+<span class="lineNum">     316 </span><span class="lineNoCov">          0 : ServerSocket_accept(ServerSocket self)</span>
+<span class="lineNum">     317 </span>            : {
+<span class="lineNum">     318 </span>            :     int fd;
+<span class="lineNum">     319 </span>            : 
+<span class="lineNum">     320 </span><span class="lineNoCov">          0 :     Socket conSocket = NULL;</span>
+<span class="lineNum">     321 </span>            : 
+<span class="lineNum">     322 </span><span class="lineNoCov">          0 :     fd = accept(self-&gt;fd, NULL, NULL );</span>
+<span class="lineNum">     323 </span>            : 
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :     if (fd &gt;= 0) {</span>
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 :         conSocket = (Socket) GLOBAL_CALLOC(1, sizeof(struct sSocket));</span>
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :         conSocket-&gt;fd = fd;</span>
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :         activateTcpNoDelay(conSocket);</span>
+<span class="lineNum">     329 </span>            :     }
+<span class="lineNum">     330 </span>            : 
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :     return conSocket;</span>
+<span class="lineNum">     332 </span>            : }
+<a name="333"><span class="lineNum">     333 </span>            : </a>
+<span class="lineNum">     334 </span>            : void
+<span class="lineNum">     335 </span><span class="lineCov">          1 : ServerSocket_setBacklog(ServerSocket self, int backlog)</span>
+<span class="lineNum">     336 </span>            : {
+<span class="lineNum">     337 </span><span class="lineCov">          1 :     self-&gt;backLog = backlog;</span>
+<span class="lineNum">     338 </span><span class="lineCov">          1 : }</span>
+<a name="339"><span class="lineNum">     339 </span>            : </a>
+<span class="lineNum">     340 </span>            : static void
+<span class="lineNum">     341 </span><span class="lineCov">          1 : closeAndShutdownSocket(int socketFd)</span>
+<span class="lineNum">     342 </span>            : {
+<span class="lineNum">     343 </span><span class="lineCov">          1 :     if (socketFd != -1) {</span>
+<span class="lineNum">     344 </span>            : 
+<span class="lineNum">     345 </span>            :         if (DEBUG_SOCKET)
+<span class="lineNum">     346 </span>            :             printf(&quot;socket_linux.c: call shutdown for %i!\n&quot;, socketFd);
+<span class="lineNum">     347 </span>            : 
+<span class="lineNum">     348 </span>            :         /* shutdown is required to unblock read or accept in another thread! */
+<span class="lineNum">     349 </span><span class="lineCov">          1 :         shutdown(socketFd, SHUT_RDWR);</span>
+<span class="lineNum">     350 </span>            : 
+<span class="lineNum">     351 </span><span class="lineCov">          1 :         close(socketFd);</span>
+<span class="lineNum">     352 </span>            :     }
+<span class="lineNum">     353 </span><span class="lineCov">          1 : }</span>
+<a name="354"><span class="lineNum">     354 </span>            : </a>
+<span class="lineNum">     355 </span>            : void
+<span class="lineNum">     356 </span><span class="lineCov">          1 : ServerSocket_destroy(ServerSocket self)</span>
+<span class="lineNum">     357 </span>            : {
+<span class="lineNum">     358 </span><span class="lineCov">          1 :     int fd = self-&gt;fd;</span>
+<span class="lineNum">     359 </span>            : 
+<span class="lineNum">     360 </span><span class="lineCov">          1 :     self-&gt;fd = -1;</span>
+<span class="lineNum">     361 </span>            : 
+<span class="lineNum">     362 </span><span class="lineCov">          1 :     closeAndShutdownSocket(fd);</span>
+<span class="lineNum">     363 </span>            : 
+<span class="lineNum">     364 </span><span class="lineCov">          1 :     Thread_sleep(10);</span>
+<span class="lineNum">     365 </span>            : 
+<span class="lineNum">     366 </span><span class="lineCov">          1 :     GLOBAL_FREEMEM(self);</span>
+<span class="lineNum">     367 </span><span class="lineCov">          1 : }</span>
+<a name="368"><span class="lineNum">     368 </span>            : </a>
+<span class="lineNum">     369 </span>            : Socket
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 : TcpSocket_create()</span>
+<span class="lineNum">     371 </span>            : {
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :     Socket self = NULL;</span>
+<span class="lineNum">     373 </span>            : 
+<span class="lineNum">     374 </span><span class="lineNoCov">          0 :     int sock = socket(AF_INET, SOCK_STREAM, 0);</span>
+<span class="lineNum">     375 </span>            : 
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :     if (sock != -1) {</span>
+<span class="lineNum">     377 </span><span class="lineNoCov">          0 :         self = (Socket) GLOBAL_MALLOC(sizeof(struct sSocket));</span>
+<span class="lineNum">     378 </span>            : 
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :         self-&gt;fd = sock;</span>
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :         self-&gt;connectTimeout = 5000;</span>
+<span class="lineNum">     381 </span>            : 
+<span class="lineNum">     382 </span>            : #if LINUX_VERSION_CODE &gt;= KERNEL_VERSION(2, 6, 37)
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :         int tcpUserTimeout = 10000;</span>
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :         int result = setsockopt(sock, SOL_TCP,  TCP_USER_TIMEOUT, &amp;tcpUserTimeout, sizeof(tcpUserTimeout));</span>
+<span class="lineNum">     385 </span>            : 
+<span class="lineNum">     386 </span>            :         if (result &lt; 0) {
+<span class="lineNum">     387 </span>            :             if (DEBUG_SOCKET)
+<span class="lineNum">     388 </span>            :                 printf(&quot;SOCKET: failed to set TCP_USER_TIMEOUT\n&quot;);
+<span class="lineNum">     389 </span>            :         }
+<span class="lineNum">     390 </span>            : #endif
+<span class="lineNum">     391 </span>            : 
+<span class="lineNum">     392 </span>            :     }
+<span class="lineNum">     393 </span>            :     else {
+<span class="lineNum">     394 </span>            :         if (DEBUG_SOCKET)
+<span class="lineNum">     395 </span>            :             printf(&quot;SOCKET: failed to create socket (errno=%i)\n&quot;, errno);
+<span class="lineNum">     396 </span>            :     }
+<span class="lineNum">     397 </span>            : 
+<span class="lineNum">     398 </span><span class="lineNoCov">          0 :     return self;</span>
+<span class="lineNum">     399 </span>            : }
+<span class="lineNum">     400 </span>            : 
+<a name="401"><span class="lineNum">     401 </span>            : </a>
+<span class="lineNum">     402 </span>            : void
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 : Socket_setConnectTimeout(Socket self, uint32_t timeoutInMs)</span>
+<span class="lineNum">     404 </span>            : {
+<span class="lineNum">     405 </span><span class="lineNoCov">          0 :     self-&gt;connectTimeout = timeoutInMs;</span>
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 : }</span>
+<a name="407"><span class="lineNum">     407 </span>            : </a>
+<span class="lineNum">     408 </span>            : bool
+<span class="lineNum">     409 </span><span class="lineNoCov">          0 : Socket_connectAsync(Socket self, const char* address, int port)</span>
+<span class="lineNum">     410 </span>            : {
+<span class="lineNum">     411 </span>            :     struct sockaddr_in serverAddress;
+<span class="lineNum">     412 </span>            : 
+<span class="lineNum">     413 </span>            :     if (DEBUG_SOCKET)
+<span class="lineNum">     414 </span>            :         printf(&quot;SOCKET: connect: %s:%i\n&quot;, address, port);
+<span class="lineNum">     415 </span>            : 
+<span class="lineNum">     416 </span><span class="lineNoCov">          0 :     if (!prepareServerAddress(address, port, &amp;serverAddress))</span>
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">     418 </span>            : 
+<span class="lineNum">     419 </span>            :     fd_set fdSet;
+<span class="lineNum">     420 </span><span class="lineNoCov">          0 :     FD_ZERO(&amp;fdSet);</span>
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 :     FD_SET(self-&gt;fd, &amp;fdSet);</span>
+<span class="lineNum">     422 </span>            : 
+<span class="lineNum">     423 </span><span class="lineNoCov">          0 :     activateTcpNoDelay(self);</span>
+<span class="lineNum">     424 </span>            : 
+<span class="lineNum">     425 </span><span class="lineNoCov">          0 :     fcntl(self-&gt;fd, F_SETFL, O_NONBLOCK);</span>
+<span class="lineNum">     426 </span>            : 
+<span class="lineNum">     427 </span><span class="lineNoCov">          0 :     if (connect(self-&gt;fd, (struct sockaddr *) &amp;serverAddress, sizeof(serverAddress)) &lt; 0) {</span>
+<span class="lineNum">     428 </span>            : 
+<span class="lineNum">     429 </span><span class="lineNoCov">          0 :         if (errno != EINPROGRESS) {</span>
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 :             if (close(self-&gt;fd) == -1) {</span>
+<span class="lineNum">     431 </span>            :                 if (DEBUG_SOCKET)
+<span class="lineNum">     432 </span>            :                     printf(&quot;SOCKET: failed to close socket (errno: %i)\n&quot;, errno);
+<span class="lineNum">     433 </span>            :             }
+<span class="lineNum">     434 </span>            : 
+<span class="lineNum">     435 </span><span class="lineNoCov">          0 :             self-&gt;fd = -1;</span>
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 :             return false;</span>
+<span class="lineNum">     437 </span>            :         }
+<span class="lineNum">     438 </span>            :     }
+<span class="lineNum">     439 </span>            : 
+<span class="lineNum">     440 </span><span class="lineNoCov">          0 :     return true; /* is connecting or already connected */</span>
+<span class="lineNum">     441 </span>            : }
+<a name="442"><span class="lineNum">     442 </span>            : </a>
+<span class="lineNum">     443 </span>            : SocketState
+<span class="lineNum">     444 </span><span class="lineNoCov">          0 : Socket_checkAsyncConnectState(Socket self)</span>
+<span class="lineNum">     445 </span>            : {
+<span class="lineNum">     446 </span>            :     struct timeval timeout;
+<span class="lineNum">     447 </span><span class="lineNoCov">          0 :     timeout.tv_sec = 0;</span>
+<span class="lineNum">     448 </span><span class="lineNoCov">          0 :     timeout.tv_usec = 0;</span>
+<span class="lineNum">     449 </span>            : 
+<span class="lineNum">     450 </span>            :     fd_set fdSet;
+<span class="lineNum">     451 </span><span class="lineNoCov">          0 :     FD_ZERO(&amp;fdSet);</span>
+<span class="lineNum">     452 </span><span class="lineNoCov">          0 :     FD_SET(self-&gt;fd, &amp;fdSet);</span>
+<span class="lineNum">     453 </span>            : 
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :     int selectVal = select(self-&gt;fd + 1, NULL, &amp;fdSet , NULL, &amp;timeout);</span>
+<span class="lineNum">     455 </span>            : 
+<span class="lineNum">     456 </span><span class="lineNoCov">          0 :     if (selectVal == 1) {</span>
+<span class="lineNum">     457 </span>            : 
+<span class="lineNum">     458 </span>            :         /* Check if connection is established */
+<span class="lineNum">     459 </span>            : 
+<span class="lineNum">     460 </span>            :         int so_error;
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :         socklen_t len = sizeof so_error;</span>
+<span class="lineNum">     462 </span>            : 
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :         if (getsockopt(self-&gt;fd, SOL_SOCKET, SO_ERROR, &amp;so_error, &amp;len) &gt;= 0) {</span>
+<span class="lineNum">     464 </span>            : 
+<span class="lineNum">     465 </span><span class="lineNoCov">          0 :             if (so_error == 0)</span>
+<span class="lineNum">     466 </span><span class="lineNoCov">          0 :                 return SOCKET_STATE_CONNECTED;</span>
+<span class="lineNum">     467 </span>            :         }
+<span class="lineNum">     468 </span>            : 
+<span class="lineNum">     469 </span><span class="lineNoCov">          0 :         return SOCKET_STATE_FAILED;</span>
+<span class="lineNum">     470 </span>            :     }
+<span class="lineNum">     471 </span><span class="lineNoCov">          0 :     else if (selectVal == 0) {</span>
+<span class="lineNum">     472 </span><span class="lineNoCov">          0 :         return SOCKET_STATE_CONNECTING;</span>
+<span class="lineNum">     473 </span>            :     }
+<span class="lineNum">     474 </span>            :     else {
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :         return SOCKET_STATE_FAILED;</span>
+<span class="lineNum">     476 </span>            :     }
+<span class="lineNum">     477 </span>            : }
+<a name="478"><span class="lineNum">     478 </span>            : </a>
+<span class="lineNum">     479 </span>            : bool
+<span class="lineNum">     480 </span><span class="lineNoCov">          0 : Socket_connect(Socket self, const char* address, int port)</span>
+<span class="lineNum">     481 </span>            : {
+<span class="lineNum">     482 </span><span class="lineNoCov">          0 :     if (Socket_connectAsync(self, address, port) == false)</span>
+<span class="lineNum">     483 </span><span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">     484 </span>            : 
+<span class="lineNum">     485 </span>            :     struct timeval timeout;
+<span class="lineNum">     486 </span><span class="lineNoCov">          0 :     timeout.tv_sec = self-&gt;connectTimeout / 1000;</span>
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 :     timeout.tv_usec = (self-&gt;connectTimeout % 1000) * 1000;</span>
+<span class="lineNum">     488 </span>            : 
+<span class="lineNum">     489 </span>            :     fd_set fdSet;
+<span class="lineNum">     490 </span><span class="lineNoCov">          0 :     FD_ZERO(&amp;fdSet);</span>
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :     FD_SET(self-&gt;fd, &amp;fdSet);</span>
+<span class="lineNum">     492 </span>            : 
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 :     if (select(self-&gt;fd + 1, NULL, &amp;fdSet , NULL, &amp;timeout) == 1) {</span>
+<span class="lineNum">     494 </span>            : 
+<span class="lineNum">     495 </span>            :         /* Check if connection is established */
+<span class="lineNum">     496 </span>            : 
+<span class="lineNum">     497 </span>            :         int so_error;
+<span class="lineNum">     498 </span><span class="lineNoCov">          0 :         socklen_t len = sizeof so_error;</span>
+<span class="lineNum">     499 </span>            : 
+<span class="lineNum">     500 </span><span class="lineNoCov">          0 :         if (getsockopt(self-&gt;fd, SOL_SOCKET, SO_ERROR, &amp;so_error, &amp;len) &gt;= 0) {</span>
+<span class="lineNum">     501 </span>            : 
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 :             if (so_error == 0)</span>
+<span class="lineNum">     503 </span><span class="lineNoCov">          0 :                 return true;</span>
+<span class="lineNum">     504 </span>            :         }
+<span class="lineNum">     505 </span>            :     }
+<span class="lineNum">     506 </span>            : 
+<span class="lineNum">     507 </span><span class="lineNoCov">          0 :     close (self-&gt;fd);</span>
+<span class="lineNum">     508 </span><span class="lineNoCov">          0 :     self-&gt;fd = -1;</span>
+<span class="lineNum">     509 </span>            : 
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     511 </span>            : }
+<span class="lineNum">     512 </span>            : 
+<a name="513"><span class="lineNum">     513 </span>            : </a>
+<span class="lineNum">     514 </span>            : static char*
+<span class="lineNum">     515 </span><span class="lineNoCov">          0 : convertAddressToStr(struct sockaddr_storage* addr)</span>
+<span class="lineNum">     516 </span>            : {
+<span class="lineNum">     517 </span>            :     char addrString[INET6_ADDRSTRLEN + 7];
+<span class="lineNum">     518 </span>            :     int port;
+<span class="lineNum">     519 </span>            : 
+<span class="lineNum">     520 </span>            :     bool isIPv6;
+<span class="lineNum">     521 </span>            : 
+<span class="lineNum">     522 </span><span class="lineNoCov">          0 :     if (addr-&gt;ss_family == AF_INET) {</span>
+<span class="lineNum">     523 </span><span class="lineNoCov">          0 :         struct sockaddr_in* ipv4Addr = (struct sockaddr_in*) addr;</span>
+<span class="lineNum">     524 </span><span class="lineNoCov">          0 :         port = ntohs(ipv4Addr-&gt;sin_port);</span>
+<span class="lineNum">     525 </span><span class="lineNoCov">          0 :         inet_ntop(AF_INET, &amp;(ipv4Addr-&gt;sin_addr), addrString, INET_ADDRSTRLEN);</span>
+<span class="lineNum">     526 </span><span class="lineNoCov">          0 :         isIPv6 = false;</span>
+<span class="lineNum">     527 </span>            :     }
+<span class="lineNum">     528 </span><span class="lineNoCov">          0 :     else if (addr-&gt;ss_family == AF_INET6) {</span>
+<span class="lineNum">     529 </span><span class="lineNoCov">          0 :         struct sockaddr_in6* ipv6Addr = (struct sockaddr_in6*) addr;</span>
+<span class="lineNum">     530 </span><span class="lineNoCov">          0 :         port = ntohs(ipv6Addr-&gt;sin6_port);</span>
+<span class="lineNum">     531 </span><span class="lineNoCov">          0 :         inet_ntop(AF_INET6, &amp;(ipv6Addr-&gt;sin6_addr), addrString, INET6_ADDRSTRLEN);</span>
+<span class="lineNum">     532 </span><span class="lineNoCov">          0 :         isIPv6 = true;</span>
+<span class="lineNum">     533 </span>            :     }
+<span class="lineNum">     534 </span>            :     else
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :         return NULL ;</span>
+<span class="lineNum">     536 </span>            : 
+<span class="lineNum">     537 </span><span class="lineNoCov">          0 :     char* clientConnection = (char*) GLOBAL_MALLOC(strlen(addrString) + 9);</span>
+<span class="lineNum">     538 </span>            : 
+<span class="lineNum">     539 </span><span class="lineNoCov">          0 :     if (isIPv6)</span>
+<span class="lineNum">     540 </span><span class="lineNoCov">          0 :         sprintf(clientConnection, &quot;[%s]:%i&quot;, addrString, port);</span>
+<span class="lineNum">     541 </span>            :     else
+<span class="lineNum">     542 </span><span class="lineNoCov">          0 :         sprintf(clientConnection, &quot;%s:%i&quot;, addrString, port);</span>
+<span class="lineNum">     543 </span>            : 
+<span class="lineNum">     544 </span><span class="lineNoCov">          0 :     return clientConnection;</span>
+<span class="lineNum">     545 </span>            : }
+<a name="546"><span class="lineNum">     546 </span>            : </a>
+<span class="lineNum">     547 </span>            : char*
+<span class="lineNum">     548 </span><span class="lineNoCov">          0 : Socket_getPeerAddress(Socket self)</span>
+<span class="lineNum">     549 </span>            : {
+<span class="lineNum">     550 </span>            :     struct sockaddr_storage addr;
+<span class="lineNum">     551 </span><span class="lineNoCov">          0 :     socklen_t addrLen = sizeof(addr);</span>
+<span class="lineNum">     552 </span>            : 
+<span class="lineNum">     553 </span><span class="lineNoCov">          0 :     if (getpeername(self-&gt;fd, (struct sockaddr*) &amp;addr, &amp;addrLen) == 0) {</span>
+<span class="lineNum">     554 </span><span class="lineNoCov">          0 :         return convertAddressToStr(&amp;addr);</span>
+<span class="lineNum">     555 </span>            :     }
+<span class="lineNum">     556 </span>            :     else
+<span class="lineNum">     557 </span><span class="lineNoCov">          0 :         return NULL;</span>
+<span class="lineNum">     558 </span>            : }
+<a name="559"><span class="lineNum">     559 </span>            : </a>
+<span class="lineNum">     560 </span>            : char*
+<span class="lineNum">     561 </span><span class="lineNoCov">          0 : Socket_getLocalAddress(Socket self)</span>
+<span class="lineNum">     562 </span>            : {
+<span class="lineNum">     563 </span>            :     struct sockaddr_storage addr;
+<span class="lineNum">     564 </span><span class="lineNoCov">          0 :     socklen_t addrLen = sizeof(addr);</span>
+<span class="lineNum">     565 </span>            : 
+<span class="lineNum">     566 </span><span class="lineNoCov">          0 :     if (getsockname(self-&gt;fd, (struct sockaddr*) &amp;addr, &amp;addrLen) == 0) {</span>
+<span class="lineNum">     567 </span><span class="lineNoCov">          0 :         return convertAddressToStr(&amp;addr);</span>
+<span class="lineNum">     568 </span>            :     }
+<span class="lineNum">     569 </span>            :     else
+<span class="lineNum">     570 </span><span class="lineNoCov">          0 :         return NULL;</span>
+<span class="lineNum">     571 </span>            : }
+<a name="572"><span class="lineNum">     572 </span>            : </a>
+<span class="lineNum">     573 </span>            : char*
+<span class="lineNum">     574 </span><span class="lineNoCov">          0 : Socket_getPeerAddressStatic(Socket self, char* peerAddressString)</span>
+<span class="lineNum">     575 </span>            : {
+<span class="lineNum">     576 </span>            :     struct sockaddr_storage addr;
+<span class="lineNum">     577 </span><span class="lineNoCov">          0 :     socklen_t addrLen = sizeof(addr);</span>
+<span class="lineNum">     578 </span>            : 
+<span class="lineNum">     579 </span><span class="lineNoCov">          0 :     getpeername(self-&gt;fd, (struct sockaddr*) &amp;addr, &amp;addrLen);</span>
+<span class="lineNum">     580 </span>            : 
+<span class="lineNum">     581 </span>            :     char addrString[INET6_ADDRSTRLEN + 7];
+<span class="lineNum">     582 </span>            :     int port;
+<span class="lineNum">     583 </span>            : 
+<span class="lineNum">     584 </span>            :     bool isIPv6;
+<span class="lineNum">     585 </span>            : 
+<span class="lineNum">     586 </span><span class="lineNoCov">          0 :     if (addr.ss_family == AF_INET) {</span>
+<span class="lineNum">     587 </span><span class="lineNoCov">          0 :         struct sockaddr_in* ipv4Addr = (struct sockaddr_in*) &amp;addr;</span>
+<span class="lineNum">     588 </span><span class="lineNoCov">          0 :         port = ntohs(ipv4Addr-&gt;sin_port);</span>
+<span class="lineNum">     589 </span><span class="lineNoCov">          0 :         inet_ntop(AF_INET, &amp;(ipv4Addr-&gt;sin_addr), addrString, INET_ADDRSTRLEN);</span>
+<span class="lineNum">     590 </span><span class="lineNoCov">          0 :         isIPv6 = false;</span>
+<span class="lineNum">     591 </span>            :     }
+<span class="lineNum">     592 </span><span class="lineNoCov">          0 :     else if (addr.ss_family == AF_INET6) {</span>
+<span class="lineNum">     593 </span><span class="lineNoCov">          0 :         struct sockaddr_in6* ipv6Addr = (struct sockaddr_in6*) &amp;addr;</span>
+<span class="lineNum">     594 </span><span class="lineNoCov">          0 :         port = ntohs(ipv6Addr-&gt;sin6_port);</span>
+<span class="lineNum">     595 </span><span class="lineNoCov">          0 :         inet_ntop(AF_INET6, &amp;(ipv6Addr-&gt;sin6_addr), addrString, INET6_ADDRSTRLEN);</span>
+<span class="lineNum">     596 </span><span class="lineNoCov">          0 :         isIPv6 = true;</span>
+<span class="lineNum">     597 </span>            :     }
+<span class="lineNum">     598 </span>            :     else
+<span class="lineNum">     599 </span><span class="lineNoCov">          0 :         return NULL ;</span>
+<span class="lineNum">     600 </span>            : 
+<span class="lineNum">     601 </span><span class="lineNoCov">          0 :     if (isIPv6)</span>
+<span class="lineNum">     602 </span><span class="lineNoCov">          0 :         sprintf(peerAddressString, &quot;[%s]:%i&quot;, addrString, port);</span>
+<span class="lineNum">     603 </span>            :     else
+<span class="lineNum">     604 </span><span class="lineNoCov">          0 :         sprintf(peerAddressString, &quot;%s:%i&quot;, addrString, port);</span>
+<span class="lineNum">     605 </span>            : 
+<span class="lineNum">     606 </span><span class="lineNoCov">          0 :     return peerAddressString;</span>
+<span class="lineNum">     607 </span>            : }
+<a name="608"><span class="lineNum">     608 </span>            : </a>
+<span class="lineNum">     609 </span>            : int
+<span class="lineNum">     610 </span><span class="lineNoCov">          0 : Socket_read(Socket self, uint8_t* buf, int size)</span>
+<span class="lineNum">     611 </span>            : {
+<span class="lineNum">     612 </span><span class="lineNoCov">          0 :     if (self-&gt;fd == -1)</span>
+<span class="lineNum">     613 </span><span class="lineNoCov">          0 :         return -1;</span>
+<span class="lineNum">     614 </span>            : 
+<span class="lineNum">     615 </span><span class="lineNoCov">          0 :     int read_bytes = recv(self-&gt;fd, buf, size, MSG_DONTWAIT);</span>
+<span class="lineNum">     616 </span>            : 
+<span class="lineNum">     617 </span><span class="lineNoCov">          0 :     if (read_bytes == 0)</span>
+<span class="lineNum">     618 </span><span class="lineNoCov">          0 :         return -1;</span>
+<span class="lineNum">     619 </span>            : 
+<span class="lineNum">     620 </span><span class="lineNoCov">          0 :     if (read_bytes == -1) {</span>
+<span class="lineNum">     621 </span><span class="lineNoCov">          0 :         int error = errno;</span>
+<span class="lineNum">     622 </span>            : 
+<span class="lineNum">     623 </span><span class="lineNoCov">          0 :         switch (error) {</span>
+<span class="lineNum">     624 </span>            : 
+<span class="lineNum">     625 </span>            :             case EAGAIN:
+<span class="lineNum">     626 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     627 </span>            : 
+<span class="lineNum">     628 </span>            :             default:
+<span class="lineNum">     629 </span>            : 
+<span class="lineNum">     630 </span>            :                 if (DEBUG_SOCKET)
+<span class="lineNum">     631 </span>            :                     printf(&quot;DEBUG_SOCKET: recv returned error (errno=%i)\n&quot;, error);
+<span class="lineNum">     632 </span>            : 
+<span class="lineNum">     633 </span><span class="lineNoCov">          0 :                 return -1;</span>
+<span class="lineNum">     634 </span>            :         }
+<span class="lineNum">     635 </span>            :     }
+<span class="lineNum">     636 </span>            : 
+<span class="lineNum">     637 </span><span class="lineNoCov">          0 :     return read_bytes;</span>
+<span class="lineNum">     638 </span>            : }
+<a name="639"><span class="lineNum">     639 </span>            : </a>
+<span class="lineNum">     640 </span>            : int
+<span class="lineNum">     641 </span><span class="lineNoCov">          0 : Socket_write(Socket self, uint8_t* buf, int size)</span>
+<span class="lineNum">     642 </span>            : {
+<span class="lineNum">     643 </span><span class="lineNoCov">          0 :     if (self-&gt;fd == -1)</span>
+<span class="lineNum">     644 </span><span class="lineNoCov">          0 :         return -1;</span>
+<span class="lineNum">     645 </span>            : 
+<span class="lineNum">     646 </span>            :     /* MSG_NOSIGNAL - prevent send to signal SIGPIPE when peer unexpectedly closed the socket */
+<span class="lineNum">     647 </span><span class="lineNoCov">          0 :     int retVal = send(self-&gt;fd, buf, size, MSG_NOSIGNAL);</span>
+<span class="lineNum">     648 </span>            : 
+<span class="lineNum">     649 </span><span class="lineNoCov">          0 :     if (retVal == -1) {</span>
+<span class="lineNum">     650 </span><span class="lineNoCov">          0 :         if (errno == EAGAIN) {</span>
+<span class="lineNum">     651 </span><span class="lineNoCov">          0 :             return 0;</span>
+<span class="lineNum">     652 </span>            :         }
+<span class="lineNum">     653 </span>            :         else {
+<span class="lineNum">     654 </span>            :             if (DEBUG_SOCKET)
+<span class="lineNum">     655 </span>            :                 printf(&quot;DEBUG_SOCKET: send returned error (errno=%i)\n&quot;, errno);
+<span class="lineNum">     656 </span>            :         }
+<span class="lineNum">     657 </span>            :     }
+<span class="lineNum">     658 </span>            : 
+<span class="lineNum">     659 </span><span class="lineNoCov">          0 :     return retVal;</span>
+<span class="lineNum">     660 </span>            : }
+<a name="661"><span class="lineNum">     661 </span>            : </a>
+<span class="lineNum">     662 </span>            : void
+<span class="lineNum">     663 </span><span class="lineNoCov">          0 : Socket_destroy(Socket self)</span>
+<span class="lineNum">     664 </span>            : {
+<span class="lineNum">     665 </span><span class="lineNoCov">          0 :     int fd = self-&gt;fd;</span>
+<span class="lineNum">     666 </span>            : 
+<span class="lineNum">     667 </span><span class="lineNoCov">          0 :     self-&gt;fd = -1;</span>
+<span class="lineNum">     668 </span>            : 
+<span class="lineNum">     669 </span><span class="lineNoCov">          0 :     closeAndShutdownSocket(fd);</span>
+<span class="lineNum">     670 </span>            : 
+<span class="lineNum">     671 </span><span class="lineNoCov">          0 :     Thread_sleep(10);</span>
+<span class="lineNum">     672 </span>            : 
+<span class="lineNum">     673 </span><span class="lineNoCov">          0 :     GLOBAL_FREEMEM(self);</span>
+<span class="lineNum">     674 </span><span class="lineNoCov">          0 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

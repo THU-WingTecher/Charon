@@ -1,0 +1,21 @@
+project(OpenDDS_Rtps): dcpslib, install, rtps_optional_safety, opendds_testing_features {
+  sharedname = OpenDDS_Rtps
+  dynamicflags = OPENDDS_RTPS_BUILD_DLL
+
+  IDL_Files {
+  }
+
+  Source_Files {
+    .
+    ICE
+  }
+
+  Header_Files {
+    .
+    ICE
+  }
+
+  specific {
+    install_dir = dds/DCPS/RTPS
+  }
+}

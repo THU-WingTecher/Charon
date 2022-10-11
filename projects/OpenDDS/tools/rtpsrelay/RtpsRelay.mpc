@@ -1,0 +1,6 @@
+project: dcps_rtps_udp, opendds_cxx11, rtps_relay_lib, opendds_security, rapidjson, install {
+
+  exeout = $(DDS_ROOT)/bin
+  requires += built_in_topics
+  requires += no_opendds_safety_profile
+}

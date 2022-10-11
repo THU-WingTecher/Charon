@@ -1,0 +1,29 @@
+project(*Monitor): dcpsexe, dcps_test, dcps_transports_for_test {
+  exename   = monitor
+  libpaths += ../FooType5
+  libs     +=  DcpsFooType5
+  after    += DcpsFooType5
+
+  Source_Files {
+    monitor.cpp
+    TestMonitor.cpp
+    TestConfig.cpp
+    DataWriterListenerImpl.cpp
+    ForwardingListener.cpp
+  }
+}
+
+project(*System): dcpsexe, dcps_test, dcps_transports_for_test {
+  exename   = system
+  libpaths += ../FooType5
+  libs     +=  DcpsFooType5
+  after    += DcpsFooType5
+
+  Source_Files {
+    system.cpp
+    TestSystem.cpp
+    TestConfig.cpp
+    DataWriterListenerImpl.cpp
+    ForwardingListener.cpp
+  }
+}

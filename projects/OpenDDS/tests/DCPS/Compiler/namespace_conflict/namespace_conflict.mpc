@@ -1,0 +1,6 @@
+project(DDS*): dcpsexe, dcps_test {
+  idlflags += -SS
+  TypeSupport_Files {
+    Nsc.idl
+  }
+}

@@ -1,0 +1,34 @@
+project(ManyTopicTestPublisher): dcpsexe, dcps_test, dcps_transports_for_test, dds_model {
+  exename   = publisher
+  libpaths += ../ManyTopicTypes
+  libpaths += ../common
+  libs     +=  common ManyTopicTypes
+  after    += common ManyTopicTypes
+
+  Header_Files {
+    common.h
+  }
+
+  Source_Files {
+    publisher.cpp
+    Writer.cpp
+  }
+}
+
+
+project(ManyTopicTestSubscriber): dcpsexe, dcps_test, dcps_transports_for_test {
+  exename   = subscriber
+  libpaths += ../ManyTopicTypes
+  libpaths += ../common
+  libs     +=  common ManyTopicTypes
+  after    += common ManyTopicTypes
+
+  Header_Files {
+    common.h
+    DataReaderListener.h
+  }
+
+  Source_Files {
+    subscriber.cpp
+  }
+}

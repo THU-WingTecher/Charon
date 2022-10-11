@@ -1,0 +1,24 @@
+project {
+  expand(GTEST_ROOT) {
+    $GTEST_ROOT
+    $(DDS_ROOT)/tests/googletest/build/install
+  }
+  includes += $(GTEST_ROOT)/include
+  libpaths += $(GTEST_ROOT)/lib
+
+  specific(prop:windows) {
+    // Avoid adding "s" suffix in static builds
+    Release::lit_libs += gtest
+    Debug::lit_libs += gtestd
+  } else {
+    libs += gtest
+  }
+
+  specific(prop:microsoft) {
+    macros += _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
+  }
+
+  specific(vc11) {
+    macros += _VARIADIC_MAX=10
+  }
+}

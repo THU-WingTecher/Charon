@@ -1,0 +1,21 @@
+project(*Publisher): dcpsexe, dcps_test, dcps_tcp, dcps_shmem {
+  requires += no_opendds_safety_profile
+  exename = simple_publisher
+
+  Source_Files {
+    pub_main.cpp
+    PubDriver.cpp
+    SimpleDataWriter.cpp
+  }
+}
+
+project(*Subscriber): dcpsexe, dcps_test, dcps_tcp, dcps_shmem {
+  requires += no_opendds_safety_profile
+  exename = simple_subscriber
+
+  Source_Files {
+    sub_main.cpp
+    SubDriver.cpp
+    SimpleDataReader.cpp
+  }
+}

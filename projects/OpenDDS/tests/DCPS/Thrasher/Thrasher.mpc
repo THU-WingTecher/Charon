@@ -1,0 +1,22 @@
+project(*): dcpsexe, dcps_test, dcps_transports_for_test {
+  exename   = Thrasher
+
+  after    += DcpsFooType
+  libs     += DcpsFooType
+
+  includes += ../FooType
+  libpaths += ../FooType
+
+  Idl_Files {
+  }
+
+  Source_Files {
+    ProgressIndicator.cpp
+    DataReaderListenerImpl.cpp
+    Publisher.cpp
+    Subscriber.cpp
+    PublisherService.cpp
+    Thrasher.cpp
+    main.cpp
+  }
+}

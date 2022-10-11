@@ -1,0 +1,261 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - libiec51850_basic_io.info - asn1c/UTF8String.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">asn1c</a> - UTF8String.c<span style="font-size: 80%;"> (source / <a href="UTF8String.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">libiec51850_basic_io.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">41</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-06 13:31:57</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*-</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2003, 2004, 2006 Lev Walkin &lt;vlm@lionet.info&gt;.
+<span class="lineNum">       3 </span>            :  * All rights reserved.
+<span class="lineNum">       4 </span>            :  * Redistribution and modifications are permitted subject to BSD license.
+<span class="lineNum">       5 </span>            :  */
+<span class="lineNum">       6 </span>            : #include &lt;asn_internal.h&gt;
+<span class="lineNum">       7 </span>            : #include &lt;UTF8String.h&gt;
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : /*
+<span class="lineNum">      10 </span>            :  * UTF8String basic type description.
+<span class="lineNum">      11 </span>            :  */
+<span class="lineNum">      12 </span>            : static ber_tlv_tag_t asn_DEF_UTF8String_tags[] = {
+<span class="lineNum">      13 </span>            :         (ASN_TAG_CLASS_UNIVERSAL | (12 &lt;&lt; 2)),    /* [UNIVERSAL 12] IMPLICIT ...*/
+<span class="lineNum">      14 </span>            :         (ASN_TAG_CLASS_UNIVERSAL | (4 &lt;&lt; 2)),     /* ... OCTET STRING */
+<span class="lineNum">      15 </span>            : };
+<span class="lineNum">      16 </span>            : asn_TYPE_descriptor_t asn_DEF_UTF8String = {
+<span class="lineNum">      17 </span>            :         &quot;UTF8String&quot;,
+<span class="lineNum">      18 </span>            :         &quot;UTF8String&quot;,
+<span class="lineNum">      19 </span>            :         OCTET_STRING_free,
+<span class="lineNum">      20 </span>            :         UTF8String_print,
+<span class="lineNum">      21 </span>            :         UTF8String_constraint,      /* Check for invalid codes, etc. */
+<span class="lineNum">      22 </span>            :         OCTET_STRING_decode_ber,    /* Implemented in terms of OCTET STRING */
+<span class="lineNum">      23 </span>            :         OCTET_STRING_encode_der,
+<span class="lineNum">      24 </span>            :         OCTET_STRING_decode_xer_utf8,
+<span class="lineNum">      25 </span>            :         OCTET_STRING_encode_xer_utf8,
+<span class="lineNum">      26 </span>            :         0, 0,
+<span class="lineNum">      27 </span>            :         0, /* Use generic outmost tag fetcher */
+<span class="lineNum">      28 </span>            :         asn_DEF_UTF8String_tags,
+<span class="lineNum">      29 </span>            :         sizeof(asn_DEF_UTF8String_tags)
+<span class="lineNum">      30 </span>            :           / sizeof(asn_DEF_UTF8String_tags[0]) - 1,
+<span class="lineNum">      31 </span>            :         asn_DEF_UTF8String_tags,
+<span class="lineNum">      32 </span>            :         sizeof(asn_DEF_UTF8String_tags)
+<span class="lineNum">      33 </span>            :           / sizeof(asn_DEF_UTF8String_tags[0]),
+<span class="lineNum">      34 </span>            :         0,      /* No PER visible constraints */
+<span class="lineNum">      35 </span>            :         0, 0,   /* No members */
+<span class="lineNum">      36 </span>            :         0       /* No specifics */
+<span class="lineNum">      37 </span>            : };
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : /*
+<span class="lineNum">      40 </span>            :  * This is the table of length expectations.
+<span class="lineNum">      41 </span>            :  * The second half of this table is only applicable to the long sequences.
+<span class="lineNum">      42 </span>            :  */
+<span class="lineNum">      43 </span>            : static int UTF8String_ht[2][16] = {
+<span class="lineNum">      44 </span>            :         { /* 0x0 ... 0x7 */
+<span class="lineNum">      45 </span>            :           /* 0000..0111 */
+<span class="lineNum">      46 </span>            :           1, 1, 1, 1, 1, 1, 1, 1,
+<span class="lineNum">      47 </span>            :           /* 1000..1011(0), 1100..1101(2), 1110(3), 1111(-1) */
+<span class="lineNum">      48 </span>            :           0, 0, 0, 0, 2, 2, 3, -1 },
+<span class="lineNum">      49 </span>            :         { /* 0xF0 .. 0xF7 */
+<span class="lineNum">      50 </span>            :           /* 11110000..11110111 */
+<span class="lineNum">      51 </span>            :           4, 4, 4, 4, 4, 4, 4, 4,
+<span class="lineNum">      52 </span>            :           5, 5, 5, 5, 6, 6, -1, -1 }
+<span class="lineNum">      53 </span>            : };
+<span class="lineNum">      54 </span>            : static int32_t UTF8String_mv[7] = { 0, 0,
+<span class="lineNum">      55 </span>            :         0x00000080,
+<span class="lineNum">      56 </span>            :         0x00000800,
+<span class="lineNum">      57 </span>            :         0x00010000,
+<span class="lineNum">      58 </span>            :         0x00200000,
+<span class="lineNum">      59 </span>            :         0x04000000
+<span class="lineNum">      60 </span>            : };
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            : /* Internal aliases for return codes */
+<span class="lineNum">      63 </span>            : #define U8E_TRUNC       -1      /* UTF-8 sequence truncated */
+<span class="lineNum">      64 </span>            : #define U8E_ILLSTART    -2      /* Illegal UTF-8 sequence start */
+<span class="lineNum">      65 </span>            : #define U8E_NOTCONT     -3      /* Continuation expectation failed */
+<span class="lineNum">      66 </span>            : #define U8E_NOTMIN      -4      /* Not minimal length encoding */
+<span class="lineNum">      67 </span>            : #define U8E_EINVAL      -5      /* Invalid arguments */
+<a name="68"><span class="lineNum">      68 </span>            : </a>
+<span class="lineNum">      69 </span>            : int
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 : UTF8String_constraint(asn_TYPE_descriptor_t *td, const void *sptr,</span>
+<span class="lineNum">      71 </span>            :                 asn_app_constraint_failed_f *ctfailcb, void *app_key) {
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :         ssize_t len = UTF8String_length((const UTF8String_t *)sptr);</span>
+<span class="lineNum">      73 </span>            : #if 0
+<span class="lineNum">      74 </span>            :         switch(len) {
+<span class="lineNum">      75 </span>            :         case U8E_EINVAL:
+<span class="lineNum">      76 </span>            :                 _ASN_CTFAIL(app_key, td,
+<span class="lineNum">      77 </span>            :                         &quot;%s: value not given&quot;, td-&gt;name);
+<span class="lineNum">      78 </span>            :                 break;
+<span class="lineNum">      79 </span>            :         case U8E_TRUNC:
+<span class="lineNum">      80 </span>            :                 _ASN_CTFAIL(app_key, td,
+<span class="lineNum">      81 </span>            :                         &quot;%s: truncated UTF-8 sequence (%s:%d)&quot;,
+<span class="lineNum">      82 </span>            :                         td-&gt;name, __FILE__, __LINE__);
+<span class="lineNum">      83 </span>            :                 break;
+<span class="lineNum">      84 </span>            :         case U8E_ILLSTART:
+<span class="lineNum">      85 </span>            :                 _ASN_CTFAIL(app_key, td,
+<span class="lineNum">      86 </span>            :                         &quot;%s: UTF-8 illegal start of encoding (%s:%d)&quot;,
+<span class="lineNum">      87 </span>            :                         td-&gt;name, __FILE__, __LINE__);
+<span class="lineNum">      88 </span>            :                 break;
+<span class="lineNum">      89 </span>            :         case U8E_NOTCONT:
+<span class="lineNum">      90 </span>            :                 _ASN_CTFAIL(app_key, td,
+<span class="lineNum">      91 </span>            :                         &quot;%s: UTF-8 not continuation (%s:%d)&quot;,
+<span class="lineNum">      92 </span>            :                         td-&gt;name, __FILE__, __LINE__);
+<span class="lineNum">      93 </span>            :                 break;
+<span class="lineNum">      94 </span>            :         case U8E_NOTMIN:
+<span class="lineNum">      95 </span>            :                 _ASN_CTFAIL(app_key, td,
+<span class="lineNum">      96 </span>            :                         &quot;%s: UTF-8 not minimal sequence (%s:%d)&quot;,
+<span class="lineNum">      97 </span>            :                         td-&gt;name, __FILE__, __LINE__);
+<span class="lineNum">      98 </span>            :                 break;
+<span class="lineNum">      99 </span>            :         }
+<span class="lineNum">     100 </span>            : #endif
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :         return (len &lt; 0) ? -1 : 0;</span>
+<span class="lineNum">     102 </span>            : }
+<a name="103"><span class="lineNum">     103 </span>            : </a>
+<span class="lineNum">     104 </span>            : static ssize_t
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 : UTF8String__process(const UTF8String_t *st, uint32_t *dst, size_t dstlen) {</span>
+<span class="lineNum">     106 </span>            :         size_t length;
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :         uint8_t *buf = st-&gt;buf;</span>
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :         uint8_t *end = buf + st-&gt;size;</span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :         uint32_t *dstend = dst + dstlen;</span>
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :         for(length = 0; buf &lt; end; length++) {</span>
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :                 int ch = *buf;</span>
+<span class="lineNum">     113 </span>            :                 uint8_t *cend;
+<span class="lineNum">     114 </span>            :                 int32_t value;
+<span class="lineNum">     115 </span>            :                 int want;
+<span class="lineNum">     116 </span>            : 
+<span class="lineNum">     117 </span>            :                 /* Compute the sequence length */
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :                 want = UTF8String_ht[0][ch &gt;&gt; 4];</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :                 switch(want) {</span>
+<span class="lineNum">     120 </span>            :                 case -1:
+<span class="lineNum">     121 </span>            :                         /* Second half of the table, long sequence */
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :                         want = UTF8String_ht[1][ch &amp; 0x0F];</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :                         if(want != -1) break;</span>
+<span class="lineNum">     124 </span>            :                         /* Fall through */
+<span class="lineNum">     125 </span>            :                 case 0:
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :                         return U8E_ILLSTART;</span>
+<span class="lineNum">     127 </span>            :                 }
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span>            :                 /* assert(want &gt;= 1 &amp;&amp; want &lt;= 6) */
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span>            :                 /* Check character sequence length */
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :                 if(buf + want &gt; end) return U8E_TRUNC;</span>
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :                 value = ch &amp; (0xff &gt;&gt; want);</span>
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :                 cend = buf + want;</span>
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :                 for(buf++; buf &lt; cend; buf++) {</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :                         ch = *buf;</span>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :                         if(ch &lt; 0x80 || ch &gt; 0xbf) return U8E_NOTCONT;</span>
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :                         value = (value &lt;&lt; 6) | (ch &amp; 0x3F);</span>
+<span class="lineNum">     140 </span>            :                 }
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :                 if(value &lt; UTF8String_mv[want])</span>
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :                         return U8E_NOTMIN;</span>
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :                 if(dst &lt; dstend)</span>
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :                         *dst++ = value; /* Record value */</span>
+<span class="lineNum">     145 </span>            :         }
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :         if(dst &lt; dstend) *dst = 0;   /* zero-terminate */</span>
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :         return length;</span>
+<span class="lineNum">     150 </span>            : }
+<span class="lineNum">     151 </span>            : 
+<a name="152"><span class="lineNum">     152 </span>            : </a>
+<span class="lineNum">     153 </span>            : ssize_t
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 : UTF8String_length(const UTF8String_t *st) {</span>
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :         if(st &amp;&amp; st-&gt;buf) {</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :                 return UTF8String__process(st, 0, 0);</span>
+<span class="lineNum">     157 </span>            :         } else {
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :                 return U8E_EINVAL;</span>
+<span class="lineNum">     159 </span>            :         }
+<span class="lineNum">     160 </span>            : }
+<a name="161"><span class="lineNum">     161 </span>            : </a>
+<span class="lineNum">     162 </span>            : size_t
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 : UTF8String_to_wcs(const UTF8String_t *st, uint32_t *dst, size_t dstlen) {</span>
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :         if(st &amp;&amp; st-&gt;buf) {</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :                 ssize_t ret = UTF8String__process(st, dst, dstlen);</span>
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :                 return (ret &lt; 0) ? 0 : ret;</span>
+<span class="lineNum">     167 </span>            :         } else {
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     169 </span>            :         }
+<span class="lineNum">     170 </span>            : }
+<a name="171"><span class="lineNum">     171 </span>            : </a>
+<span class="lineNum">     172 </span>            : int
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 : UTF8String_print(asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,</span>
+<span class="lineNum">     174 </span>            :         asn_app_consume_bytes_f *cb, void *app_key) {
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :         const UTF8String_t *st = (const UTF8String_t *)sptr;</span>
+<span class="lineNum">     176 </span>            : 
+<span class="lineNum">     177 </span>            :         (void)td;       /* Unused argument */
+<span class="lineNum">     178 </span>            :         (void)ilevel;   /* Unused argument */
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :         if(st &amp;&amp; st-&gt;buf) {</span>
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :                 return (cb(st-&gt;buf, st-&gt;size, app_key) &lt; 0) ? -1 : 0;</span>
+<span class="lineNum">     182 </span>            :         } else {
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :                 return (cb(&quot;&lt;absent&gt;&quot;, 8, app_key) &lt; 0) ? -1 : 0;</span>
+<span class="lineNum">     184 </span>            :         }
+<span class="lineNum">     185 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

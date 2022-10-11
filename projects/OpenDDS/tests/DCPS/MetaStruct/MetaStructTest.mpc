@@ -1,0 +1,6 @@
+project: dcps_test, content_subscription_core {
+  requires += multi_topic
+  TypeSupport_Files {
+    MetaStructTest.idl
+  }
+}

@@ -1,0 +1,31 @@
+
+project(*Publisher) : dcpsexe, dcps_test, dcps_transports_for_test {
+  requires += no_opendds_safety_profile
+
+  exename   = publisher
+
+  TypeSupport_Files {
+    Messenger.idl
+  }
+
+  Source_Files {
+    publisher.cpp
+    Writer.cpp
+  }
+}
+
+project(*Subscriber) : dcpsexe, dcps_test, dcps_transports_for_test {
+  requires += no_opendds_safety_profile
+
+  exename   = subscriber
+  after    += *Publisher
+
+  TypeSupport_Files {
+    Messenger.idl
+  }
+
+  Source_Files {
+    subscriber.cpp
+    DataReaderListener.cpp
+  }
+}

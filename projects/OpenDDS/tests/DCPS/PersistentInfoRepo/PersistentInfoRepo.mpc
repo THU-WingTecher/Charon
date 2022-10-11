@@ -1,0 +1,32 @@
+project(*Publisher) : dcpsexe, dcps_test, dcps_transports_for_test, dds_model {
+  exename   = publisher
+  exeout    = .
+
+  libpaths += ../../Utils
+  libs     += TestUtils
+  after    += TestUtils
+  libpaths += ../FooType4
+  libs     += DcpsFooType4
+  after    += DcpsFooType4
+
+  Source_Files {
+    Publisher.cpp
+  }
+}
+
+project(*Subscriber) : dcpsexe, dcps_test, dcps_transports_for_test, dds_model {
+  exename   = subscriber
+  exeout    = .
+
+  libpaths += ../../Utils
+  libs     += TestUtils
+  after    += TestUtils
+  libpaths += ../FooType4
+  libs     += DcpsFooType4
+  after    += DcpsFooType4
+
+  Source_Files {
+    Subscriber.cpp
+    Listener.cpp
+  }
+}

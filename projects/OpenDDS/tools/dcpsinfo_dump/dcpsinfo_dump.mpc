@@ -1,0 +1,9 @@
+project(*): dcpsexe {
+  requires += no_opendds_safety_profile
+  exename  = dcpsinfo_dump
+  exeout    = $(DDS_ROOT)/bin
+
+  Source_Files {
+    dump.cpp
+  }
+}

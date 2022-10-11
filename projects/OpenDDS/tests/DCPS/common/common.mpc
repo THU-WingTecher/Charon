@@ -1,0 +1,5 @@
+project : dcps_test {
+  dynamicflags = COMMON_BUILD_DLL
+  pch_header   =
+  pch_source   =
+}

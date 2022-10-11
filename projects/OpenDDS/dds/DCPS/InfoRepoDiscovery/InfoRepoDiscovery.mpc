@@ -1,0 +1,16 @@
+project(OpenDDS*): dcpslib, dcps_tcp, dds_versioning_idl_defaults, install {
+  requires += no_opendds_safety_profile
+  dynamicflags = OPENDDS_INFOREPODISCOVERY_BUILD_DLL
+
+  idlflags += -Wb,export_macro=OpenDDS_InfoRepoDiscovery_Export -Wb,export_include=InfoRepoDiscovery_Export.h
+
+  IDL_Files {
+    Info.idl
+    DataReaderRemote.idl
+    DataWriterRemote.idl
+  }
+
+  specific {
+    install_dir = dds/DCPS/InfoRepoDiscovery
+  }
+}

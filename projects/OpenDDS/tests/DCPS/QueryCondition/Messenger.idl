@@ -1,0 +1,18 @@
+module Messenger {
+
+  enum X {
+    A, B, C
+  };
+
+  struct Nested {
+    X value;
+  };
+
+  @topic
+  struct Message {
+    @key long key;
+    long iteration;
+    string name;
+    Nested nest;
+  };
+};

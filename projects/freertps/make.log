@@ -1,0 +1,67 @@
+cd utils && make
+make[1]: Entering directory '/home/oneliey/afl/freertps/utils'
+mkdir -p bin
+clang++ -O2 -g -c main.cpp -o bin/main.o
+clang++ -O2 -g -c lightweightserial.cpp -o bin/lightweightserial.o
+clang++ bin/main.o bin/lightweightserial.o -g -o bin/console
+make[1]: Leaving directory '/home/oneliey/afl/freertps/utils'
+mkdir -p build/native-posix
+native-posix
+cd build/native-posix && cmake ../.. -DSYSTEM=native-posix -Dfreertps_standalone=ON && make --no-print-directory
+-- The C compiler identification is Clang 6.0.0
+-- The CXX compiler identification is Clang 6.0.0
+-- Check for working C compiler: /usr/bin/cc
+-- Check for working C compiler: /usr/bin/cc -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/c++
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/oneliey/afl/freertps/build/native-posix
+Scanning dependencies of target freertps_system_native-posix
+[  3%] Building C object systems/native-posix/CMakeFiles/freertps_system_native-posix.dir/time.c.o
+[  7%] Building C object systems/native-posix/CMakeFiles/freertps_system_native-posix.dir/udp.c.o
+[ 10%] Building C object systems/native-posix/CMakeFiles/freertps_system_native-posix.dir/bswap.c.o
+[ 14%] Building C object systems/native-posix/CMakeFiles/freertps_system_native-posix.dir/system.c.o
+[ 17%] Building C object systems/native-posix/CMakeFiles/freertps_system_native-posix.dir/fake_imu.c.o
+[ 21%] Building C object systems/native-posix/CMakeFiles/freertps_system_native-posix.dir/fake_led.c.o
+[ 25%] Building C object systems/native-posix/CMakeFiles/freertps_system_native-posix.dir/ser.c.o
+[ 28%] Linking C static library libfreertps_system_native-posix.a
+[ 28%] Built target freertps_system_native-posix
+Scanning dependencies of target freertps
+[ 32%] Building C object CMakeFiles/freertps.dir/disco.c.o
+[ 35%] Building C object CMakeFiles/freertps.dir/freertps.c.o
+[ 39%] Building C object CMakeFiles/freertps.dir/id.c.o
+[ 42%] Building C object CMakeFiles/freertps.dir/part.c.o
+[ 46%] Building C object CMakeFiles/freertps.dir/spdp.c.o
+[ 50%] Building C object CMakeFiles/freertps.dir/sedp.c.o
+[ 53%] Building C object CMakeFiles/freertps.dir/sub.c.o
+[ 57%] Building C object CMakeFiles/freertps.dir/pub.c.o
+[ 60%] Building C object CMakeFiles/freertps.dir/time.c.o
+[ 64%] Building C object CMakeFiles/freertps.dir/udp.c.o
+[ 67%] Building C object CMakeFiles/freertps.dir/psm/ser.c.o
+[ 71%] Linking C static library libfreertps.a
+[ 71%] Built target freertps
+Scanning dependencies of target talker_no_rosidl
+[ 75%] Building C object apps/talker_no_rosidl/CMakeFiles/talker_no_rosidl.dir/talker_no_rosidl.c.o
+[ 78%] Linking C executable talker_no_rosidl
+[ 78%] Built target talker_no_rosidl
+Scanning dependencies of target listener_no_rosidl
+[ 82%] Building C object apps/listener_no_rosidl/CMakeFiles/listener_no_rosidl.dir/listener_no_rosidl.c.o
+[ 85%] Linking C executable listener_no_rosidl
+[ 85%] Built target listener_no_rosidl
+Scanning dependencies of target standalone_listen_for_n
+[ 89%] Building C object apps/standalone_listen_for_n/CMakeFiles/standalone_listen_for_n.dir/standalone_listen_for_n.c.o
+[ 92%] Linking C executable standalone_listen_for_n
+[ 92%] Built target standalone_listen_for_n
+Scanning dependencies of target standalone_talk_n
+[ 96%] Building C object apps/standalone_talk_n/CMakeFiles/standalone_talk_n.dir/standalone_talk_n.c.o
+[100%] Linking C executable standalone_talk_n
+[100%] Built target standalone_talk_n

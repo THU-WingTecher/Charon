@@ -1,0 +1,38 @@
+project(DCPS_Perf*Pub): dcpsexe, dcps_test {
+  exename = publisher
+  requires += no_opendds_safety_profile
+
+  TypeSupport_Files {
+    testMessage.idl
+  }
+
+  Header_Files {
+    common.h
+  }
+
+  Source_Files {
+    publisher.cpp
+    Writer.cpp
+  }
+}
+
+
+project(DCPS_Perf*Sub): dcpsexe, dcps_test {
+  exename = subscriber
+  after  += DCPS_Perf*Pub
+  requires += no_opendds_safety_profile
+
+  TypeSupport_Files {
+    testMessage.idl
+  }
+
+  Header_Files {
+    common.h
+    TestStats.h
+  }
+
+  Source_Files {
+    subscriber.cpp
+    DataReaderListener.cpp
+  }
+}

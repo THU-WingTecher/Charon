@@ -1,0 +1,38 @@
+project(ZeroCopyDRL_Publisher): dcpsexe, dcps_test, dcps_cm, dcps_transports_for_test, dds_model {
+
+  exename   = publisher
+
+  Idl_Files {
+  }
+
+  Source_Files {
+    publisher.cpp
+    Writer.cpp
+  }
+}
+
+project(ZeroCopyDRL_Subscriber): dcpsexe, dcps_test, dcps_cm, dcps_transports_for_test, dds_model {
+
+  exename   = subscriber
+
+  Idl_Files {
+  }
+
+  Source_Files {
+    subscriber.cpp
+    DataReaderListener.cpp
+  }
+}
+
+project(ZeroCopyDRL_StackSubscriber) : dcpsexe, dcps_test, dcps_cm, dcps_transports_for_test, dds_model {
+
+  exename   = stack_subscriber
+
+  Idl_Files {
+  }
+
+  Source_Files {
+    stack_subscriber.cpp
+    DataReaderListener.cpp
+  }
+}

@@ -1,0 +1,13 @@
+project(UnregisterTypeTest): dcpsexe, dcps_test, dcps_rtps_udp {
+  exename   = unregister_type_test
+  exeout    = .
+  idlflags += -SS
+
+  TypeSupport_Files {
+    Test.idl
+  }
+
+  Source_Files {
+    unregister_type.cpp
+  }
+}

@@ -1,0 +1,1120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - libiec51850_basic_io.info - asn1c/constr_CHOICE.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">asn1c</a> - constr_CHOICE.c<span style="font-size: 80%;"> (source / <a href="constr_CHOICE.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">libiec51850_basic_io.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">388</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-06 14:11:04</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2003, 2004, 2005, 2006 Lev Walkin &lt;vlm@lionet.info&gt;.
+<span class="lineNum">       3 </span>            :  * All rights reserved.
+<span class="lineNum">       4 </span>            :  * Redistribution and modifications are permitted subject to BSD license.
+<span class="lineNum">       5 </span>            :  */
+<span class="lineNum">       6 </span>            : #include &lt;asn_internal.h&gt;
+<span class="lineNum">       7 </span>            : #include &lt;constr_CHOICE.h&gt;
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : /*
+<span class="lineNum">      10 </span>            :  * Number of bytes left for this structure.
+<span class="lineNum">      11 </span>            :  * (ctx-&gt;left) indicates the number of bytes _transferred_ for the structure.
+<span class="lineNum">      12 </span>            :  * (size) contains the number of bytes in the buffer passed.
+<span class="lineNum">      13 </span>            :  */
+<span class="lineNum">      14 </span>            : #define LEFT    ((size&lt;(size_t)ctx-&gt;left)?size:(size_t)ctx-&gt;left)
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : /*
+<span class="lineNum">      17 </span>            :  * If the subprocessor function returns with an indication that it wants
+<span class="lineNum">      18 </span>            :  * more data, it may well be a fatal decoding problem, because the
+<span class="lineNum">      19 </span>            :  * size is constrained by the &lt;TLV&gt;'s L, even if the buffer size allows
+<span class="lineNum">      20 </span>            :  * reading more data.
+<span class="lineNum">      21 </span>            :  * For example, consider the buffer containing the following TLVs:
+<span class="lineNum">      22 </span>            :  * &lt;T:5&gt;&lt;L:1&gt;&lt;V&gt; &lt;T:6&gt;...
+<span class="lineNum">      23 </span>            :  * The TLV length clearly indicates that one byte is expected in V, but
+<span class="lineNum">      24 </span>            :  * if the V processor returns with &quot;want more data&quot; even if the buffer
+<span class="lineNum">      25 </span>            :  * contains way more data than the V processor have seen.
+<span class="lineNum">      26 </span>            :  */
+<span class="lineNum">      27 </span>            : #define SIZE_VIOLATION  (ctx-&gt;left &gt;= 0 &amp;&amp; (size_t)ctx-&gt;left &lt;= size)
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : /*
+<span class="lineNum">      30 </span>            :  * This macro &quot;eats&quot; the part of the buffer which is definitely &quot;consumed&quot;,
+<span class="lineNum">      31 </span>            :  * i.e. was correctly converted into local representation or rightfully skipped.
+<span class="lineNum">      32 </span>            :  */
+<span class="lineNum">      33 </span>            : #undef  ADVANCE
+<span class="lineNum">      34 </span>            : #define ADVANCE(num_bytes)      do {            \
+<span class="lineNum">      35 </span>            :                 size_t num = num_bytes;         \
+<span class="lineNum">      36 </span>            :                 ptr = ((const char *)ptr) + num;\
+<span class="lineNum">      37 </span>            :                 size -= num;                    \
+<span class="lineNum">      38 </span>            :                 if(ctx-&gt;left &gt;= 0)                \
+<span class="lineNum">      39 </span>            :                         ctx-&gt;left -= num;    \
+<span class="lineNum">      40 </span>            :                 consumed_myself += num;         \
+<span class="lineNum">      41 </span>            :         } while(0)
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : /*
+<span class="lineNum">      44 </span>            :  * Switch to the next phase of parsing.
+<span class="lineNum">      45 </span>            :  */
+<span class="lineNum">      46 </span>            : #undef  NEXT_PHASE
+<span class="lineNum">      47 </span>            : #define NEXT_PHASE(ctx) do {                    \
+<span class="lineNum">      48 </span>            :                 ctx-&gt;phase++;                        \
+<span class="lineNum">      49 </span>            :                 ctx-&gt;step = 0;                       \
+<span class="lineNum">      50 </span>            :         } while(0)
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            : /*
+<span class="lineNum">      53 </span>            :  * Return a standardized complex structure.
+<span class="lineNum">      54 </span>            :  */
+<span class="lineNum">      55 </span>            : #undef  RETURN
+<span class="lineNum">      56 </span>            : #define RETURN(_code)   do {                    \
+<span class="lineNum">      57 </span>            :                 rval.code = _code;              \
+<span class="lineNum">      58 </span>            :                 rval.consumed = consumed_myself;\
+<span class="lineNum">      59 </span>            :                 return rval;                    \
+<span class="lineNum">      60 </span>            :         } while(0)
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            : /*
+<span class="lineNum">      63 </span>            :  * See the definitions.
+<span class="lineNum">      64 </span>            :  */
+<span class="lineNum">      65 </span>            : static int _fetch_present_idx(const void *struct_ptr, int off, int size);
+<span class="lineNum">      66 </span>            : static void _set_present_idx(void *sptr, int offset, int size, int pres);
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span>            : /*
+<span class="lineNum">      69 </span>            :  * Tags are canonically sorted in the tag to member table.
+<a name="70"><span class="lineNum">      70 </span>            :  */</a>
+<span class="lineNum">      71 </span>            : static int
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 : _search4tag(const void *ap, const void *bp) {</span>
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :         const asn_TYPE_tag2member_t *a = (const asn_TYPE_tag2member_t *)ap;</span>
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :         const asn_TYPE_tag2member_t *b = (const asn_TYPE_tag2member_t *)bp;</span>
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :         int a_class = BER_TAG_CLASS(a-&gt;el_tag);</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :         int b_class = BER_TAG_CLASS(b-&gt;el_tag);</span>
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :         if(a_class == b_class) {</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :                 ber_tlv_tag_t a_value = BER_TAG_VALUE(a-&gt;el_tag);</span>
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :                 ber_tlv_tag_t b_value = BER_TAG_VALUE(b-&gt;el_tag);</span>
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :                 if(a_value == b_value)</span>
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :                         return 0;</span>
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :                 else if(a_value &lt; b_value)</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :                         return -1;</span>
+<span class="lineNum">      87 </span>            :                 else
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :                         return 1;</span>
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :         } else if(a_class &lt; b_class) {</span>
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :                 return -1;</span>
+<span class="lineNum">      91 </span>            :         } else {
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">      93 </span>            :         }
+<span class="lineNum">      94 </span>            : }
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span>            : /*
+<span class="lineNum">      97 </span>            :  * The decoder of the CHOICE type.
+<a name="98"><span class="lineNum">      98 </span>            :  */</a>
+<span class="lineNum">      99 </span>            : asn_dec_rval_t
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 : CHOICE_decode_ber(asn_codec_ctx_t *opt_codec_ctx, asn_TYPE_descriptor_t *td,</span>
+<span class="lineNum">     101 </span>            :         void **struct_ptr, const void *ptr, size_t size, int tag_mode) {
+<span class="lineNum">     102 </span>            :         /*
+<span class="lineNum">     103 </span>            :          * Bring closer parts of structure description.
+<span class="lineNum">     104 </span>            :          */
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :         asn_CHOICE_specifics_t *specs = (asn_CHOICE_specifics_t *)td-&gt;specifics;</span>
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :         asn_TYPE_member_t *elements = td-&gt;elements;</span>
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span>            :         /*
+<span class="lineNum">     109 </span>            :          * Parts of the structure being constructed.
+<span class="lineNum">     110 </span>            :          */
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :         void *st = *struct_ptr; /* Target structure. */</span>
+<span class="lineNum">     112 </span>            :         asn_struct_ctx_t *ctx;  /* Decoder context */
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span>            :         ber_tlv_tag_t tlv_tag;  /* T from TLV */
+<span class="lineNum">     115 </span>            :         ssize_t tag_len;        /* Length of TLV's T */
+<span class="lineNum">     116 </span>            :         asn_dec_rval_t rval;    /* Return code from subparsers */
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :         ssize_t consumed_myself = 0;    /* Consumed bytes from ptr */</span>
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span>            :         /*
+<span class="lineNum">     121 </span>            :          * Create the target structure if it is not present already.
+<span class="lineNum">     122 </span>            :          */
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :         if(st == 0) {</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :                 st = *struct_ptr = CALLOC(1, specs-&gt;struct_size);</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :                 if(st == 0) {</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :                         RETURN(RC_FAIL);</span>
+<span class="lineNum">     127 </span>            :                 }
+<span class="lineNum">     128 </span>            :         }
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            :         /*
+<span class="lineNum">     131 </span>            :          * Restore parsing context.
+<span class="lineNum">     132 </span>            :          */
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :         ctx = (asn_struct_ctx_t *)((char *)st + specs-&gt;ctx_offset);</span>
+<span class="lineNum">     134 </span>            :         
+<span class="lineNum">     135 </span>            :         /*
+<span class="lineNum">     136 </span>            :          * Start to parse where left previously
+<span class="lineNum">     137 </span>            :          */
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :         switch(ctx-&gt;phase) {</span>
+<span class="lineNum">     139 </span>            :         case 0:
+<span class="lineNum">     140 </span>            :                 /*
+<span class="lineNum">     141 </span>            :                  * PHASE 0.
+<span class="lineNum">     142 </span>            :                  * Check that the set of tags associated with given structure
+<span class="lineNum">     143 </span>            :                  * perfectly fits our expectations.
+<span class="lineNum">     144 </span>            :                  */
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :                 if(tag_mode || td-&gt;tags_count) {</span>
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :                         rval = ber_check_tags(opt_codec_ctx, td, ctx, ptr, size,</span>
+<span class="lineNum">     148 </span>            :                                 tag_mode, -1, &amp;ctx-&gt;left, 0);
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :                         if(rval.code != RC_OK) {</span>
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :                                 return rval;</span>
+<span class="lineNum">     151 </span>            :                         }
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :                         if(ctx-&gt;left &gt;= 0) {</span>
+<span class="lineNum">     154 </span>            :                                 /* ?Substracted below! */
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :                                 ctx-&gt;left += rval.consumed;</span>
+<span class="lineNum">     156 </span>            :                         }
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :                         ADVANCE(rval.consumed);</span>
+<span class="lineNum">     158 </span>            :                 } else {
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :                         ctx-&gt;left = -1;</span>
+<span class="lineNum">     160 </span>            :                 }
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :                 NEXT_PHASE(ctx);</span>
+<span class="lineNum">     163 </span>            : 
+<span class="lineNum">     164 </span>            :                 /* Fall through */
+<span class="lineNum">     165 </span>            :         case 1:
+<span class="lineNum">     166 </span>            :                 /*
+<span class="lineNum">     167 </span>            :                  * Fetch the T from TLV.
+<span class="lineNum">     168 </span>            :                  */
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :                 tag_len = ber_fetch_tag(ptr, LEFT, &amp;tlv_tag);</span>
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :                 switch(tag_len) {</span>
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :                 case 0: if(!SIZE_VIOLATION) RETURN(RC_WMORE);</span>
+<span class="lineNum">     173 </span>            :                         /* Fall through */
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :                 case -1: RETURN(RC_FAIL);</span>
+<span class="lineNum">     175 </span>            :                 }
+<span class="lineNum">     176 </span>            : 
+<span class="lineNum">     177 </span>            :                 do {
+<span class="lineNum">     178 </span>            :                         asn_TYPE_tag2member_t *t2m;
+<span class="lineNum">     179 </span>            :                         asn_TYPE_tag2member_t key;
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :                         key.el_tag = tlv_tag;</span>
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :                         t2m = (asn_TYPE_tag2member_t *)bsearch(&amp;key,</span>
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :                                         specs-&gt;tag2el, specs-&gt;tag2el_count,</span>
+<span class="lineNum">     184 </span>            :                                         sizeof(specs-&gt;tag2el[0]), _search4tag);
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :                         if(t2m) {</span>
+<span class="lineNum">     186 </span>            :                                 /*
+<span class="lineNum">     187 </span>            :                                  * Found the element corresponding to the tag.
+<span class="lineNum">     188 </span>            :                                  */
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 :                                 NEXT_PHASE(ctx);</span>
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :                                 ctx-&gt;step = t2m-&gt;el_no;</span>
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :                         } else if(specs-&gt;ext_start == -1) {</span>
+<span class="lineNum">     193 </span><span class="lineNoCov">          0 :                                 RETURN(RC_FAIL);</span>
+<span class="lineNum">     194 </span>            :                         } else {
+<span class="lineNum">     195 </span>            :                                 /* Skip this tag */
+<span class="lineNum">     196 </span>            :                                 ssize_t skip;
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :                                 skip = ber_skip_length(opt_codec_ctx,</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :                                         BER_TLV_CONSTRUCTED(ptr),</span>
+<span class="lineNum">     200 </span>            :                                         (const char *)ptr + tag_len,
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :                                         LEFT - tag_len);</span>
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :                                 switch(skip) {</span>
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :                                 case 0: if(!SIZE_VIOLATION) RETURN(RC_WMORE);</span>
+<span class="lineNum">     205 </span>            :                                         /* Fall through */
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :                                 case -1: RETURN(RC_FAIL);</span>
+<span class="lineNum">     207 </span>            :                                 }
+<span class="lineNum">     208 </span>            : 
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :                                 ADVANCE(skip + tag_len);</span>
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :                                 RETURN(RC_OK);</span>
+<span class="lineNum">     211 </span>            :                         }
+<span class="lineNum">     212 </span>            :                 } while(0);
+<span class="lineNum">     213 </span>            : 
+<span class="lineNum">     214 </span>            :         case 2:
+<span class="lineNum">     215 </span>            :                 /*
+<span class="lineNum">     216 </span>            :                  * PHASE 2.
+<span class="lineNum">     217 </span>            :                  * Read in the element.
+<span class="lineNum">     218 </span>            :                  */
+<span class="lineNum">     219 </span>            :             do {
+<span class="lineNum">     220 </span>            :                 asn_TYPE_member_t *elm;/* CHOICE's element */
+<span class="lineNum">     221 </span>            :                 void *memb_ptr;         /* Pointer to the member */
+<span class="lineNum">     222 </span>            :                 void **memb_ptr2;       /* Pointer to that pointer */
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :                 elm = &amp;elements[ctx-&gt;step];</span>
+<span class="lineNum">     225 </span>            : 
+<span class="lineNum">     226 </span>            :                 /*
+<span class="lineNum">     227 </span>            :                  * Compute the position of the member inside a structure,
+<span class="lineNum">     228 </span>            :                  * and also a type of containment (it may be contained
+<span class="lineNum">     229 </span>            :                  * as pointer or using inline inclusion).
+<span class="lineNum">     230 </span>            :                  */
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :                 if(elm-&gt;flags &amp; ATF_POINTER) {</span>
+<span class="lineNum">     232 </span>            :                         /* Member is a pointer to another structure */
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :                         memb_ptr2 = (void **)((char *)st + elm-&gt;memb_offset);</span>
+<span class="lineNum">     234 </span>            :                 } else {
+<span class="lineNum">     235 </span>            :                         /*
+<span class="lineNum">     236 </span>            :                          * A pointer to a pointer
+<span class="lineNum">     237 </span>            :                          * holding the start of the structure
+<span class="lineNum">     238 </span>            :                          */
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :                         memb_ptr = (char *)st + elm-&gt;memb_offset;</span>
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :                         memb_ptr2 = &amp;memb_ptr;</span>
+<span class="lineNum">     241 </span>            :                 }
+<span class="lineNum">     242 </span>            :                 /* Set presence to be able to free it properly at any time */
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :                 _set_present_idx(st, specs-&gt;pres_offset,</span>
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :                                 specs-&gt;pres_size, ctx-&gt;step + 1);</span>
+<span class="lineNum">     245 </span>            :                 /*
+<span class="lineNum">     246 </span>            :                  * Invoke the member fetch routine according to member's type
+<span class="lineNum">     247 </span>            :                  */
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :                 rval = elm-&gt;type-&gt;ber_decoder(opt_codec_ctx, elm-&gt;type,</span>
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :                                 memb_ptr2, ptr, LEFT, elm-&gt;tag_mode);</span>
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :                 switch(rval.code) {</span>
+<span class="lineNum">     251 </span>            :                 case RC_OK:
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     253 </span>            :                 case RC_WMORE: /* More data expected */
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :                         if(!SIZE_VIOLATION) {</span>
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :                                 ADVANCE(rval.consumed);</span>
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :                                 RETURN(RC_WMORE);</span>
+<span class="lineNum">     257 </span>            :                         }
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :                         RETURN(RC_FAIL);</span>
+<span class="lineNum">     259 </span>            :                 case RC_FAIL: /* Fatal error */
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :                         RETURN(rval.code);</span>
+<span class="lineNum">     261 </span>            :                 } /* switch(rval) */
+<span class="lineNum">     262 </span>            :                 
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :                 ADVANCE(rval.consumed);</span>
+<span class="lineNum">     264 </span>            :           } while(0);
+<span class="lineNum">     265 </span>            : 
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :                 NEXT_PHASE(ctx);</span>
+<span class="lineNum">     267 </span>            : 
+<span class="lineNum">     268 </span>            :                 /* Fall through */
+<span class="lineNum">     269 </span>            :         case 3:
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :                 if(ctx-&gt;left &gt; 0) {</span>
+<span class="lineNum">     272 </span>            :                         /*
+<span class="lineNum">     273 </span>            :                          * The type must be fully decoded
+<span class="lineNum">     274 </span>            :                          * by the CHOICE member-specific decoder.
+<span class="lineNum">     275 </span>            :                          */
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :                         RETURN(RC_FAIL);</span>
+<span class="lineNum">     277 </span>            :                 }
+<span class="lineNum">     278 </span>            : 
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :                 if(ctx-&gt;left == -1</span>
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :                 &amp;&amp; !(tag_mode || td-&gt;tags_count)) {</span>
+<span class="lineNum">     281 </span>            :                         /*
+<span class="lineNum">     282 </span>            :                          * This is an untagged CHOICE.
+<span class="lineNum">     283 </span>            :                          * It doesn't contain nothing
+<span class="lineNum">     284 </span>            :                          * except for the member itself, including all its tags.
+<span class="lineNum">     285 </span>            :                          * The decoding is completed.
+<span class="lineNum">     286 </span>            :                          */
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :                         NEXT_PHASE(ctx);</span>
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     289 </span>            :                 }
+<span class="lineNum">     290 </span>            : 
+<span class="lineNum">     291 </span>            :                 /*
+<span class="lineNum">     292 </span>            :                  * Read in the &quot;end of data chunks&quot;'s.
+<span class="lineNum">     293 </span>            :                  */
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :                 while(ctx-&gt;left &lt; 0) {</span>
+<span class="lineNum">     295 </span>            :                         ssize_t tl;
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 :                         tl = ber_fetch_tag(ptr, LEFT, &amp;tlv_tag);</span>
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 :                         switch(tl) {</span>
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :                         case 0: if(!SIZE_VIOLATION) RETURN(RC_WMORE);</span>
+<span class="lineNum">     300 </span>            :                                 /* Fall through */
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 :                         case -1: RETURN(RC_FAIL);</span>
+<span class="lineNum">     302 </span>            :                         }
+<span class="lineNum">     303 </span>            : 
+<span class="lineNum">     304 </span>            :                         /*
+<span class="lineNum">     305 </span>            :                          * Expected &lt;0&gt;&lt;0&gt;...
+<span class="lineNum">     306 </span>            :                          */
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :                         if(((const uint8_t *)ptr)[0] == 0) {</span>
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :                                 if(LEFT &lt; 2) {</span>
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 :                                         if(SIZE_VIOLATION)</span>
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :                                                 RETURN(RC_FAIL);</span>
+<span class="lineNum">     311 </span>            :                                         else
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :                                                 RETURN(RC_WMORE);</span>
+<span class="lineNum">     313 </span><span class="lineNoCov">          0 :                                 } else if(((const uint8_t *)ptr)[1] == 0) {</span>
+<span class="lineNum">     314 </span>            :                                         /*
+<span class="lineNum">     315 </span>            :                                          * Correctly finished with &lt;0&gt;&lt;0&gt;.
+<span class="lineNum">     316 </span>            :                                          */
+<span class="lineNum">     317 </span><span class="lineNoCov">          0 :                                         ADVANCE(2);</span>
+<span class="lineNum">     318 </span><span class="lineNoCov">          0 :                                         ctx-&gt;left++;</span>
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 :                                         continue;</span>
+<span class="lineNum">     320 </span>            :                                 }
+<span class="lineNum">     321 </span>            :                         } else {
+<span class="lineNum">     322 </span><span class="lineNoCov">          0 :                                 RETURN(RC_FAIL);</span>
+<span class="lineNum">     323 </span>            :                         }
+<span class="lineNum">     324 </span>            : 
+<span class="lineNum">     325 </span>            :                         /* UNREACHABLE */
+<span class="lineNum">     326 </span>            :                 }
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :                 NEXT_PHASE(ctx);</span>
+<span class="lineNum">     329 </span>            :         case 4:
+<span class="lineNum">     330 </span>            :                 /* No meaningful work here */
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     332 </span>            :         }
+<span class="lineNum">     333 </span>            :         
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :         RETURN(RC_OK);</span>
+<span class="lineNum">     335 </span>            : }
+<a name="336"><span class="lineNum">     336 </span>            : </a>
+<span class="lineNum">     337 </span>            : asn_enc_rval_t
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 : CHOICE_encode_der(asn_TYPE_descriptor_t *td, void *sptr,</span>
+<span class="lineNum">     339 </span>            :                 int tag_mode, ber_tlv_tag_t tag,
+<span class="lineNum">     340 </span>            :                 asn_app_consume_bytes_f *cb, void *app_key) {
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :         asn_CHOICE_specifics_t *specs = (asn_CHOICE_specifics_t *)td-&gt;specifics;</span>
+<span class="lineNum">     342 </span>            :         asn_TYPE_member_t *elm; /* CHOICE element */
+<span class="lineNum">     343 </span>            :         asn_enc_rval_t erval;
+<span class="lineNum">     344 </span>            :         void *memb_ptr;
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 :         size_t computed_size = 0;</span>
+<span class="lineNum">     346 </span>            :         int present;
+<span class="lineNum">     347 </span>            : 
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :         if(!sptr) _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">     349 </span>            : 
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :         present = _fetch_present_idx(sptr,</span>
+<span class="lineNum">     351 </span>            :                 specs-&gt;pres_offset, specs-&gt;pres_size);
+<span class="lineNum">     352 </span>            : 
+<span class="lineNum">     353 </span>            :         /*
+<span class="lineNum">     354 </span>            :          * If the structure was not initialized, it cannot be encoded:
+<span class="lineNum">     355 </span>            :          * can't deduce what to encode in the choice type.
+<span class="lineNum">     356 </span>            :          */
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :         if(present &lt;= 0 || present &gt; td-&gt;elements_count) {</span>
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :                 if(present == 0 &amp;&amp; td-&gt;elements_count == 0) {</span>
+<span class="lineNum">     359 </span>            :                         /* The CHOICE is empty?! */
+<span class="lineNum">     360 </span><span class="lineNoCov">          0 :                         erval.encoded = 0;</span>
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :                         _ASN_ENCODED_OK(erval);</span>
+<span class="lineNum">     362 </span>            :                 }
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :                 _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">     364 </span>            :         }
+<span class="lineNum">     365 </span>            : 
+<span class="lineNum">     366 </span>            :         /*
+<span class="lineNum">     367 </span>            :          * Seek over the present member of the structure.
+<span class="lineNum">     368 </span>            :          */
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :         elm = &amp;td-&gt;elements[present-1];</span>
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :         if(elm-&gt;flags &amp; ATF_POINTER) {</span>
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :                 memb_ptr = *(void **)((char *)sptr + elm-&gt;memb_offset);</span>
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :                 if(memb_ptr == 0) {</span>
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :                         if(elm-&gt;optional) {</span>
+<span class="lineNum">     374 </span><span class="lineNoCov">          0 :                                 erval.encoded = 0;</span>
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :                                 _ASN_ENCODED_OK(erval);</span>
+<span class="lineNum">     376 </span>            :                         }
+<span class="lineNum">     377 </span>            :                         /* Mandatory element absent */
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :                         _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">     379 </span>            :                 }
+<span class="lineNum">     380 </span>            :         } else {
+<span class="lineNum">     381 </span><span class="lineNoCov">          0 :                 memb_ptr = (void *)((char *)sptr + elm-&gt;memb_offset);</span>
+<span class="lineNum">     382 </span>            :         }
+<span class="lineNum">     383 </span>            : 
+<span class="lineNum">     384 </span>            :         /*
+<span class="lineNum">     385 </span>            :          * If the CHOICE itself is tagged EXPLICIT:
+<span class="lineNum">     386 </span>            :          * T ::= [2] EXPLICIT CHOICE { ... }
+<span class="lineNum">     387 </span>            :          * Then emit the appropriate tags.
+<span class="lineNum">     388 </span>            :          */
+<span class="lineNum">     389 </span><span class="lineNoCov">          0 :         if(tag_mode == 1 || td-&gt;tags_count) {</span>
+<span class="lineNum">     390 </span>            :                 /*
+<span class="lineNum">     391 </span>            :                  * For this, we need to pre-compute the member.
+<span class="lineNum">     392 </span>            :                  */
+<span class="lineNum">     393 </span>            :                 ssize_t ret;
+<span class="lineNum">     394 </span>            : 
+<span class="lineNum">     395 </span>            :                 /* Encode member with its tag */
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :                 erval = elm-&gt;type-&gt;der_encoder(elm-&gt;type, memb_ptr,</span>
+<span class="lineNum">     397 </span>            :                         elm-&gt;tag_mode, elm-&gt;tag, 0, 0);
+<span class="lineNum">     398 </span><span class="lineNoCov">          0 :                 if(erval.encoded == -1)</span>
+<span class="lineNum">     399 </span><span class="lineNoCov">          0 :                         return erval;</span>
+<span class="lineNum">     400 </span>            : 
+<span class="lineNum">     401 </span>            :                 /* Encode CHOICE with parent or my own tag */
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :                 ret = der_write_tags(td, erval.encoded, tag_mode, 1, tag,</span>
+<span class="lineNum">     403 </span>            :                         cb, app_key);
+<span class="lineNum">     404 </span><span class="lineNoCov">          0 :                 if(ret == -1)</span>
+<span class="lineNum">     405 </span><span class="lineNoCov">          0 :                         _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 :                 computed_size += ret;</span>
+<span class="lineNum">     407 </span>            :         }
+<span class="lineNum">     408 </span>            : 
+<span class="lineNum">     409 </span>            :         /*
+<span class="lineNum">     410 </span>            :          * Encode the single underlying member.
+<span class="lineNum">     411 </span>            :          */
+<span class="lineNum">     412 </span><span class="lineNoCov">          0 :         erval = elm-&gt;type-&gt;der_encoder(elm-&gt;type, memb_ptr,</span>
+<span class="lineNum">     413 </span>            :                 elm-&gt;tag_mode, elm-&gt;tag, cb, app_key);
+<span class="lineNum">     414 </span><span class="lineNoCov">          0 :         if(erval.encoded == -1)</span>
+<span class="lineNum">     415 </span><span class="lineNoCov">          0 :                 return erval;</span>
+<span class="lineNum">     416 </span>            : 
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :         erval.encoded += computed_size;</span>
+<span class="lineNum">     418 </span>            : 
+<span class="lineNum">     419 </span><span class="lineNoCov">          0 :         return erval;</span>
+<span class="lineNum">     420 </span>            : }
+<a name="421"><span class="lineNum">     421 </span>            : </a>
+<span class="lineNum">     422 </span>            : ber_tlv_tag_t
+<span class="lineNum">     423 </span><span class="lineNoCov">          0 : CHOICE_outmost_tag(asn_TYPE_descriptor_t *td, const void *ptr, int tag_mode, ber_tlv_tag_t tag) {</span>
+<span class="lineNum">     424 </span><span class="lineNoCov">          0 :         asn_CHOICE_specifics_t *specs = (asn_CHOICE_specifics_t *)td-&gt;specifics;</span>
+<span class="lineNum">     425 </span>            :         int present;
+<span class="lineNum">     426 </span>            : 
+<span class="lineNum">     427 </span>            :         assert(tag_mode == 0); (void)tag_mode;
+<span class="lineNum">     428 </span>            :         assert(tag == 0); (void)tag;
+<span class="lineNum">     429 </span>            : 
+<span class="lineNum">     430 </span>            :         /*
+<span class="lineNum">     431 </span>            :          * Figure out which CHOICE element is encoded.
+<span class="lineNum">     432 </span>            :          */
+<span class="lineNum">     433 </span><span class="lineNoCov">          0 :         present = _fetch_present_idx(ptr, specs-&gt;pres_offset, specs-&gt;pres_size);</span>
+<span class="lineNum">     434 </span>            : 
+<span class="lineNum">     435 </span><span class="lineNoCov">          0 :         if(present &gt; 0 || present &lt;= td-&gt;elements_count) {</span>
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 :                 asn_TYPE_member_t *elm = &amp;td-&gt;elements[present-1];</span>
+<span class="lineNum">     437 </span>            :                 const void *memb_ptr;
+<span class="lineNum">     438 </span>            : 
+<span class="lineNum">     439 </span><span class="lineNoCov">          0 :                 if(elm-&gt;flags &amp; ATF_POINTER) {</span>
+<span class="lineNum">     440 </span><span class="lineNoCov">          0 :                         memb_ptr = *(const void * const *)</span>
+<span class="lineNum">     441 </span><span class="lineNoCov">          0 :                                         ((const char *)ptr + elm-&gt;memb_offset);</span>
+<span class="lineNum">     442 </span>            :                 } else {
+<span class="lineNum">     443 </span><span class="lineNoCov">          0 :                         memb_ptr = (const void *)</span>
+<span class="lineNum">     444 </span><span class="lineNoCov">          0 :                                         ((const char *)ptr + elm-&gt;memb_offset);</span>
+<span class="lineNum">     445 </span>            :                 }
+<span class="lineNum">     446 </span>            : 
+<span class="lineNum">     447 </span><span class="lineNoCov">          0 :                 return asn_TYPE_outmost_tag(elm-&gt;type, memb_ptr,</span>
+<span class="lineNum">     448 </span>            :                         elm-&gt;tag_mode, elm-&gt;tag);
+<span class="lineNum">     449 </span>            :         } else {
+<span class="lineNum">     450 </span><span class="lineNoCov">          0 :                 return (ber_tlv_tag_t)-1;</span>
+<span class="lineNum">     451 </span>            :         }
+<span class="lineNum">     452 </span>            : }
+<a name="453"><span class="lineNum">     453 </span>            : </a>
+<span class="lineNum">     454 </span>            : int
+<span class="lineNum">     455 </span><span class="lineNoCov">          0 : CHOICE_constraint(asn_TYPE_descriptor_t *td, const void *sptr,</span>
+<span class="lineNum">     456 </span>            :                 asn_app_constraint_failed_f *ctfailcb, void *app_key) {
+<span class="lineNum">     457 </span><span class="lineNoCov">          0 :         asn_CHOICE_specifics_t *specs = (asn_CHOICE_specifics_t *)td-&gt;specifics;</span>
+<span class="lineNum">     458 </span>            :         int present;
+<span class="lineNum">     459 </span>            : 
+<span class="lineNum">     460 </span><span class="lineNoCov">          0 :         if(!sptr) {</span>
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :                 return -1;</span>
+<span class="lineNum">     462 </span>            :         }
+<span class="lineNum">     463 </span>            : 
+<span class="lineNum">     464 </span>            :         /*
+<span class="lineNum">     465 </span>            :          * Figure out which CHOICE element is encoded.
+<span class="lineNum">     466 </span>            :          */
+<span class="lineNum">     467 </span><span class="lineNoCov">          0 :         present = _fetch_present_idx(sptr, specs-&gt;pres_offset,specs-&gt;pres_size);</span>
+<span class="lineNum">     468 </span><span class="lineNoCov">          0 :         if(present &gt; 0 &amp;&amp; present &lt;= td-&gt;elements_count) {</span>
+<span class="lineNum">     469 </span><span class="lineNoCov">          0 :                 asn_TYPE_member_t *elm = &amp;td-&gt;elements[present-1];</span>
+<span class="lineNum">     470 </span>            :                 const void *memb_ptr;
+<span class="lineNum">     471 </span>            : 
+<span class="lineNum">     472 </span><span class="lineNoCov">          0 :                 if(elm-&gt;flags &amp; ATF_POINTER) {</span>
+<span class="lineNum">     473 </span><span class="lineNoCov">          0 :                         memb_ptr = *(const void * const *)((const char *)sptr + elm-&gt;memb_offset);</span>
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 :                         if(!memb_ptr) {</span>
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :                                 if(elm-&gt;optional)</span>
+<span class="lineNum">     476 </span><span class="lineNoCov">          0 :                                         return 0;</span>
+<span class="lineNum">     477 </span>            : 
+<span class="lineNum">     478 </span><span class="lineNoCov">          0 :                                 return -1;</span>
+<span class="lineNum">     479 </span>            :                         }
+<span class="lineNum">     480 </span>            :                 } else {
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :                         memb_ptr = (const void *)((const char *)sptr + elm-&gt;memb_offset);</span>
+<span class="lineNum">     482 </span>            :                 }
+<span class="lineNum">     483 </span>            : 
+<span class="lineNum">     484 </span><span class="lineNoCov">          0 :                 if(elm-&gt;memb_constraints) {</span>
+<span class="lineNum">     485 </span><span class="lineNoCov">          0 :                         return elm-&gt;memb_constraints(elm-&gt;type, memb_ptr,</span>
+<span class="lineNum">     486 </span>            :                                 ctfailcb, app_key);
+<span class="lineNum">     487 </span>            :                 } else {
+<span class="lineNum">     488 </span><span class="lineNoCov">          0 :                         int ret = elm-&gt;type-&gt;check_constraints(elm-&gt;type,</span>
+<span class="lineNum">     489 </span>            :                                         memb_ptr, ctfailcb, app_key);
+<span class="lineNum">     490 </span>            :                         /*
+<span class="lineNum">     491 </span>            :                          * Cannot inherit it eralier:
+<span class="lineNum">     492 </span>            :                          * need to make sure we get the updated version.
+<span class="lineNum">     493 </span>            :                          */
+<span class="lineNum">     494 </span><span class="lineNoCov">          0 :                         elm-&gt;memb_constraints = elm-&gt;type-&gt;check_constraints;</span>
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :                         return ret;</span>
+<span class="lineNum">     496 </span>            :                 }
+<span class="lineNum">     497 </span>            :         } else {
+<span class="lineNum">     498 </span><span class="lineNoCov">          0 :                 return -1;</span>
+<span class="lineNum">     499 </span>            :         }
+<span class="lineNum">     500 </span>            : }
+<span class="lineNum">     501 </span>            : 
+<span class="lineNum">     502 </span>            : #undef  XER_ADVANCE
+<span class="lineNum">     503 </span>            : #define XER_ADVANCE(num_bytes)  do {                    \
+<span class="lineNum">     504 </span>            :                 size_t num = num_bytes;                 \
+<span class="lineNum">     505 </span>            :                 buf_ptr = ((const char *)buf_ptr) + num;\
+<span class="lineNum">     506 </span>            :                 size -= num;                            \
+<span class="lineNum">     507 </span>            :                 consumed_myself += num;                 \
+<span class="lineNum">     508 </span>            :         } while(0)
+<span class="lineNum">     509 </span>            : 
+<span class="lineNum">     510 </span>            : /*
+<span class="lineNum">     511 </span>            :  * Decode the XER (XML) data.
+<a name="512"><span class="lineNum">     512 </span>            :  */</a>
+<span class="lineNum">     513 </span>            : asn_dec_rval_t
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 : CHOICE_decode_xer(asn_codec_ctx_t *opt_codec_ctx, asn_TYPE_descriptor_t *td,</span>
+<span class="lineNum">     515 </span>            :         void **struct_ptr, const char *opt_mname,
+<span class="lineNum">     516 </span>            :                 const void *buf_ptr, size_t size) {
+<span class="lineNum">     517 </span>            :         /*
+<span class="lineNum">     518 </span>            :          * Bring closer parts of structure description.
+<span class="lineNum">     519 </span>            :          */
+<span class="lineNum">     520 </span><span class="lineNoCov">          0 :         asn_CHOICE_specifics_t *specs = (asn_CHOICE_specifics_t *)td-&gt;specifics;</span>
+<span class="lineNum">     521 </span><span class="lineNoCov">          0 :         const char *xml_tag = opt_mname ? opt_mname : td-&gt;xml_tag;</span>
+<span class="lineNum">     522 </span>            : 
+<span class="lineNum">     523 </span>            :         /*
+<span class="lineNum">     524 </span>            :          * Parts of the structure being constructed.
+<span class="lineNum">     525 </span>            :          */
+<span class="lineNum">     526 </span><span class="lineNoCov">          0 :         void *st = *struct_ptr; /* Target structure. */</span>
+<span class="lineNum">     527 </span>            :         asn_struct_ctx_t *ctx;  /* Decoder context */
+<span class="lineNum">     528 </span>            : 
+<span class="lineNum">     529 </span>            :         asn_dec_rval_t rval;            /* Return value of a decoder */
+<span class="lineNum">     530 </span><span class="lineNoCov">          0 :         ssize_t consumed_myself = 0;    /* Consumed bytes from ptr */</span>
+<span class="lineNum">     531 </span>            :         int edx;                        /* Element index */
+<span class="lineNum">     532 </span>            : 
+<span class="lineNum">     533 </span>            :         /*
+<span class="lineNum">     534 </span>            :          * Create the target structure if it is not present already.
+<span class="lineNum">     535 </span>            :          */
+<span class="lineNum">     536 </span><span class="lineNoCov">          0 :         if(st == 0) {</span>
+<span class="lineNum">     537 </span><span class="lineNoCov">          0 :                 st = *struct_ptr = CALLOC(1, specs-&gt;struct_size);</span>
+<span class="lineNum">     538 </span><span class="lineNoCov">          0 :                 if(st == 0) RETURN(RC_FAIL);</span>
+<span class="lineNum">     539 </span>            :         }
+<span class="lineNum">     540 </span>            : 
+<span class="lineNum">     541 </span>            :         /*
+<span class="lineNum">     542 </span>            :          * Restore parsing context.
+<span class="lineNum">     543 </span>            :          */
+<span class="lineNum">     544 </span><span class="lineNoCov">          0 :         ctx = (asn_struct_ctx_t *)((char *)st + specs-&gt;ctx_offset);</span>
+<span class="lineNum">     545 </span><span class="lineNoCov">          0 :         if(ctx-&gt;phase == 0 &amp;&amp; !*xml_tag)</span>
+<span class="lineNum">     546 </span><span class="lineNoCov">          0 :                 ctx-&gt;phase = 1;      /* Skip the outer tag checking phase */</span>
+<span class="lineNum">     547 </span>            : 
+<span class="lineNum">     548 </span>            :         /*
+<span class="lineNum">     549 </span>            :          * Phases of XER/XML processing:
+<span class="lineNum">     550 </span>            :          * Phase 0: Check that the opening tag matches our expectations.
+<span class="lineNum">     551 </span>            :          * Phase 1: Processing body and reacting on closing tag.
+<span class="lineNum">     552 </span>            :          * Phase 2: Processing inner type.
+<span class="lineNum">     553 </span>            :          * Phase 3: Only waiting for closing tag.
+<span class="lineNum">     554 </span>            :          * Phase 4: Skipping unknown extensions.
+<span class="lineNum">     555 </span>            :          * Phase 5: PHASED OUT
+<span class="lineNum">     556 </span>            :          */
+<span class="lineNum">     557 </span><span class="lineNoCov">          0 :         for(edx = ctx-&gt;step; ctx-&gt;phase &lt;= 4;) {</span>
+<span class="lineNum">     558 </span>            :                 pxer_chunk_type_e ch_type;      /* XER chunk type */
+<span class="lineNum">     559 </span>            :                 ssize_t ch_size;                /* Chunk size */
+<span class="lineNum">     560 </span>            :                 xer_check_tag_e tcv;            /* Tag check value */
+<span class="lineNum">     561 </span>            :                 asn_TYPE_member_t *elm;
+<span class="lineNum">     562 </span>            : 
+<span class="lineNum">     563 </span>            :                 /*
+<span class="lineNum">     564 </span>            :                  * Go inside the member.
+<span class="lineNum">     565 </span>            :                  */
+<span class="lineNum">     566 </span><span class="lineNoCov">          0 :                 if(ctx-&gt;phase == 2) {</span>
+<span class="lineNum">     567 </span>            :                         asn_dec_rval_t tmprval;
+<span class="lineNum">     568 </span>            :                         void *memb_ptr;         /* Pointer to the member */
+<span class="lineNum">     569 </span>            :                         void **memb_ptr2;       /* Pointer to that pointer */
+<span class="lineNum">     570 </span>            : 
+<span class="lineNum">     571 </span><span class="lineNoCov">          0 :                         elm = &amp;td-&gt;elements[edx];</span>
+<span class="lineNum">     572 </span>            : 
+<span class="lineNum">     573 </span><span class="lineNoCov">          0 :                         if(elm-&gt;flags &amp; ATF_POINTER) {</span>
+<span class="lineNum">     574 </span>            :                                 /* Member is a pointer to another structure */
+<span class="lineNum">     575 </span><span class="lineNoCov">          0 :                                 memb_ptr2 = (void **)((char *)st</span>
+<span class="lineNum">     576 </span><span class="lineNoCov">          0 :                                         + elm-&gt;memb_offset);</span>
+<span class="lineNum">     577 </span>            :                         } else {
+<span class="lineNum">     578 </span><span class="lineNoCov">          0 :                                 memb_ptr = (char *)st + elm-&gt;memb_offset;</span>
+<span class="lineNum">     579 </span><span class="lineNoCov">          0 :                                 memb_ptr2 = &amp;memb_ptr;</span>
+<span class="lineNum">     580 </span>            :                         }
+<span class="lineNum">     581 </span>            : 
+<span class="lineNum">     582 </span>            :                         /* Start/Continue decoding the inner member */
+<span class="lineNum">     583 </span><span class="lineNoCov">          0 :                         tmprval = elm-&gt;type-&gt;xer_decoder(opt_codec_ctx,</span>
+<span class="lineNum">     584 </span><span class="lineNoCov">          0 :                                         elm-&gt;type, memb_ptr2, elm-&gt;name,</span>
+<span class="lineNum">     585 </span>            :                                         buf_ptr, size);
+<span class="lineNum">     586 </span><span class="lineNoCov">          0 :                         XER_ADVANCE(tmprval.consumed);</span>
+<span class="lineNum">     587 </span>            : 
+<span class="lineNum">     588 </span><span class="lineNoCov">          0 :                         if(tmprval.code != RC_OK)</span>
+<span class="lineNum">     589 </span><span class="lineNoCov">          0 :                                 RETURN(tmprval.code);</span>
+<span class="lineNum">     590 </span>            :                         assert(_fetch_present_idx(st,
+<span class="lineNum">     591 </span>            :                                 specs-&gt;pres_offset, specs-&gt;pres_size) == 0);
+<span class="lineNum">     592 </span>            :                         /* Record what we've got */
+<span class="lineNum">     593 </span><span class="lineNoCov">          0 :                         _set_present_idx(st,</span>
+<span class="lineNum">     594 </span>            :                                 specs-&gt;pres_offset, specs-&gt;pres_size, edx + 1);
+<span class="lineNum">     595 </span><span class="lineNoCov">          0 :                         ctx-&gt;phase = 3;</span>
+<span class="lineNum">     596 </span>            :                         /* Fall through */
+<span class="lineNum">     597 </span>            :                 }
+<span class="lineNum">     598 </span>            : 
+<span class="lineNum">     599 </span>            :                 /* No need to wait for closing tag; special mode. */
+<span class="lineNum">     600 </span><span class="lineNoCov">          0 :                 if(ctx-&gt;phase == 3 &amp;&amp; !*xml_tag) {</span>
+<span class="lineNum">     601 </span><span class="lineNoCov">          0 :                         ctx-&gt;phase = 5;      /* Phase out */</span>
+<span class="lineNum">     602 </span><span class="lineNoCov">          0 :                         RETURN(RC_OK);</span>
+<span class="lineNum">     603 </span>            :                 }
+<span class="lineNum">     604 </span>            : 
+<span class="lineNum">     605 </span>            :                 /*
+<span class="lineNum">     606 </span>            :                  * Get the next part of the XML stream.
+<span class="lineNum">     607 </span>            :                  */
+<span class="lineNum">     608 </span><span class="lineNoCov">          0 :                 ch_size = xer_next_token(&amp;ctx-&gt;context, buf_ptr, size, &amp;ch_type);</span>
+<span class="lineNum">     609 </span><span class="lineNoCov">          0 :                 switch(ch_size) {</span>
+<span class="lineNum">     610 </span><span class="lineNoCov">          0 :                 case -1: RETURN(RC_FAIL);</span>
+<span class="lineNum">     611 </span><span class="lineNoCov">          0 :                 case 0:  RETURN(RC_WMORE);</span>
+<span class="lineNum">     612 </span>            :                 default:
+<span class="lineNum">     613 </span><span class="lineNoCov">          0 :                         switch(ch_type) {</span>
+<span class="lineNum">     614 </span>            :                         case PXER_COMMENT:      /* Got XML comment */
+<span class="lineNum">     615 </span>            :                         case PXER_TEXT:         /* Ignore free-standing text */
+<span class="lineNum">     616 </span><span class="lineNoCov">          0 :                                 XER_ADVANCE(ch_size);   /* Skip silently */</span>
+<span class="lineNum">     617 </span><span class="lineNoCov">          0 :                                 continue;</span>
+<span class="lineNum">     618 </span>            :                         case PXER_TAG:
+<span class="lineNum">     619 </span><span class="lineNoCov">          0 :                                 break;  /* Check the rest down there */</span>
+<span class="lineNum">     620 </span>            :                         }
+<span class="lineNum">     621 </span>            :                 }
+<span class="lineNum">     622 </span>            : 
+<span class="lineNum">     623 </span><span class="lineNoCov">          0 :                 tcv = xer_check_tag(buf_ptr, ch_size, xml_tag);</span>
+<span class="lineNum">     624 </span>            : 
+<span class="lineNum">     625 </span>            :                 /* Skip the extensions section */
+<span class="lineNum">     626 </span><span class="lineNoCov">          0 :                 if(ctx-&gt;phase == 4) {</span>
+<span class="lineNum">     627 </span>            : 
+<span class="lineNum">     628 </span><span class="lineNoCov">          0 :                         switch(xer_skip_unknown(tcv, &amp;ctx-&gt;left)) {</span>
+<span class="lineNum">     629 </span>            :                         case -1:
+<span class="lineNum">     630 </span><span class="lineNoCov">          0 :                                 ctx-&gt;phase = 5;</span>
+<span class="lineNum">     631 </span><span class="lineNoCov">          0 :                                 RETURN(RC_FAIL);</span>
+<span class="lineNum">     632 </span>            :                                 continue;
+<span class="lineNum">     633 </span>            :                         case 1:
+<span class="lineNum">     634 </span><span class="lineNoCov">          0 :                                 ctx-&gt;phase = 3;</span>
+<span class="lineNum">     635 </span>            :                                 /* Fall through */
+<span class="lineNum">     636 </span>            :                         case 0:
+<span class="lineNum">     637 </span><span class="lineNoCov">          0 :                                 XER_ADVANCE(ch_size);</span>
+<span class="lineNum">     638 </span><span class="lineNoCov">          0 :                                 continue;</span>
+<span class="lineNum">     639 </span>            :                         case 2:
+<span class="lineNum">     640 </span><span class="lineNoCov">          0 :                                 ctx-&gt;phase = 3;</span>
+<span class="lineNum">     641 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     642 </span>            :                         }
+<span class="lineNum">     643 </span>            :                 }
+<span class="lineNum">     644 </span>            : 
+<span class="lineNum">     645 </span><span class="lineNoCov">          0 :                 switch(tcv) {</span>
+<span class="lineNum">     646 </span>            :                 case XCT_BOTH:
+<span class="lineNum">     647 </span><span class="lineNoCov">          0 :                         break;  /* No CHOICE? */</span>
+<span class="lineNum">     648 </span>            :                 case XCT_CLOSING:
+<span class="lineNum">     649 </span><span class="lineNoCov">          0 :                         if(ctx-&gt;phase != 3)</span>
+<span class="lineNum">     650 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     651 </span><span class="lineNoCov">          0 :                         XER_ADVANCE(ch_size);</span>
+<span class="lineNum">     652 </span><span class="lineNoCov">          0 :                         ctx-&gt;phase = 5;      /* Phase out */</span>
+<span class="lineNum">     653 </span><span class="lineNoCov">          0 :                         RETURN(RC_OK);</span>
+<span class="lineNum">     654 </span>            :                 case XCT_OPENING:
+<span class="lineNum">     655 </span><span class="lineNoCov">          0 :                         if(ctx-&gt;phase == 0) {</span>
+<span class="lineNum">     656 </span><span class="lineNoCov">          0 :                                 XER_ADVANCE(ch_size);</span>
+<span class="lineNum">     657 </span><span class="lineNoCov">          0 :                                 ctx-&gt;phase = 1;      /* Processing body phase */</span>
+<span class="lineNum">     658 </span><span class="lineNoCov">          0 :                                 continue;</span>
+<span class="lineNum">     659 </span>            :                         }
+<span class="lineNum">     660 </span>            :                         /* Fall through */
+<span class="lineNum">     661 </span>            :                 case XCT_UNKNOWN_OP:
+<span class="lineNum">     662 </span>            :                 case XCT_UNKNOWN_BO:
+<span class="lineNum">     663 </span>            : 
+<span class="lineNum">     664 </span><span class="lineNoCov">          0 :                         if(ctx-&gt;phase != 1)</span>
+<span class="lineNum">     665 </span><span class="lineNoCov">          0 :                                 break;  /* Really unexpected */</span>
+<span class="lineNum">     666 </span>            : 
+<span class="lineNum">     667 </span>            :                         /*
+<span class="lineNum">     668 </span>            :                          * Search which inner member corresponds to this tag.
+<span class="lineNum">     669 </span>            :                          */
+<span class="lineNum">     670 </span><span class="lineNoCov">          0 :                         for(edx = 0; edx &lt; td-&gt;elements_count; edx++) {</span>
+<span class="lineNum">     671 </span><span class="lineNoCov">          0 :                                 elm = &amp;td-&gt;elements[edx];</span>
+<span class="lineNum">     672 </span><span class="lineNoCov">          0 :                                 tcv = xer_check_tag(buf_ptr,ch_size,elm-&gt;name);</span>
+<span class="lineNum">     673 </span><span class="lineNoCov">          0 :                                 switch(tcv) {</span>
+<span class="lineNum">     674 </span>            :                                 case XCT_BOTH:
+<span class="lineNum">     675 </span>            :                                 case XCT_OPENING:
+<span class="lineNum">     676 </span>            :                                         /*
+<span class="lineNum">     677 </span>            :                                          * Process this member.
+<span class="lineNum">     678 </span>            :                                          */
+<span class="lineNum">     679 </span><span class="lineNoCov">          0 :                                         ctx-&gt;step = edx;</span>
+<span class="lineNum">     680 </span><span class="lineNoCov">          0 :                                         ctx-&gt;phase = 2;</span>
+<span class="lineNum">     681 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">     682 </span>            :                                 case XCT_UNKNOWN_OP:
+<span class="lineNum">     683 </span>            :                                 case XCT_UNKNOWN_BO:
+<span class="lineNum">     684 </span><span class="lineNoCov">          0 :                                         continue;</span>
+<span class="lineNum">     685 </span>            :                                 default:
+<span class="lineNum">     686 </span><span class="lineNoCov">          0 :                                         edx = td-&gt;elements_count;</span>
+<span class="lineNum">     687 </span><span class="lineNoCov">          0 :                                         break;  /* Phase out */</span>
+<span class="lineNum">     688 </span>            :                                 }
+<span class="lineNum">     689 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     690 </span>            :                         }
+<span class="lineNum">     691 </span><span class="lineNoCov">          0 :                         if(edx != td-&gt;elements_count)</span>
+<span class="lineNum">     692 </span><span class="lineNoCov">          0 :                                 continue;</span>
+<span class="lineNum">     693 </span>            : 
+<span class="lineNum">     694 </span>            :                         /* It is expected extension */
+<span class="lineNum">     695 </span><span class="lineNoCov">          0 :                         if(specs-&gt;ext_start != -1) {</span>
+<span class="lineNum">     696 </span>            :                                 /*
+<span class="lineNum">     697 </span>            :                                  * Check for (XCT_BOTH or XCT_UNKNOWN_BO)
+<span class="lineNum">     698 </span>            :                                  * By using a mask. Only record a pure
+<span class="lineNum">     699 </span>            :                                  * &lt;opening&gt; tags.
+<span class="lineNum">     700 </span>            :                                  */
+<span class="lineNum">     701 </span><span class="lineNoCov">          0 :                                 if(tcv &amp; XCT_CLOSING) {</span>
+<span class="lineNum">     702 </span>            :                                         /* Found &lt;/extension&gt; without body */
+<span class="lineNum">     703 </span><span class="lineNoCov">          0 :                                         ctx-&gt;phase = 3; /* Terminating */</span>
+<span class="lineNum">     704 </span>            :                                 } else {
+<span class="lineNum">     705 </span><span class="lineNoCov">          0 :                                         ctx-&gt;left = 1;</span>
+<span class="lineNum">     706 </span><span class="lineNoCov">          0 :                                         ctx-&gt;phase = 4; /* Skip ...'s */</span>
+<span class="lineNum">     707 </span>            :                                 }
+<span class="lineNum">     708 </span><span class="lineNoCov">          0 :                                 XER_ADVANCE(ch_size);</span>
+<span class="lineNum">     709 </span><span class="lineNoCov">          0 :                                 continue;</span>
+<span class="lineNum">     710 </span>            :                         }
+<span class="lineNum">     711 </span>            : 
+<span class="lineNum">     712 </span>            :                         /* Fall through */
+<span class="lineNum">     713 </span>            :                 default:
+<span class="lineNum">     714 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     715 </span>            :                 }
+<span class="lineNum">     716 </span>            : 
+<span class="lineNum">     717 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     718 </span>            :         }
+<span class="lineNum">     719 </span>            : 
+<span class="lineNum">     720 </span><span class="lineNoCov">          0 :         ctx-&gt;phase = 5;      /* Phase out, just in case */</span>
+<span class="lineNum">     721 </span><span class="lineNoCov">          0 :         RETURN(RC_FAIL);</span>
+<span class="lineNum">     722 </span>            : }
+<span class="lineNum">     723 </span>            : 
+<a name="724"><span class="lineNum">     724 </span>            : </a>
+<span class="lineNum">     725 </span>            : asn_enc_rval_t
+<span class="lineNum">     726 </span><span class="lineNoCov">          0 : CHOICE_encode_xer(asn_TYPE_descriptor_t *td, void *sptr,</span>
+<span class="lineNum">     727 </span>            :         int ilevel, enum xer_encoder_flags_e flags,
+<span class="lineNum">     728 </span>            :                 asn_app_consume_bytes_f *cb, void *app_key) {
+<span class="lineNum">     729 </span><span class="lineNoCov">          0 :         asn_CHOICE_specifics_t *specs=(asn_CHOICE_specifics_t *)td-&gt;specifics;</span>
+<span class="lineNum">     730 </span>            :         asn_enc_rval_t er;
+<span class="lineNum">     731 </span>            :         int present;
+<span class="lineNum">     732 </span>            : 
+<span class="lineNum">     733 </span><span class="lineNoCov">          0 :         if(!sptr)</span>
+<span class="lineNum">     734 </span><span class="lineNoCov">          0 :                 _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">     735 </span>            : 
+<span class="lineNum">     736 </span>            :         /*
+<span class="lineNum">     737 </span>            :          * Figure out which CHOICE element is encoded.
+<span class="lineNum">     738 </span>            :          */
+<span class="lineNum">     739 </span><span class="lineNoCov">          0 :         present = _fetch_present_idx(sptr, specs-&gt;pres_offset,specs-&gt;pres_size);</span>
+<span class="lineNum">     740 </span>            : 
+<span class="lineNum">     741 </span><span class="lineNoCov">          0 :         if(present &lt;= 0 || present &gt; td-&gt;elements_count) {</span>
+<span class="lineNum">     742 </span><span class="lineNoCov">          0 :                 _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">     743 </span>            :         }  else {
+<span class="lineNum">     744 </span>            :                 asn_enc_rval_t tmper;
+<span class="lineNum">     745 </span><span class="lineNoCov">          0 :                 asn_TYPE_member_t *elm = &amp;td-&gt;elements[present-1];</span>
+<span class="lineNum">     746 </span>            :                 void *memb_ptr;
+<span class="lineNum">     747 </span><span class="lineNoCov">          0 :                 const char *mname = elm-&gt;name;</span>
+<span class="lineNum">     748 </span><span class="lineNoCov">          0 :                 unsigned int mlen = strlen(mname);</span>
+<span class="lineNum">     749 </span>            : 
+<span class="lineNum">     750 </span><span class="lineNoCov">          0 :                 if(elm-&gt;flags &amp; ATF_POINTER) {</span>
+<span class="lineNum">     751 </span><span class="lineNoCov">          0 :                         memb_ptr = *(void **)((char *)sptr + elm-&gt;memb_offset);</span>
+<span class="lineNum">     752 </span><span class="lineNoCov">          0 :                         if(!memb_ptr) _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">     753 </span>            :                 } else {
+<span class="lineNum">     754 </span><span class="lineNoCov">          0 :                         memb_ptr = (void *)((char *)sptr + elm-&gt;memb_offset);</span>
+<span class="lineNum">     755 </span>            :                 }
+<span class="lineNum">     756 </span>            : 
+<span class="lineNum">     757 </span><span class="lineNoCov">          0 :                 er.encoded = 0;</span>
+<span class="lineNum">     758 </span>            : 
+<span class="lineNum">     759 </span><span class="lineNoCov">          0 :                 if(!(flags &amp; XER_F_CANONICAL)) _i_ASN_TEXT_INDENT(1, ilevel);</span>
+<span class="lineNum">     760 </span><span class="lineNoCov">          0 :                 _ASN_CALLBACK3(&quot;&lt;&quot;, 1, mname, mlen, &quot;&gt;&quot;, 1);</span>
+<span class="lineNum">     761 </span>            : 
+<span class="lineNum">     762 </span><span class="lineNoCov">          0 :                 tmper = elm-&gt;type-&gt;xer_encoder(elm-&gt;type, memb_ptr,</span>
+<span class="lineNum">     763 </span>            :                                 ilevel + 1, flags, cb, app_key);
+<span class="lineNum">     764 </span><span class="lineNoCov">          0 :                 if(tmper.encoded == -1) return tmper;</span>
+<span class="lineNum">     765 </span>            : 
+<span class="lineNum">     766 </span><span class="lineNoCov">          0 :                 _ASN_CALLBACK3(&quot;&lt;/&quot;, 2, mname, mlen, &quot;&gt;&quot;, 1);</span>
+<span class="lineNum">     767 </span>            : 
+<span class="lineNum">     768 </span><span class="lineNoCov">          0 :                 er.encoded += 5 + (2 * mlen) + tmper.encoded;</span>
+<span class="lineNum">     769 </span>            :         }
+<span class="lineNum">     770 </span>            : 
+<span class="lineNum">     771 </span><span class="lineNoCov">          0 :         if(!(flags &amp; XER_F_CANONICAL)) _i_ASN_TEXT_INDENT(1, ilevel - 1);</span>
+<span class="lineNum">     772 </span>            : 
+<span class="lineNum">     773 </span><span class="lineNoCov">          0 :         _ASN_ENCODED_OK(er);</span>
+<span class="lineNum">     774 </span>            : cb_failed:
+<span class="lineNum">     775 </span><span class="lineNoCov">          0 :         _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">     776 </span>            : }
+<a name="777"><span class="lineNum">     777 </span>            : </a>
+<span class="lineNum">     778 </span>            : asn_dec_rval_t
+<span class="lineNum">     779 </span><span class="lineNoCov">          0 : CHOICE_decode_uper(asn_codec_ctx_t *opt_codec_ctx, asn_TYPE_descriptor_t *td,</span>
+<span class="lineNum">     780 </span>            :         asn_per_constraints_t *constraints, void **sptr, asn_per_data_t *pd) {
+<span class="lineNum">     781 </span><span class="lineNoCov">          0 :         asn_CHOICE_specifics_t *specs = (asn_CHOICE_specifics_t *)td-&gt;specifics;</span>
+<span class="lineNum">     782 </span>            :         asn_dec_rval_t rv;
+<span class="lineNum">     783 </span>            :         asn_per_constraint_t *ct;
+<span class="lineNum">     784 </span>            :         asn_TYPE_member_t *elm; /* CHOICE's element */
+<span class="lineNum">     785 </span>            :         void *memb_ptr;
+<span class="lineNum">     786 </span>            :         void **memb_ptr2;
+<span class="lineNum">     787 </span><span class="lineNoCov">          0 :         void *st = *sptr;</span>
+<span class="lineNum">     788 </span>            :         int value;
+<span class="lineNum">     789 </span>            : 
+<span class="lineNum">     790 </span><span class="lineNoCov">          0 :         if(_ASN_STACK_OVERFLOW_CHECK(opt_codec_ctx))</span>
+<span class="lineNum">     791 </span><span class="lineNoCov">          0 :                 _ASN_DECODE_FAILED;</span>
+<span class="lineNum">     792 </span>            : 
+<span class="lineNum">     793 </span>            :         /*
+<span class="lineNum">     794 </span>            :          * Create the target structure if it is not present already.
+<span class="lineNum">     795 </span>            :          */
+<span class="lineNum">     796 </span><span class="lineNoCov">          0 :         if(!st) {</span>
+<span class="lineNum">     797 </span><span class="lineNoCov">          0 :                 st = *sptr = CALLOC(1, specs-&gt;struct_size);</span>
+<span class="lineNum">     798 </span><span class="lineNoCov">          0 :                 if(!st) _ASN_DECODE_FAILED;</span>
+<span class="lineNum">     799 </span>            :         }
+<span class="lineNum">     800 </span>            : 
+<span class="lineNum">     801 </span><span class="lineNoCov">          0 :         if(constraints) ct = &amp;constraints-&gt;value;</span>
+<span class="lineNum">     802 </span><span class="lineNoCov">          0 :         else if(td-&gt;per_constraints) ct = &amp;td-&gt;per_constraints-&gt;value;</span>
+<span class="lineNum">     803 </span><span class="lineNoCov">          0 :         else ct = 0;</span>
+<span class="lineNum">     804 </span>            : 
+<span class="lineNum">     805 </span><span class="lineNoCov">          0 :         if(ct &amp;&amp; ct-&gt;flags &amp; APC_EXTENSIBLE) {</span>
+<span class="lineNum">     806 </span><span class="lineNoCov">          0 :                 value = per_get_few_bits(pd, 1);</span>
+<span class="lineNum">     807 </span><span class="lineNoCov">          0 :                 if(value &lt; 0) _ASN_DECODE_STARVED;</span>
+<span class="lineNum">     808 </span><span class="lineNoCov">          0 :                 if(value) ct = 0;       /* Not restricted */</span>
+<span class="lineNum">     809 </span>            :         }
+<span class="lineNum">     810 </span>            : 
+<span class="lineNum">     811 </span><span class="lineNoCov">          0 :         if(ct &amp;&amp; ct-&gt;range_bits &gt;= 0) {</span>
+<span class="lineNum">     812 </span><span class="lineNoCov">          0 :                 value = per_get_few_bits(pd, ct-&gt;range_bits);</span>
+<span class="lineNum">     813 </span><span class="lineNoCov">          0 :                 if(value &lt; 0) _ASN_DECODE_STARVED;</span>
+<span class="lineNum">     814 </span>            : 
+<span class="lineNum">     815 </span><span class="lineNoCov">          0 :                 if(value &gt; ct-&gt;upper_bound)</span>
+<span class="lineNum">     816 </span><span class="lineNoCov">          0 :                         _ASN_DECODE_FAILED;</span>
+<span class="lineNum">     817 </span>            :         } else {
+<span class="lineNum">     818 </span><span class="lineNoCov">          0 :                 if(specs-&gt;ext_start == -1)</span>
+<span class="lineNum">     819 </span><span class="lineNoCov">          0 :                         _ASN_DECODE_FAILED;</span>
+<span class="lineNum">     820 </span><span class="lineNoCov">          0 :                 value = uper_get_nsnnwn(pd);</span>
+<span class="lineNum">     821 </span><span class="lineNoCov">          0 :                 if(value &lt; 0) _ASN_DECODE_STARVED;</span>
+<span class="lineNum">     822 </span><span class="lineNoCov">          0 :                 value += specs-&gt;ext_start;</span>
+<span class="lineNum">     823 </span><span class="lineNoCov">          0 :                 if(value &gt;= td-&gt;elements_count)</span>
+<span class="lineNum">     824 </span><span class="lineNoCov">          0 :                         _ASN_DECODE_FAILED;</span>
+<span class="lineNum">     825 </span>            : 
+<span class="lineNum">     826 </span><span class="lineNoCov">          0 :                 _ASN_DECODE_FAILED;</span>
+<span class="lineNum">     827 </span>            :         }
+<span class="lineNum">     828 </span>            : 
+<span class="lineNum">     829 </span>            :         /* Adjust if canonical order is different from natural order */
+<span class="lineNum">     830 </span><span class="lineNoCov">          0 :         if(specs-&gt;canonical_order)</span>
+<span class="lineNum">     831 </span><span class="lineNoCov">          0 :                 value = specs-&gt;canonical_order[value];</span>
+<span class="lineNum">     832 </span>            : 
+<span class="lineNum">     833 </span>            :         /* Set presence to be able to free it later */
+<span class="lineNum">     834 </span><span class="lineNoCov">          0 :         _set_present_idx(st, specs-&gt;pres_offset, specs-&gt;pres_size, value + 1);</span>
+<span class="lineNum">     835 </span>            : 
+<span class="lineNum">     836 </span><span class="lineNoCov">          0 :         elm = &amp;td-&gt;elements[value];</span>
+<span class="lineNum">     837 </span><span class="lineNoCov">          0 :         if(elm-&gt;flags &amp; ATF_POINTER) {</span>
+<span class="lineNum">     838 </span>            :                 /* Member is a pointer to another structure */
+<span class="lineNum">     839 </span><span class="lineNoCov">          0 :                 memb_ptr2 = (void **)((char *)st + elm-&gt;memb_offset);</span>
+<span class="lineNum">     840 </span>            :         } else {
+<span class="lineNum">     841 </span><span class="lineNoCov">          0 :                 memb_ptr = (char *)st + elm-&gt;memb_offset;</span>
+<span class="lineNum">     842 </span><span class="lineNoCov">          0 :                 memb_ptr2 = &amp;memb_ptr;</span>
+<span class="lineNum">     843 </span>            :         }
+<span class="lineNum">     844 </span>            : 
+<span class="lineNum">     845 </span><span class="lineNoCov">          0 :         rv = elm-&gt;type-&gt;uper_decoder(opt_codec_ctx, elm-&gt;type,</span>
+<span class="lineNum">     846 </span>            :                         elm-&gt;per_constraints, memb_ptr2, pd);
+<span class="lineNum">     847 </span>            : 
+<span class="lineNum">     848 </span><span class="lineNoCov">          0 :         return rv;</span>
+<span class="lineNum">     849 </span>            : }
+<a name="850"><span class="lineNum">     850 </span>            :    </a>
+<span class="lineNum">     851 </span>            : asn_enc_rval_t
+<span class="lineNum">     852 </span><span class="lineNoCov">          0 : CHOICE_encode_uper(asn_TYPE_descriptor_t *td,</span>
+<span class="lineNum">     853 </span>            :         asn_per_constraints_t *constraints, void *sptr, asn_per_outp_t *po) {
+<span class="lineNum">     854 </span><span class="lineNoCov">          0 :         asn_CHOICE_specifics_t *specs = (asn_CHOICE_specifics_t *)td-&gt;specifics;</span>
+<span class="lineNum">     855 </span>            :         asn_TYPE_member_t *elm; /* CHOICE's element */
+<span class="lineNum">     856 </span>            :         asn_per_constraint_t *ct;
+<span class="lineNum">     857 </span>            :         void *memb_ptr;
+<span class="lineNum">     858 </span>            :         int present;
+<span class="lineNum">     859 </span>            : 
+<span class="lineNum">     860 </span><span class="lineNoCov">          0 :         if(!sptr) _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">     861 </span>            : 
+<span class="lineNum">     862 </span><span class="lineNoCov">          0 :         if(constraints) ct = &amp;constraints-&gt;value;</span>
+<span class="lineNum">     863 </span><span class="lineNoCov">          0 :         else if(td-&gt;per_constraints) ct = &amp;td-&gt;per_constraints-&gt;value;</span>
+<span class="lineNum">     864 </span><span class="lineNoCov">          0 :         else ct = 0;</span>
+<span class="lineNum">     865 </span>            : 
+<span class="lineNum">     866 </span><span class="lineNoCov">          0 :         present = _fetch_present_idx(sptr,</span>
+<span class="lineNum">     867 </span>            :                 specs-&gt;pres_offset, specs-&gt;pres_size);
+<span class="lineNum">     868 </span>            : 
+<span class="lineNum">     869 </span>            :         /*
+<span class="lineNum">     870 </span>            :          * If the structure was not initialized properly, it cannot be encoded:
+<span class="lineNum">     871 </span>            :          * can't deduce what to encode in the choice type.
+<span class="lineNum">     872 </span>            :          */
+<span class="lineNum">     873 </span><span class="lineNoCov">          0 :         if(present &lt;= 0 || present &gt; td-&gt;elements_count)</span>
+<span class="lineNum">     874 </span><span class="lineNoCov">          0 :                 _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">     875 </span>            :         else
+<span class="lineNum">     876 </span><span class="lineNoCov">          0 :                 present--;</span>
+<span class="lineNum">     877 </span>            : 
+<span class="lineNum">     878 </span>            :         /* Adjust if canonical order is different from natural order */
+<span class="lineNum">     879 </span><span class="lineNoCov">          0 :         if(specs-&gt;canonical_order)</span>
+<span class="lineNum">     880 </span><span class="lineNoCov">          0 :                 present = specs-&gt;canonical_order[present];</span>
+<span class="lineNum">     881 </span>            : 
+<span class="lineNum">     882 </span><span class="lineNoCov">          0 :         if(ct &amp;&amp; ct-&gt;range_bits &gt;= 0) {</span>
+<span class="lineNum">     883 </span><span class="lineNoCov">          0 :                 if(present &lt; ct-&gt;lower_bound</span>
+<span class="lineNum">     884 </span><span class="lineNoCov">          0 :                 || present &gt; ct-&gt;upper_bound) {</span>
+<span class="lineNum">     885 </span><span class="lineNoCov">          0 :                         if(ct-&gt;flags &amp; APC_EXTENSIBLE) {</span>
+<span class="lineNum">     886 </span><span class="lineNoCov">          0 :                                 if(per_put_few_bits(po, 1, 1))</span>
+<span class="lineNum">     887 </span><span class="lineNoCov">          0 :                                         _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">     888 </span>            :                         } else {
+<span class="lineNum">     889 </span><span class="lineNoCov">          0 :                                 _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">     890 </span>            :                         }
+<span class="lineNum">     891 </span><span class="lineNoCov">          0 :                         ct = 0;</span>
+<span class="lineNum">     892 </span>            :                 }
+<span class="lineNum">     893 </span>            :         }
+<span class="lineNum">     894 </span><span class="lineNoCov">          0 :         if(ct &amp;&amp; ct-&gt;flags &amp; APC_EXTENSIBLE)</span>
+<span class="lineNum">     895 </span><span class="lineNoCov">          0 :                 if(per_put_few_bits(po, 0, 1))</span>
+<span class="lineNum">     896 </span><span class="lineNoCov">          0 :                         _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">     897 </span>            : 
+<span class="lineNum">     898 </span><span class="lineNoCov">          0 :         if(ct &amp;&amp; ct-&gt;range_bits &gt;= 0) {</span>
+<span class="lineNum">     899 </span><span class="lineNoCov">          0 :                 if(per_put_few_bits(po, present, ct-&gt;range_bits))</span>
+<span class="lineNum">     900 </span><span class="lineNoCov">          0 :                         _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">     901 </span>            :         } else {
+<span class="lineNum">     902 </span><span class="lineNoCov">          0 :                 if(specs-&gt;ext_start == -1)</span>
+<span class="lineNum">     903 </span><span class="lineNoCov">          0 :                         _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">     904 </span><span class="lineNoCov">          0 :                 if(uper_put_nsnnwn(po, present - specs-&gt;ext_start))</span>
+<span class="lineNum">     905 </span><span class="lineNoCov">          0 :                         _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">     906 </span>            : 
+<span class="lineNum">     907 </span><span class="lineNoCov">          0 :                 _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">     908 </span>            :         }
+<span class="lineNum">     909 </span>            : 
+<span class="lineNum">     910 </span><span class="lineNoCov">          0 :         elm = &amp;td-&gt;elements[present];</span>
+<span class="lineNum">     911 </span><span class="lineNoCov">          0 :         if(elm-&gt;flags &amp; ATF_POINTER) {</span>
+<span class="lineNum">     912 </span>            :                 /* Member is a pointer to another structure */
+<span class="lineNum">     913 </span><span class="lineNoCov">          0 :                 memb_ptr = *(void **)((char *)sptr + elm-&gt;memb_offset);</span>
+<span class="lineNum">     914 </span><span class="lineNoCov">          0 :                 if(!memb_ptr) _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">     915 </span>            :         } else {
+<span class="lineNum">     916 </span><span class="lineNoCov">          0 :                 memb_ptr = (char *)sptr + elm-&gt;memb_offset;</span>
+<span class="lineNum">     917 </span>            :         }
+<span class="lineNum">     918 </span>            : 
+<span class="lineNum">     919 </span><span class="lineNoCov">          0 :         return elm-&gt;type-&gt;uper_encoder(elm-&gt;type, elm-&gt;per_constraints,</span>
+<span class="lineNum">     920 </span>            :                         memb_ptr, po);
+<span class="lineNum">     921 </span>            : }
+<span class="lineNum">     922 </span>            :    
+<a name="923"><span class="lineNum">     923 </span>            : </a>
+<span class="lineNum">     924 </span>            : int
+<span class="lineNum">     925 </span><span class="lineNoCov">          0 : CHOICE_print(asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,</span>
+<span class="lineNum">     926 </span>            :                 asn_app_consume_bytes_f *cb, void *app_key) {
+<span class="lineNum">     927 </span><span class="lineNoCov">          0 :         asn_CHOICE_specifics_t *specs = (asn_CHOICE_specifics_t *)td-&gt;specifics;</span>
+<span class="lineNum">     928 </span>            :         int present;
+<span class="lineNum">     929 </span>            : 
+<span class="lineNum">     930 </span><span class="lineNoCov">          0 :         if(!sptr) return (cb(&quot;&lt;absent&gt;&quot;, 8, app_key) &lt; 0) ? -1 : 0;</span>
+<span class="lineNum">     931 </span>            : 
+<span class="lineNum">     932 </span>            :         /*
+<span class="lineNum">     933 </span>            :          * Figure out which CHOICE element is encoded.
+<span class="lineNum">     934 </span>            :          */
+<span class="lineNum">     935 </span><span class="lineNoCov">          0 :         present = _fetch_present_idx(sptr, specs-&gt;pres_offset,specs-&gt;pres_size);</span>
+<span class="lineNum">     936 </span>            : 
+<span class="lineNum">     937 </span>            :         /*
+<span class="lineNum">     938 </span>            :          * Print that element.
+<span class="lineNum">     939 </span>            :          */
+<span class="lineNum">     940 </span><span class="lineNoCov">          0 :         if(present &gt; 0 &amp;&amp; present &lt;= td-&gt;elements_count) {</span>
+<span class="lineNum">     941 </span><span class="lineNoCov">          0 :                 asn_TYPE_member_t *elm = &amp;td-&gt;elements[present-1];</span>
+<span class="lineNum">     942 </span>            :                 const void *memb_ptr;
+<span class="lineNum">     943 </span>            : 
+<span class="lineNum">     944 </span><span class="lineNoCov">          0 :                 if(elm-&gt;flags &amp; ATF_POINTER) {</span>
+<span class="lineNum">     945 </span><span class="lineNoCov">          0 :                         memb_ptr = *(const void * const *)((const char *)sptr + elm-&gt;memb_offset);</span>
+<span class="lineNum">     946 </span><span class="lineNoCov">          0 :                         if(!memb_ptr) return (cb(&quot;&lt;absent&gt;&quot;, 8, app_key) &lt; 0) ? -1 : 0;</span>
+<span class="lineNum">     947 </span>            :                 } else {
+<span class="lineNum">     948 </span><span class="lineNoCov">          0 :                         memb_ptr = (const void *)((const char *)sptr + elm-&gt;memb_offset);</span>
+<span class="lineNum">     949 </span>            :                 }
+<span class="lineNum">     950 </span>            : 
+<span class="lineNum">     951 </span>            :                 /* Print member's name and stuff */
+<span class="lineNum">     952 </span>            :                 if(0) {
+<span class="lineNum">     953 </span>            :                         if(cb(elm-&gt;name, strlen(elm-&gt;name), app_key) &lt; 0
+<span class="lineNum">     954 </span>            :                         || cb(&quot;: &quot;, 2, app_key) &lt; 0)
+<span class="lineNum">     955 </span>            :                                 return -1;
+<span class="lineNum">     956 </span>            :                 }
+<span class="lineNum">     957 </span>            : 
+<span class="lineNum">     958 </span><span class="lineNoCov">          0 :                 return elm-&gt;type-&gt;print_struct(elm-&gt;type, memb_ptr, ilevel,</span>
+<span class="lineNum">     959 </span>            :                         cb, app_key);
+<span class="lineNum">     960 </span>            :         } else {
+<span class="lineNum">     961 </span><span class="lineNoCov">          0 :                 return (cb(&quot;&lt;absent&gt;&quot;, 8, app_key) &lt; 0) ? -1 : 0;</span>
+<span class="lineNum">     962 </span>            :         }
+<span class="lineNum">     963 </span>            : }
+<a name="964"><span class="lineNum">     964 </span>            : </a>
+<span class="lineNum">     965 </span>            : void
+<span class="lineNum">     966 </span><span class="lineNoCov">          0 : CHOICE_free(asn_TYPE_descriptor_t *td, void *ptr, int contents_only) {</span>
+<span class="lineNum">     967 </span>            : 
+<span class="lineNum">     968 </span><span class="lineNoCov">          0 :         if(!td || !ptr)</span>
+<span class="lineNum">     969 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     970 </span>            : 
+<span class="lineNum">     971 </span><span class="lineNoCov">          0 :     asn_CHOICE_specifics_t *specs = (asn_CHOICE_specifics_t *)td-&gt;specifics;</span>
+<span class="lineNum">     972 </span>            :     int present;
+<span class="lineNum">     973 </span>            : 
+<span class="lineNum">     974 </span>            :         /*
+<span class="lineNum">     975 </span>            :          * Figure out which CHOICE element is encoded.
+<span class="lineNum">     976 </span>            :          */
+<span class="lineNum">     977 </span><span class="lineNoCov">          0 :         present = _fetch_present_idx(ptr, specs-&gt;pres_offset, specs-&gt;pres_size);</span>
+<span class="lineNum">     978 </span>            : 
+<span class="lineNum">     979 </span>            :         /*
+<span class="lineNum">     980 </span>            :          * Free that element.
+<span class="lineNum">     981 </span>            :          */
+<span class="lineNum">     982 </span><span class="lineNoCov">          0 :         if(present &gt; 0 &amp;&amp; present &lt;= td-&gt;elements_count) {</span>
+<span class="lineNum">     983 </span><span class="lineNoCov">          0 :                 asn_TYPE_member_t *elm = &amp;td-&gt;elements[present-1];</span>
+<span class="lineNum">     984 </span>            :                 void *memb_ptr;
+<span class="lineNum">     985 </span>            : 
+<span class="lineNum">     986 </span><span class="lineNoCov">          0 :                 if(elm-&gt;flags &amp; ATF_POINTER) {</span>
+<span class="lineNum">     987 </span><span class="lineNoCov">          0 :                         memb_ptr = *(void **)((char *)ptr + elm-&gt;memb_offset);</span>
+<span class="lineNum">     988 </span><span class="lineNoCov">          0 :                         if(memb_ptr)</span>
+<span class="lineNum">     989 </span><span class="lineNoCov">          0 :                                 ASN_STRUCT_FREE(*elm-&gt;type, memb_ptr);</span>
+<span class="lineNum">     990 </span>            :                 } else {
+<span class="lineNum">     991 </span><span class="lineNoCov">          0 :                         memb_ptr = (void *)((char *)ptr + elm-&gt;memb_offset);</span>
+<span class="lineNum">     992 </span><span class="lineNoCov">          0 :                         ASN_STRUCT_FREE_CONTENTS_ONLY(*elm-&gt;type, memb_ptr);</span>
+<span class="lineNum">     993 </span>            :                 }
+<span class="lineNum">     994 </span>            :         }
+<span class="lineNum">     995 </span>            : 
+<span class="lineNum">     996 </span><span class="lineNoCov">          0 :         if(!contents_only) {</span>
+<span class="lineNum">     997 </span><span class="lineNoCov">          0 :                 FREEMEM(ptr);</span>
+<span class="lineNum">     998 </span>            :         }
+<span class="lineNum">     999 </span>            : }
+<span class="lineNum">    1000 </span>            : 
+<span class="lineNum">    1001 </span>            : 
+<span class="lineNum">    1002 </span>            : /*
+<span class="lineNum">    1003 </span>            :  * The following functions functions offer protection against -fshort-enums,
+<span class="lineNum">    1004 </span>            :  * compatible with little- and big-endian machines.
+<span class="lineNum">    1005 </span>            :  * If assertion is triggered, either disable -fshort-enums, or add an entry
+<span class="lineNum">    1006 </span>            :  * here with the -&gt;pres_size of your target stracture.
+<span class="lineNum">    1007 </span>            :  * Unless the target structure is packed, the &quot;.present&quot; member
+<span class="lineNum">    1008 </span>            :  * is guaranteed to be aligned properly. ASN.1 compiler itself does not
+<span class="lineNum">    1009 </span>            :  * produce packed code.
+<a name="1010"><span class="lineNum">    1010 </span>            :  */</a>
+<span class="lineNum">    1011 </span>            : static int
+<span class="lineNum">    1012 </span><span class="lineNoCov">          0 : _fetch_present_idx(const void *struct_ptr, int pres_offset, int pres_size) {</span>
+<span class="lineNum">    1013 </span>            :         const void *present_ptr;
+<span class="lineNum">    1014 </span>            :         int present;
+<span class="lineNum">    1015 </span>            : 
+<span class="lineNum">    1016 </span><span class="lineNoCov">          0 :         present_ptr = ((const char *)struct_ptr) + pres_offset;</span>
+<span class="lineNum">    1017 </span>            : 
+<span class="lineNum">    1018 </span><span class="lineNoCov">          0 :         switch(pres_size) {</span>
+<span class="lineNum">    1019 </span><span class="lineNoCov">          0 :         case sizeof(int):       present =   *(const int *)present_ptr; break;</span>
+<span class="lineNum">    1020 </span><span class="lineNoCov">          0 :         case sizeof(short):     present = *(const short *)present_ptr; break;</span>
+<span class="lineNum">    1021 </span><span class="lineNoCov">          0 :         case sizeof(char):      present =  *(const char *)present_ptr; break;</span>
+<span class="lineNum">    1022 </span>            :         default:
+<span class="lineNum">    1023 </span>            :                 /* ANSI C mandates enum to be equivalent to integer */
+<span class="lineNum">    1024 </span>            :                 assert(pres_size != sizeof(int));
+<span class="lineNum">    1025 </span><span class="lineNoCov">          0 :                 return 0;       /* If not aborted, pass back safe value */</span>
+<span class="lineNum">    1026 </span>            :         }
+<span class="lineNum">    1027 </span>            : 
+<span class="lineNum">    1028 </span><span class="lineNoCov">          0 :         return present;</span>
+<span class="lineNum">    1029 </span>            : }
+<a name="1030"><span class="lineNum">    1030 </span>            : </a>
+<span class="lineNum">    1031 </span>            : static void
+<span class="lineNum">    1032 </span><span class="lineNoCov">          0 : _set_present_idx(void *struct_ptr, int pres_offset, int pres_size, int present) {</span>
+<span class="lineNum">    1033 </span>            :         void *present_ptr;
+<span class="lineNum">    1034 </span><span class="lineNoCov">          0 :         present_ptr = ((char *)struct_ptr) + pres_offset;</span>
+<span class="lineNum">    1035 </span>            : 
+<span class="lineNum">    1036 </span><span class="lineNoCov">          0 :         switch(pres_size) {</span>
+<span class="lineNum">    1037 </span><span class="lineNoCov">          0 :         case sizeof(int):       *(int *)present_ptr   = present; break;</span>
+<span class="lineNum">    1038 </span><span class="lineNoCov">          0 :         case sizeof(short):     *(short *)present_ptr = present; break;</span>
+<span class="lineNum">    1039 </span><span class="lineNoCov">          0 :         case sizeof(char):      *(char *)present_ptr  = present; break;</span>
+<span class="lineNum">    1040 </span>            :         default:
+<span class="lineNum">    1041 </span>            :                 /* ANSI C mandates enum to be equivalent to integer */
+<span class="lineNum">    1042 </span>            :                 assert(pres_size != sizeof(int));
+<span class="lineNum">    1043 </span>            :         }
+<span class="lineNum">    1044 </span><span class="lineNoCov">          0 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

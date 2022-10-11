@@ -1,0 +1,77 @@
+// example adapted from the DCPS Specification v1.2, Annex A, Section 3
+
+#include <tao/StringSeq.pidl>
+
+@topic
+struct LocationInfo {
+  @key unsigned long flight_id;
+  @key unsigned long departure_date;
+  long x;
+  long y;
+  long z;
+};
+
+enum FlightType {
+  visual,
+  instrument,
+  mixed
+};
+
+typedef string<3> Airport; // 3 Letter IATA Code
+typedef sequence<Airport> Airports;
+
+@topic
+struct PlanInfo {
+  @key unsigned long flight_id;
+  @key unsigned long departure_date;
+  string flight_name;
+  string tailno;
+  FlightType type;
+  Airport departure;
+  Airport destination;
+  Airports alternative_destinations;
+};
+
+const unsigned long even_more_length = 5;
+typedef long EvenMore[even_more_length];
+
+@topic
+struct MoreInfo {
+  @key unsigned long departure_date;
+  string more;
+  EvenMore even_more;
+};
+
+union MiscUnion switch (short) {
+case 0:
+  long long_value;
+case 1:
+case 2:
+  string string_value;
+case 3:
+  char char_value;
+};
+
+// testing cross-joins, this has no keys
+@topic
+struct UnrelatedInfo {
+  string misc;
+  MiscUnion misc_union;
+};
+
+@topic
+struct Resulting {
+  @key unsigned long flight_id;
+  @key unsigned long departure_date;
+  string flight_name;
+  FlightType type;
+  Airport destination;
+  Airports alternative_destinations;
+  long x;
+  long y;
+  long height;
+  string more;
+  EvenMore even_more;
+  string misc;
+  MiscUnion misc_union;
+};

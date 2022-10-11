@@ -1,0 +1,22 @@
+/*
+ *
+ *
+ * Distributed under the OpenDDS License.
+ * See: http://www.opendds.org/license.html
+ */
+
+module Messenger {
+
+// This must match the Messenger.idl in the DDS distribution,
+// but the file is copied here to more accurately reflect a
+// user's project setup.
+
+  @topic
+  struct Message {
+    string from;
+    string subject;
+    @key long subject_id;
+    string text;
+    unsigned long count;
+  };
+};

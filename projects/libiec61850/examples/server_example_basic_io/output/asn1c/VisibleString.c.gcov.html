@@ -1,0 +1,149 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - libiec51850_basic_io.info - asn1c/VisibleString.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">asn1c</a> - VisibleString.c<span style="font-size: 80%;"> (source / <a href="VisibleString.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">libiec51850_basic_io.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-06 14:11:04</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*-</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2003 Lev Walkin &lt;vlm@lionet.info&gt;. All rights reserved.
+<span class="lineNum">       3 </span>            :  * Redistribution and modifications are permitted subject to BSD license.
+<span class="lineNum">       4 </span>            :  */
+<span class="lineNum">       5 </span>            : #include &lt;asn_internal.h&gt;
+<span class="lineNum">       6 </span>            : #include &lt;VisibleString.h&gt;
+<span class="lineNum">       7 </span>            : 
+<span class="lineNum">       8 </span>            : /*
+<span class="lineNum">       9 </span>            :  * VisibleString basic type description.
+<span class="lineNum">      10 </span>            :  */
+<span class="lineNum">      11 </span>            : static ber_tlv_tag_t asn_DEF_VisibleString_tags[] = {
+<span class="lineNum">      12 </span>            :         (ASN_TAG_CLASS_UNIVERSAL | (26 &lt;&lt; 2)),    /* [UNIVERSAL 26] IMPLICIT ...*/
+<span class="lineNum">      13 </span>            :         (ASN_TAG_CLASS_UNIVERSAL | (4 &lt;&lt; 2))      /* ... OCTET STRING */
+<span class="lineNum">      14 </span>            : };
+<span class="lineNum">      15 </span>            : asn_TYPE_descriptor_t asn_DEF_VisibleString = {
+<span class="lineNum">      16 </span>            :         &quot;VisibleString&quot;,
+<span class="lineNum">      17 </span>            :         &quot;VisibleString&quot;,
+<span class="lineNum">      18 </span>            :         OCTET_STRING_free,
+<span class="lineNum">      19 </span>            :         OCTET_STRING_print_utf8,   /* ASCII subset */
+<span class="lineNum">      20 </span>            :         VisibleString_constraint,
+<span class="lineNum">      21 </span>            :         OCTET_STRING_decode_ber,    /* Implemented in terms of OCTET STRING */
+<span class="lineNum">      22 </span>            :         OCTET_STRING_encode_der,
+<span class="lineNum">      23 </span>            :         OCTET_STRING_decode_xer_utf8,
+<span class="lineNum">      24 </span>            :         OCTET_STRING_encode_xer_utf8,
+<span class="lineNum">      25 </span>            :         0, 0,
+<span class="lineNum">      26 </span>            :         0, /* Use generic outmost tag fetcher */
+<span class="lineNum">      27 </span>            :         asn_DEF_VisibleString_tags,
+<span class="lineNum">      28 </span>            :         sizeof(asn_DEF_VisibleString_tags)
+<span class="lineNum">      29 </span>            :           / sizeof(asn_DEF_VisibleString_tags[0]) - 1,
+<span class="lineNum">      30 </span>            :         asn_DEF_VisibleString_tags,
+<span class="lineNum">      31 </span>            :         sizeof(asn_DEF_VisibleString_tags)
+<span class="lineNum">      32 </span>            :           / sizeof(asn_DEF_VisibleString_tags[0]),
+<span class="lineNum">      33 </span>            :         0,      /* No PER visible constraints */
+<span class="lineNum">      34 </span>            :         0, 0,   /* No members */
+<span class="lineNum">      35 </span>            :         0       /* No specifics */
+<span class="lineNum">      36 </span>            : };
+<a name="37"><span class="lineNum">      37 </span>            : </a>
+<span class="lineNum">      38 </span>            : int
+<span class="lineNum">      39 </span><span class="lineNoCov">          0 : VisibleString_constraint(asn_TYPE_descriptor_t *td, const void *sptr,</span>
+<span class="lineNum">      40 </span>            :                 asn_app_constraint_failed_f *ctfailcb, void *app_key) {
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 :         const VisibleString_t *st = (const VisibleString_t *)sptr;</span>
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :         if(st &amp;&amp; st-&gt;buf) {</span>
+<span class="lineNum">      44 </span><span class="lineNoCov">          0 :                 uint8_t *buf = st-&gt;buf;</span>
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 :                 uint8_t *end = buf + st-&gt;size;</span>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            :                 /*
+<span class="lineNum">      48 </span>            :                  * Check the alphabet of the VisibleString.
+<span class="lineNum">      49 </span>            :                  * ISO646, ISOReg#6
+<span class="lineNum">      50 </span>            :                  * The alphabet is a subset of ASCII between the space
+<span class="lineNum">      51 </span>            :                  * and &quot;~&quot; (tilde).
+<span class="lineNum">      52 </span>            :                  */
+<span class="lineNum">      53 </span><span class="lineNoCov">          0 :                 for(; buf &lt; end; buf++) {</span>
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :                         if(*buf &lt; 0x20 || *buf &gt; 0x7e) {</span>
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :                                 _ASN_CTFAIL(app_key, td,</span>
+<span class="lineNum">      56 </span>            :                                         &quot;%s: value byte %ld (%d) &quot;
+<span class="lineNum">      57 </span>            :                                         &quot;not in VisibleString alphabet (%s:%d)&quot;,
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :                                         td-&gt;name,</span>
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :                                         (long)((buf - st-&gt;buf) + 1),</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :                                         *buf,</span>
+<span class="lineNum">      61 </span>            :                                         __FILE__, __LINE__);
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 :                                 return -1;</span>
+<span class="lineNum">      63 </span>            :                         }
+<span class="lineNum">      64 </span>            :                 }
+<span class="lineNum">      65 </span>            :         } else {
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :                 _ASN_CTFAIL(app_key, td,</span>
+<span class="lineNum">      67 </span>            :                         &quot;%s: value not given (%s:%d)&quot;,
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :                         td-&gt;name, __FILE__, __LINE__);</span>
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :                 return -1;</span>
+<span class="lineNum">      70 </span>            :         }
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">      73 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,10 @@
+project: dcps_rtps_udp, opendds_face, dcps_test {
+  exename = subscriber
+  after += FaceHeaderTestIdl
+  libs  += FaceHeaderTestIdl
+  libpaths += ../Idl
+
+  Source_Files {
+    Subscriber.cpp
+  }
+}

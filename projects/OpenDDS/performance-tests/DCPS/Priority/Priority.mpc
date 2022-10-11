@@ -1,0 +1,48 @@
+project(perf*idl): dcps_test_idl_only_lib {
+  requires      += no_opendds_safety_profile
+  idlflags      += -Wb,stub_export_include=Priority_export.h \
+                   -Wb,stub_export_macro=Priority_Export
+  dcps_ts_flags += -Wb,export_macro=Priority_Export
+  dynamicflags  += PRIORITY_BUILD_DLL
+
+  Typesupport_Files {
+    Test.idl
+  }
+}
+
+project(perf*Publisher): dcpsexe, dcps_transports_for_test, dcps_test {
+  requires      += no_opendds_safety_profile
+  exename = publisher
+  after  += perf*idl
+  libs   += perf*idl
+
+  Idl_Files {
+  }
+
+  Source_Files {
+    Writer.cpp
+    Publisher.cpp
+    Options.cpp
+    PublicationProfile.cpp
+    publisher_main.cpp
+  }
+}
+
+project(perf*Subscriber): dcpsexe, dcps_transports_for_test, dcps_test {
+  requires      += no_opendds_safety_profile
+  exename = subscriber
+  after  += perf*idl
+  libs   += perf*idl
+
+  Idl_Files {
+  }
+
+  Source_Files {
+    Subscriber.cpp
+    Options.cpp
+    DataReaderListener.cpp
+    PublicationProfile.cpp
+    Commas.cpp
+    subscriber_main.cpp
+  }
+}

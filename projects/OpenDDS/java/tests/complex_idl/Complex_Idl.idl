@@ -1,0 +1,39 @@
+/*
+ *
+ *
+ * Distributed under the OpenDDS License.
+ * See: http://www.opendds.org/license.html
+ */
+
+#include "tao/OctetSeq.pidl"
+#include "tao/StringSeq.pidl"
+
+module Complex_Idl {
+
+    struct CastMember {
+        string python;
+        string role;
+    };
+
+    struct Quote {
+        string skit_name;
+        string episode_name;
+
+        CastMember cast_member;
+
+        string line;
+    };
+
+    enum DataType { DATA_IDL, DATA_STREAM };
+
+    union DataUnion switch (DataType) {
+        case DATA_IDL:      Quote idl_quote;
+        case DATA_STREAM:   CORBA::OctetSeq stream;
+    };
+
+    @topic
+    struct Data {
+        @key long id;
+        DataUnion payload;
+    };
+};

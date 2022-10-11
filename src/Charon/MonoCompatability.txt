@@ -1,0 +1,4 @@
+Charon 3 Mono Compatability
+==========================
+
+ * Schema validation disabled on Mono (broken)

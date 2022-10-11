@@ -1,0 +1,275 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - libiec51850_basic_io.info - /root/libiec61850/examples/server_example_basic_io/server_example_basic_io.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">root/libiec61850/examples/server_example_basic_io</a> - server_example_basic_io.c<span style="font-size: 80%;"> (source / <a href="server_example_basic_io.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">libiec51850_basic_io.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">51</td>
+            <td class="headerCovTableEntry">82</td>
+            <td class="headerCovTableEntryLo">62.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-06 13:31:57</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *  server_example_basic_io.c
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *  - How to use simple control models
+<span class="lineNum">       5 </span>            :  *  - How to serve analog measurement data
+<span class="lineNum">       6 </span>            :  *  - Using the IedServerConfig object to configure stack features
+<span class="lineNum">       7 </span>            :  */
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : #include &quot;iec61850_server.h&quot;
+<span class="lineNum">      10 </span>            : #include &quot;hal_thread.h&quot;
+<span class="lineNum">      11 </span>            : #include &lt;signal.h&gt;
+<span class="lineNum">      12 </span>            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      13 </span>            : #include &lt;stdio.h&gt;
+<span class="lineNum">      14 </span>            : #include &lt;math.h&gt;
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : #include &quot;static_model.h&quot;
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : /* import IEC 61850 device model created from SCL-File */
+<span class="lineNum">      19 </span>            : extern IedModel iedModel;
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span>            : static int running = 0;
+<span class="lineNum">      22 </span>            : static IedServer iedServer = NULL;
+<a name="23"><span class="lineNum">      23 </span>            : </a>
+<span class="lineNum">      24 </span>            : void
+<span class="lineNum">      25 </span><span class="lineCov">          1 : sigint_handler(int signalId)</span>
+<span class="lineNum">      26 </span>            : {
+<span class="lineNum">      27 </span><span class="lineCov">          1 :     running = 0;</span>
+<span class="lineNum">      28 </span><span class="lineCov">          1 : }</span>
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<span class="lineNum">      30 </span>            : static ControlHandlerResult
+<span class="lineNum">      31 </span><span class="lineNoCov">          0 : controlHandlerForBinaryOutput(ControlAction action, void* parameter, MmsValue* value, bool test)</span>
+<span class="lineNum">      32 </span>            : {
+<span class="lineNum">      33 </span><span class="lineNoCov">          0 :     if (test)</span>
+<span class="lineNum">      34 </span><span class="lineNoCov">          0 :         return CONTROL_RESULT_FAILED;</span>
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span><span class="lineNoCov">          0 :     if (MmsValue_getType(value) == MMS_BOOLEAN) {</span>
+<span class="lineNum">      37 </span><span class="lineNoCov">          0 :         printf(&quot;received binary control command: &quot;);</span>
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span><span class="lineNoCov">          0 :         if (MmsValue_getBoolean(value))</span>
+<span class="lineNum">      40 </span><span class="lineNoCov">          0 :             printf(&quot;on\n&quot;);</span>
+<span class="lineNum">      41 </span>            :         else
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 :             printf(&quot;off\n&quot;);</span>
+<span class="lineNum">      43 </span>            :     }
+<span class="lineNum">      44 </span>            :     else
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 :         return CONTROL_RESULT_FAILED;</span>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 :     uint64_t timeStamp = Hal_getTimeInMs();</span>
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span><span class="lineNoCov">          0 :     if (parameter == IEDMODEL_GenericIO_GGIO1_SPCSO1) {</span>
+<span class="lineNum">      50 </span><span class="lineNoCov">          0 :         IedServer_updateUTCTimeAttributeValue(iedServer, IEDMODEL_GenericIO_GGIO1_SPCSO1_t, timeStamp);</span>
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 :         IedServer_updateAttributeValue(iedServer, IEDMODEL_GenericIO_GGIO1_SPCSO1_stVal, value);</span>
+<span class="lineNum">      52 </span>            :     }
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :     if (parameter == IEDMODEL_GenericIO_GGIO1_SPCSO2) {</span>
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :         IedServer_updateUTCTimeAttributeValue(iedServer, IEDMODEL_GenericIO_GGIO1_SPCSO2_t, timeStamp);</span>
+<span class="lineNum">      56 </span><span class="lineNoCov">          0 :         IedServer_updateAttributeValue(iedServer, IEDMODEL_GenericIO_GGIO1_SPCSO2_stVal, value);</span>
+<span class="lineNum">      57 </span>            :     }
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :     if (parameter == IEDMODEL_GenericIO_GGIO1_SPCSO3) {</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :         IedServer_updateUTCTimeAttributeValue(iedServer, IEDMODEL_GenericIO_GGIO1_SPCSO3_t, timeStamp);</span>
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :         IedServer_updateAttributeValue(iedServer, IEDMODEL_GenericIO_GGIO1_SPCSO3_stVal, value);</span>
+<span class="lineNum">      62 </span>            :     }
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :     if (parameter == IEDMODEL_GenericIO_GGIO1_SPCSO4) {</span>
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :         IedServer_updateUTCTimeAttributeValue(iedServer, IEDMODEL_GenericIO_GGIO1_SPCSO4_t, timeStamp);</span>
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :         IedServer_updateAttributeValue(iedServer, IEDMODEL_GenericIO_GGIO1_SPCSO4_stVal, value);</span>
+<span class="lineNum">      67 </span>            :     }
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :     return CONTROL_RESULT_OK;</span>
+<span class="lineNum">      70 </span>            : }
+<span class="lineNum">      71 </span>            : 
+<a name="72"><span class="lineNum">      72 </span>            : </a>
+<span class="lineNum">      73 </span>            : static void
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 : connectionHandler (IedServer self, ClientConnection connection, bool connected, void* parameter)</span>
+<span class="lineNum">      75 </span>            : {
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :     if (connected)</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :         printf(&quot;Connection opened\n&quot;);</span>
+<span class="lineNum">      78 </span>            :     else
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :         printf(&quot;Connection closed\n&quot;);</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 : }</span>
+<a name="81"><span class="lineNum">      81 </span>            : </a>
+<span class="lineNum">      82 </span>            : int
+<span class="lineNum">      83 </span><span class="lineCov">          1 : main(int argc, char** argv)</span>
+<span class="lineNum">      84 </span>            : {
+<span class="lineNum">      85 </span><span class="lineCov">          1 :     printf(&quot;Using libIEC61850 version %s\n&quot;, LibIEC61850_getVersionString());</span>
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            :     /* Create new server configuration object */
+<span class="lineNum">      88 </span><span class="lineCov">          1 :     IedServerConfig config = IedServerConfig_create();</span>
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span>            :     /* Set buffer size for buffered report control blocks to 200000 bytes */
+<span class="lineNum">      91 </span><span class="lineCov">          1 :     IedServerConfig_setReportBufferSize(config, 200000);</span>
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span>            :     /* Set stack compliance to a specific edition of the standard (WARNING: data model has also to be checked for compliance) */
+<span class="lineNum">      94 </span><span class="lineCov">          1 :     IedServerConfig_setEdition(config, IEC_61850_EDITION_2);</span>
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span>            :     /* Set the base path for the MMS file services */
+<span class="lineNum">      97 </span><span class="lineCov">          1 :     IedServerConfig_setFileServiceBasePath(config, &quot;./vmd-filestore/&quot;);</span>
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span>            :     /* disable MMS file service */
+<span class="lineNum">     100 </span><span class="lineCov">          1 :     IedServerConfig_enableFileService(config, false);</span>
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span>            :     /* enable dynamic data set service */
+<span class="lineNum">     103 </span><span class="lineCov">          1 :     IedServerConfig_enableDynamicDataSetService(config, true);</span>
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            :     /* disable log service */
+<span class="lineNum">     106 </span><span class="lineCov">          1 :     IedServerConfig_enableLogService(config, false);</span>
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span>            :     /* set maximum number of clients */
+<span class="lineNum">     109 </span><span class="lineCov">          1 :     IedServerConfig_setMaxMmsConnections(config, 2);</span>
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span>            :     /* Create a new IEC 61850 server instance */
+<span class="lineNum">     112 </span><span class="lineCov">          1 :     iedServer = IedServer_createWithConfig(&amp;iedModel, NULL, config);</span>
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span>            :     /* configuration object is no longer required */
+<span class="lineNum">     115 </span><span class="lineCov">          1 :     IedServerConfig_destroy(config);</span>
+<span class="lineNum">     116 </span>            : 
+<span class="lineNum">     117 </span>            :     /* set the identity values for MMS identify service */
+<span class="lineNum">     118 </span><span class="lineCov">          1 :     IedServer_setServerIdentity(iedServer, &quot;MZ&quot;, &quot;basic io&quot;, &quot;1.4.2&quot;);</span>
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span>            :     /* Install handler for operate command */
+<span class="lineNum">     121 </span><span class="lineCov">          1 :     IedServer_setControlHandler(iedServer, IEDMODEL_GenericIO_GGIO1_SPCSO1,</span>
+<span class="lineNum">     122 </span>            :             (ControlHandler) controlHandlerForBinaryOutput,
+<span class="lineNum">     123 </span>            :             IEDMODEL_GenericIO_GGIO1_SPCSO1);
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span><span class="lineCov">          1 :     IedServer_setControlHandler(iedServer, IEDMODEL_GenericIO_GGIO1_SPCSO2,</span>
+<span class="lineNum">     126 </span>            :             (ControlHandler) controlHandlerForBinaryOutput,
+<span class="lineNum">     127 </span>            :             IEDMODEL_GenericIO_GGIO1_SPCSO2);
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span><span class="lineCov">          1 :     IedServer_setControlHandler(iedServer, IEDMODEL_GenericIO_GGIO1_SPCSO3,</span>
+<span class="lineNum">     130 </span>            :             (ControlHandler) controlHandlerForBinaryOutput,
+<span class="lineNum">     131 </span>            :             IEDMODEL_GenericIO_GGIO1_SPCSO3);
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span><span class="lineCov">          1 :     IedServer_setControlHandler(iedServer, IEDMODEL_GenericIO_GGIO1_SPCSO4,</span>
+<span class="lineNum">     134 </span>            :             (ControlHandler) controlHandlerForBinaryOutput,
+<span class="lineNum">     135 </span>            :             IEDMODEL_GenericIO_GGIO1_SPCSO4);
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span><span class="lineCov">          1 :     IedServer_setConnectionIndicationHandler(iedServer, (IedConnectionIndicationHandler) connectionHandler, NULL);</span>
+<span class="lineNum">     138 </span>            : 
+<span class="lineNum">     139 </span>            :     /* MMS server will be instructed to start listening for client connections. */
+<span class="lineNum">     140 </span><span class="lineCov">          1 :     IedServer_start(iedServer, atoi(argv[1]));</span>
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span><span class="lineCov">          1 :     if (!IedServer_isRunning(iedServer)) {</span>
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :         printf(&quot;Starting server failed (maybe need root permissions or another server is already using the port)! Exit.\n&quot;);</span>
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :         IedServer_destroy(iedServer);</span>
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :         exit(-1);</span>
+<span class="lineNum">     146 </span>            :     }
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span><span class="lineCov">          1 :     running = 1;</span>
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span><span class="lineCov">          1 :     signal(SIGINT, sigint_handler);</span>
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span><span class="lineCov">          1 :     float t = 0.f;</span>
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span><span class="lineCov">         25 :     while (running) {</span>
+<span class="lineNum">     155 </span><span class="lineCov">         23 :         uint64_t timestamp = Hal_getTimeInMs();</span>
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span><span class="lineCov">         23 :         t += 0.1f;</span>
+<span class="lineNum">     158 </span>            : 
+<span class="lineNum">     159 </span><span class="lineCov">         23 :         float an1 = sinf(t);</span>
+<span class="lineNum">     160 </span><span class="lineCov">         23 :         float an2 = sinf(t + 1.f);</span>
+<span class="lineNum">     161 </span><span class="lineCov">         23 :         float an3 = sinf(t + 2.f);</span>
+<span class="lineNum">     162 </span><span class="lineCov">         23 :         float an4 = sinf(t + 3.f);</span>
+<span class="lineNum">     163 </span>            : 
+<span class="lineNum">     164 </span>            :         Timestamp iecTimestamp;
+<span class="lineNum">     165 </span>            : 
+<span class="lineNum">     166 </span><span class="lineCov">         23 :         Timestamp_clearFlags(&amp;iecTimestamp);</span>
+<span class="lineNum">     167 </span><span class="lineCov">         23 :         Timestamp_setTimeInMilliseconds(&amp;iecTimestamp, timestamp);</span>
+<span class="lineNum">     168 </span><span class="lineCov">         23 :         Timestamp_setLeapSecondKnown(&amp;iecTimestamp, true);</span>
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span>            :         /* toggle clock-not-synchronized flag in timestamp */
+<span class="lineNum">     171 </span><span class="lineCov">         23 :         if (((int) t % 2) == 0)</span>
+<span class="lineNum">     172 </span><span class="lineCov">         13 :             Timestamp_setClockNotSynchronized(&amp;iecTimestamp, true);</span>
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span><span class="lineCov">         23 :         IedServer_lockDataModel(iedServer);</span>
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span><span class="lineCov">         23 :         IedServer_updateTimestampAttributeValue(iedServer, IEDMODEL_GenericIO_GGIO1_AnIn1_t, &amp;iecTimestamp);</span>
+<span class="lineNum">     177 </span><span class="lineCov">         23 :         IedServer_updateFloatAttributeValue(iedServer, IEDMODEL_GenericIO_GGIO1_AnIn1_mag_f, an1);</span>
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span><span class="lineCov">         23 :         IedServer_updateTimestampAttributeValue(iedServer, IEDMODEL_GenericIO_GGIO1_AnIn2_t, &amp;iecTimestamp);</span>
+<span class="lineNum">     180 </span><span class="lineCov">         23 :         IedServer_updateFloatAttributeValue(iedServer, IEDMODEL_GenericIO_GGIO1_AnIn2_mag_f, an2);</span>
+<span class="lineNum">     181 </span>            : 
+<span class="lineNum">     182 </span><span class="lineCov">         23 :         IedServer_updateTimestampAttributeValue(iedServer, IEDMODEL_GenericIO_GGIO1_AnIn3_t, &amp;iecTimestamp);</span>
+<span class="lineNum">     183 </span><span class="lineCov">         23 :         IedServer_updateFloatAttributeValue(iedServer, IEDMODEL_GenericIO_GGIO1_AnIn3_mag_f, an3);</span>
+<span class="lineNum">     184 </span>            : 
+<span class="lineNum">     185 </span><span class="lineCov">         23 :         IedServer_updateTimestampAttributeValue(iedServer, IEDMODEL_GenericIO_GGIO1_AnIn4_t, &amp;iecTimestamp);</span>
+<span class="lineNum">     186 </span><span class="lineCov">         23 :         IedServer_updateFloatAttributeValue(iedServer, IEDMODEL_GenericIO_GGIO1_AnIn4_mag_f, an4);</span>
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span><span class="lineCov">         23 :         IedServer_unlockDataModel(iedServer);</span>
+<span class="lineNum">     189 </span>            : 
+<span class="lineNum">     190 </span><span class="lineCov">         23 :         Thread_sleep(100);</span>
+<span class="lineNum">     191 </span>            :     }
+<span class="lineNum">     192 </span>            : 
+<span class="lineNum">     193 </span>            :     /* stop MMS server - close TCP server socket and all client sockets */
+<span class="lineNum">     194 </span><span class="lineCov">          1 :     IedServer_stop(iedServer);</span>
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span>            :     /* Cleanup - free all resources */
+<span class="lineNum">     197 </span><span class="lineCov">          1 :     IedServer_destroy(iedServer);</span>
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span>            : } /* main() */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

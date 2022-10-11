@@ -1,0 +1,24 @@
+A test for Built-In-Topic (BIT) implementation. The purpose of this test is
+to verify that newer and older participants receive the same BIT data.
+
+Test steps:
+
+1) start InfoRepo
+2) start monitor1 process which just creates a domain participant. It reads
+   bit data via bit datareader after a few seconds.
+3) start publisher which creates a domain participant and a datawriter.
+4) start subscriber which creates a domain participant and a datareader.
+5) start monitor2 process which just creates a domain participant and reads
+   the bit data via bit datareader.
+
+The monitor1 and monitor2 should both get following bit info.
+
+ 4 domainparticipants,
+ 2 topics,
+ 1 datareader
+ 1 datawriter
+
+prst_repo_run_test.pl does something similar with InfoRepo persistence
+enabled. The InfoRepo is shutdown in the middle of the test and new Repo
+is started. The new Repo should read the persistence data and the test
+will verify the BIT data with the second monitor.

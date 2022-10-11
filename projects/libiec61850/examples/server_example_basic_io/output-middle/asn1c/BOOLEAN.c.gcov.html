@@ -1,0 +1,360 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - libiec51850_basic_io.info - asn1c/BOOLEAN.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">asn1c</a> - BOOLEAN.c<span style="font-size: 80%;"> (source / <a href="BOOLEAN.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">libiec51850_basic_io.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">104</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-06 13:44:44</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*-</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2003, 2005 Lev Walkin &lt;vlm@lionet.info&gt;. All rights reserved.
+<span class="lineNum">       3 </span>            :  * Redistribution and modifications are permitted subject to BSD license.
+<span class="lineNum">       4 </span>            :  */
+<span class="lineNum">       5 </span>            : #include &lt;asn_internal.h&gt;
+<span class="lineNum">       6 </span>            : #include &lt;asn_codecs_prim.h&gt;
+<span class="lineNum">       7 </span>            : #include &lt;BOOLEAN.h&gt;
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : /*
+<span class="lineNum">      10 </span>            :  * BOOLEAN basic type description.
+<span class="lineNum">      11 </span>            :  */
+<span class="lineNum">      12 </span>            : static ber_tlv_tag_t asn_DEF_BOOLEAN_tags[] = {
+<span class="lineNum">      13 </span>            :         (ASN_TAG_CLASS_UNIVERSAL | (1 &lt;&lt; 2))
+<span class="lineNum">      14 </span>            : };
+<span class="lineNum">      15 </span>            : asn_TYPE_descriptor_t asn_DEF_BOOLEAN = {
+<span class="lineNum">      16 </span>            :         &quot;BOOLEAN&quot;,
+<span class="lineNum">      17 </span>            :         &quot;BOOLEAN&quot;,
+<span class="lineNum">      18 </span>            :         BOOLEAN_free,
+<span class="lineNum">      19 </span>            :         BOOLEAN_print,
+<span class="lineNum">      20 </span>            :         asn_generic_no_constraint,
+<span class="lineNum">      21 </span>            :         BOOLEAN_decode_ber,
+<span class="lineNum">      22 </span>            :         BOOLEAN_encode_der,
+<span class="lineNum">      23 </span>            :         BOOLEAN_decode_xer,
+<span class="lineNum">      24 </span>            :         BOOLEAN_encode_xer,
+<span class="lineNum">      25 </span>            :         BOOLEAN_decode_uper,    /* Unaligned PER decoder */
+<span class="lineNum">      26 </span>            :         BOOLEAN_encode_uper,    /* Unaligned PER encoder */
+<span class="lineNum">      27 </span>            :         0, /* Use generic outmost tag fetcher */
+<span class="lineNum">      28 </span>            :         asn_DEF_BOOLEAN_tags,
+<span class="lineNum">      29 </span>            :         sizeof(asn_DEF_BOOLEAN_tags) / sizeof(asn_DEF_BOOLEAN_tags[0]),
+<span class="lineNum">      30 </span>            :         asn_DEF_BOOLEAN_tags,   /* Same as above */
+<span class="lineNum">      31 </span>            :         sizeof(asn_DEF_BOOLEAN_tags) / sizeof(asn_DEF_BOOLEAN_tags[0]),
+<span class="lineNum">      32 </span>            :         0,      /* No PER visible constraints */
+<span class="lineNum">      33 </span>            :         0, 0,   /* No members */
+<span class="lineNum">      34 </span>            :         0       /* No specifics */
+<span class="lineNum">      35 </span>            : };
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : /*
+<span class="lineNum">      38 </span>            :  * Decode BOOLEAN type.
+<a name="39"><span class="lineNum">      39 </span>            :  */</a>
+<span class="lineNum">      40 </span>            : asn_dec_rval_t
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 : BOOLEAN_decode_ber(asn_codec_ctx_t *opt_codec_ctx,</span>
+<span class="lineNum">      42 </span>            :                 asn_TYPE_descriptor_t *td,
+<span class="lineNum">      43 </span>            :                 void **bool_value, const void *buf_ptr, size_t size,
+<span class="lineNum">      44 </span>            :                 int tag_mode) {
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 :         BOOLEAN_t *st = (BOOLEAN_t *)*bool_value;</span>
+<span class="lineNum">      46 </span>            :         asn_dec_rval_t rval;
+<span class="lineNum">      47 </span>            :         ber_tlv_len_t length;
+<span class="lineNum">      48 </span>            :         ber_tlv_len_t lidx;
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span><span class="lineNoCov">          0 :         if(st == NULL) {</span>
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 :                 st = (BOOLEAN_t *)(*bool_value = CALLOC(1, sizeof(*st)));</span>
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :                 if(st == NULL) {</span>
+<span class="lineNum">      53 </span><span class="lineNoCov">          0 :                         rval.code = RC_FAIL;</span>
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :                         rval.consumed = 0;</span>
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :                         return rval;</span>
+<span class="lineNum">      56 </span>            :                 }
+<span class="lineNum">      57 </span>            :         }
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :         ASN_DEBUG(&quot;Decoding %s as BOOLEAN (tm=%d)&quot;,</span>
+<span class="lineNum">      60 </span>            :                 td-&gt;name, tag_mode);
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            :         /*
+<span class="lineNum">      63 </span>            :          * Check tags.
+<span class="lineNum">      64 </span>            :          */
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :         rval = ber_check_tags(opt_codec_ctx, td, 0, buf_ptr, size,</span>
+<span class="lineNum">      66 </span>            :                 tag_mode, 0, &amp;length, 0);
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :         if(rval.code != RC_OK)</span>
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :                 return rval;</span>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :         ASN_DEBUG(&quot;Boolean length is %d bytes&quot;, (int)length);</span>
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :         buf_ptr = ((const char *)buf_ptr) + rval.consumed;</span>
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :         size -= rval.consumed;</span>
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :         if(length &gt; (ber_tlv_len_t)size) {</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :                 rval.code = RC_WMORE;</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :                 rval.consumed = 0;</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :                 return rval;</span>
+<span class="lineNum">      78 </span>            :         }
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            :         /*
+<span class="lineNum">      81 </span>            :          * Compute boolean value.
+<span class="lineNum">      82 </span>            :          */
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :         for(*st = 0, lidx = 0;</span>
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :                 (lidx &lt; length) &amp;&amp; *st == 0; lidx++) {</span>
+<span class="lineNum">      85 </span>            :                 /*
+<span class="lineNum">      86 </span>            :                  * Very simple approach: read bytes until the end or
+<span class="lineNum">      87 </span>            :                  * value is already TRUE.
+<span class="lineNum">      88 </span>            :                  * BOOLEAN is not supposed to contain meaningful data anyway.
+<span class="lineNum">      89 </span>            :                  */
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :                 *st |= ((const uint8_t *)buf_ptr)[lidx];</span>
+<span class="lineNum">      91 </span>            :         }
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :         rval.code = RC_OK;</span>
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :         rval.consumed += length;</span>
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :         ASN_DEBUG(&quot;Took %ld/%ld bytes to encode %s, value=%d&quot;,</span>
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :                 (long)rval.consumed, (long)length,</span>
+<span class="lineNum">      98 </span>            :                 td-&gt;name, *st);
+<span class="lineNum">      99 </span>            :         
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :         return rval;</span>
+<span class="lineNum">     101 </span>            : }
+<a name="102"><span class="lineNum">     102 </span>            : </a>
+<span class="lineNum">     103 </span>            : asn_enc_rval_t
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 : BOOLEAN_encode_der(asn_TYPE_descriptor_t *td, void *sptr,</span>
+<span class="lineNum">     105 </span>            :         int tag_mode, ber_tlv_tag_t tag,
+<span class="lineNum">     106 </span>            :         asn_app_consume_bytes_f *cb, void *app_key) {
+<span class="lineNum">     107 </span>            :         asn_enc_rval_t erval;
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :         BOOLEAN_t *st = (BOOLEAN_t *)sptr;</span>
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :         erval.encoded = der_write_tags(td, 1, tag_mode, 0, tag, cb, app_key);</span>
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :         if(erval.encoded == -1) {</span>
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :                 erval.failed_type = td;</span>
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :                 erval.structure_ptr = sptr;</span>
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :                 return erval;</span>
+<span class="lineNum">     115 </span>            :         }
+<span class="lineNum">     116 </span>            : 
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :         if(cb) {</span>
+<span class="lineNum">     118 </span>            :                 uint8_t bool_value;
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :                 bool_value = *st ? 0x01 : 0; /* 0xff mandated by DER - 0x01 required by some IEDs */</span>
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :                 if(cb(&amp;bool_value, 1, app_key) &lt; 0) {</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :                         erval.encoded = -1;</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :                         erval.failed_type = td;</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :                         erval.structure_ptr = sptr;</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :                         return erval;</span>
+<span class="lineNum">     127 </span>            :                 }
+<span class="lineNum">     128 </span>            :         }
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :         erval.encoded += 1;</span>
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :         _ASN_ENCODED_OK(erval);</span>
+<span class="lineNum">     133 </span>            : }
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span>            : /*
+<span class="lineNum">     137 </span>            :  * Decode the chunk of XML text encoding INTEGER.
+<a name="138"><span class="lineNum">     138 </span>            :  */</a>
+<span class="lineNum">     139 </span>            : static enum xer_pbd_rval
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 : BOOLEAN__xer_body_decode(asn_TYPE_descriptor_t *td, void *sptr, const void *chunk_buf, size_t chunk_size) {</span>
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :         BOOLEAN_t *st = (BOOLEAN_t *)sptr;</span>
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :         const char *p = (const char *)chunk_buf;</span>
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span>            :         (void)td;
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :         if(chunk_size &amp;&amp; p[0] == 0x3c /* '&lt;' */) {</span>
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :                 switch(xer_check_tag(chunk_buf, chunk_size, &quot;false&quot;)) {</span>
+<span class="lineNum">     148 </span>            :                 case XCT_BOTH:
+<span class="lineNum">     149 </span>            :                         /* &quot;&lt;false/&gt;&quot; */
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :                         *st = 0;</span>
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     152 </span>            :                 case XCT_UNKNOWN_BO:
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :                         if(xer_check_tag(chunk_buf, chunk_size, &quot;true&quot;)</span>
+<span class="lineNum">     154 </span>            :                                         != XCT_BOTH)
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :                                 return XPBD_BROKEN_ENCODING;</span>
+<span class="lineNum">     156 </span>            :                         /* &quot;&lt;true/&gt;&quot; */
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :                         *st = 1;        /* Or 0xff as in DER?.. */</span>
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     159 </span>            :                 default:
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :                         return XPBD_BROKEN_ENCODING;</span>
+<span class="lineNum">     161 </span>            :                 }
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :                 return XPBD_BODY_CONSUMED;</span>
+<span class="lineNum">     163 </span>            :         } else {
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :                 if(xer_is_whitespace(chunk_buf, chunk_size))</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :                         return XPBD_NOT_BODY_IGNORE;</span>
+<span class="lineNum">     166 </span>            :                 else
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :                         return XPBD_BROKEN_ENCODING;</span>
+<span class="lineNum">     168 </span>            :         }
+<span class="lineNum">     169 </span>            : }
+<span class="lineNum">     170 </span>            : 
+<a name="171"><span class="lineNum">     171 </span>            : </a>
+<span class="lineNum">     172 </span>            : asn_dec_rval_t
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 : BOOLEAN_decode_xer(asn_codec_ctx_t *opt_codec_ctx,</span>
+<span class="lineNum">     174 </span>            :         asn_TYPE_descriptor_t *td, void **sptr, const char *opt_mname,
+<span class="lineNum">     175 </span>            :                 const void *buf_ptr, size_t size) {
+<span class="lineNum">     176 </span>            : 
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :         return xer_decode_primitive(opt_codec_ctx, td,</span>
+<span class="lineNum">     178 </span>            :                 sptr, sizeof(BOOLEAN_t), opt_mname, buf_ptr, size,
+<span class="lineNum">     179 </span>            :                 BOOLEAN__xer_body_decode);
+<span class="lineNum">     180 </span>            : }
+<a name="181"><span class="lineNum">     181 </span>            : </a>
+<span class="lineNum">     182 </span>            : asn_enc_rval_t
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 : BOOLEAN_encode_xer(asn_TYPE_descriptor_t *td, void *sptr,</span>
+<span class="lineNum">     184 </span>            :         int ilevel, enum xer_encoder_flags_e flags,
+<span class="lineNum">     185 </span>            :                 asn_app_consume_bytes_f *cb, void *app_key) {
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :         const BOOLEAN_t *st = (const BOOLEAN_t *)sptr;</span>
+<span class="lineNum">     187 </span>            :         asn_enc_rval_t er;
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span>            :         (void)ilevel;
+<span class="lineNum">     190 </span>            :         (void)flags;
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :         if(!st) _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :         if(*st) {</span>
+<span class="lineNum">     195 </span><span class="lineNoCov">          0 :                 _ASN_CALLBACK(&quot;&lt;true/&gt;&quot;, 7);</span>
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :                 er.encoded = 7;</span>
+<span class="lineNum">     197 </span>            :         } else {
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :                 _ASN_CALLBACK(&quot;&lt;false/&gt;&quot;, 8);</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :                 er.encoded = 8;</span>
+<span class="lineNum">     200 </span>            :         }
+<span class="lineNum">     201 </span>            : 
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :         _ASN_ENCODED_OK(er);</span>
+<span class="lineNum">     203 </span>            : cb_failed:
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :         _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">     205 </span>            : }
+<a name="206"><span class="lineNum">     206 </span>            : </a>
+<span class="lineNum">     207 </span>            : int
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 : BOOLEAN_print(asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,</span>
+<span class="lineNum">     209 </span>            :         asn_app_consume_bytes_f *cb, void *app_key) {
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :         const BOOLEAN_t *st = (const BOOLEAN_t *)sptr;</span>
+<span class="lineNum">     211 </span>            :         const char *buf;
+<span class="lineNum">     212 </span>            :         size_t buflen;
+<span class="lineNum">     213 </span>            : 
+<span class="lineNum">     214 </span>            :         (void)td;       /* Unused argument */
+<span class="lineNum">     215 </span>            :         (void)ilevel;   /* Unused argument */
+<span class="lineNum">     216 </span>            : 
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :         if(st) {</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :                 if(*st) {</span>
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :                         buf = &quot;TRUE&quot;;</span>
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :                         buflen = 4;</span>
+<span class="lineNum">     221 </span>            :                 } else {
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :                         buf = &quot;FALSE&quot;;</span>
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :                         buflen = 5;</span>
+<span class="lineNum">     224 </span>            :                 }
+<span class="lineNum">     225 </span>            :         } else {
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :                 buf = &quot;&lt;absent&gt;&quot;;</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :                 buflen = 8;</span>
+<span class="lineNum">     228 </span>            :         }
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :         return (cb(buf, buflen, app_key) &lt; 0) ? -1 : 0;</span>
+<span class="lineNum">     231 </span>            : }
+<a name="232"><span class="lineNum">     232 </span>            : </a>
+<span class="lineNum">     233 </span>            : void
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 : BOOLEAN_free(asn_TYPE_descriptor_t *td, void *ptr, int contents_only) {</span>
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :         if(td &amp;&amp; ptr &amp;&amp; !contents_only) {</span>
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :                 FREEMEM(ptr);</span>
+<span class="lineNum">     237 </span>            :         }
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 : }</span>
+<a name="239"><span class="lineNum">     239 </span>            : </a>
+<span class="lineNum">     240 </span>            : asn_dec_rval_t
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 : BOOLEAN_decode_uper(asn_codec_ctx_t *opt_codec_ctx, asn_TYPE_descriptor_t *td,</span>
+<span class="lineNum">     242 </span>            :         asn_per_constraints_t *constraints, void **sptr, asn_per_data_t *pd) {
+<span class="lineNum">     243 </span>            :         asn_dec_rval_t rv;
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :         BOOLEAN_t *st = (BOOLEAN_t *)*sptr;</span>
+<span class="lineNum">     245 </span>            : 
+<span class="lineNum">     246 </span>            :         (void)opt_codec_ctx;
+<span class="lineNum">     247 </span>            :         (void)constraints;
+<span class="lineNum">     248 </span>            : 
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :         if(!st) {</span>
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :                 st = (BOOLEAN_t *)(*sptr = MALLOC(sizeof(*st)));</span>
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :                 if(!st) _ASN_DECODE_FAILED;</span>
+<span class="lineNum">     252 </span>            :         }
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span>            :         /*
+<span class="lineNum">     255 </span>            :          * Extract a single bit
+<span class="lineNum">     256 </span>            :          */
+<span class="lineNum">     257 </span><span class="lineNoCov">          0 :         switch(per_get_few_bits(pd, 1)) {</span>
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :         case 1: *st = 1; break;</span>
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :         case 0: *st = 0; break;</span>
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :         case -1: default: _ASN_DECODE_FAILED;</span>
+<span class="lineNum">     261 </span>            :         }
+<span class="lineNum">     262 </span>            : 
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :         ASN_DEBUG(&quot;%s decoded as %s&quot;, td-&gt;name, *st ? &quot;TRUE&quot; : &quot;FALSE&quot;);</span>
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :         rv.code = RC_OK;</span>
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :         rv.consumed = 1;</span>
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :         return rv;</span>
+<span class="lineNum">     268 </span>            : }
+<span class="lineNum">     269 </span>            : 
+<a name="270"><span class="lineNum">     270 </span>            : </a>
+<span class="lineNum">     271 </span>            : asn_enc_rval_t
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 : BOOLEAN_encode_uper(asn_TYPE_descriptor_t *td,</span>
+<span class="lineNum">     273 </span>            :         asn_per_constraints_t *constraints, void *sptr, asn_per_outp_t *po) {
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :         const BOOLEAN_t *st = (const BOOLEAN_t *)sptr;</span>
+<span class="lineNum">     275 </span>            :         asn_enc_rval_t er;
+<span class="lineNum">     276 </span>            : 
+<span class="lineNum">     277 </span>            :         (void)constraints;
+<span class="lineNum">     278 </span>            : 
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :         if(!st) _ASN_ENCODE_FAILED;</span>
+<span class="lineNum">     280 </span>            : 
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :         per_put_few_bits(po, *st ? 1 : 0, 1);</span>
+<span class="lineNum">     282 </span>            : 
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :         _ASN_ENCODED_OK(er);</span>
+<span class="lineNum">     284 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,62 @@
+project(DDS*idl): dcps_test_idl_only_lib, msvc_bigobj {
+  idlflags      += -Wb,export_include=KeyTest_export.h \
+                   -Wb,export_macro=KeyTest_Export -SS
+  dcps_ts_flags += -Wb,export_macro=KeyTest_Export
+  dynamicflags  += KEYTEST_BUILD_DLL
+
+  TypeSupport_Files {
+    KeyTest.idl
+    KeyTest2.idl
+    BoundTest.idl
+    BoundTest2.idl
+  }
+
+  Idl_Files {
+    KeyTest.idl
+    KeyTest2.idl
+    BoundTest.idl
+    BoundTest2.idl
+  }
+}
+
+
+project(DDS*IsBounded) : dcpsexe, dcps_test, dcps_transports_for_test, dcps_rtps {
+
+  exename   = IsBounded
+  after    += DDS*idl
+  libs     += DDS*idl
+
+  Idl_Files {
+  }
+
+  Source_Files {
+    IsBounded.cpp
+  }
+}
+
+
+project(DDS*KeyMarshalling) : dcpsexe, dcps_test, dcps_transports_for_test, dcps_rtps {
+
+  exename   = KeyMarshalling
+  after    += DDS*idl
+  libs     += DDS*idl
+
+  Idl_Files {
+  }
+
+  Source_Files {
+    KeyMarshalling.cpp
+  }
+}
+
+
+project(*MD5): dcps_test {
+  exename   = *
+
+  Idl_Files {
+  }
+
+  Source_Files {
+    md5_test.cpp
+  }
+}

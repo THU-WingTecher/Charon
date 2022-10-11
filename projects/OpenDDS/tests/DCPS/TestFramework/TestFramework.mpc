@@ -1,0 +1,14 @@
+project: dcps_test {
+  sharedname     = TestFramework
+
+  dcps_ts_flags += -Wb,export_macro=TestFramework_Export
+
+  idlflags      += -Wb,stub_export_include=TestFramework_Export.h \
+                   -Wb,stub_export_macro=TestFramework_Export -SS
+
+  dynamicflags  += TESTFRAMEWORK_BUILD_DLL
+
+  TypeSupport_Files {
+    TestFramework.idl
+  }
+}

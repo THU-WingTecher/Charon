@@ -1,0 +1,884 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - libiec51850_basic_io.info - client/mms_client_read.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">client</a> - mms_client_read.c<span style="font-size: 80%;"> (source / <a href="mms_client_read.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">libiec51850_basic_io.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">366</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-06 13:31:57</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *  mms_client_read.c
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *  Copyright 2013-2019 Michael Zillgith
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  *  This file is part of libIEC61850.
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  libIEC61850 is free software: you can redistribute it and/or modify
+<span class="lineNum">       9 </span>            :  *  it under the terms of the GNU General Public License as published by
+<span class="lineNum">      10 </span>            :  *  the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">      11 </span>            :  *  (at your option) any later version.
+<span class="lineNum">      12 </span>            :  *
+<span class="lineNum">      13 </span>            :  *  libIEC61850 is distributed in the hope that it will be useful,
+<span class="lineNum">      14 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      15 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      16 </span>            :  *  GNU General Public License for more details.
+<span class="lineNum">      17 </span>            :  *
+<span class="lineNum">      18 </span>            :  *  You should have received a copy of the GNU General Public License
+<span class="lineNum">      19 </span>            :  *  along with libIEC61850.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      20 </span>            :  *
+<span class="lineNum">      21 </span>            :  *  See COPYING file for the complete license text.
+<span class="lineNum">      22 </span>            :  */
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : #include &quot;libiec61850_platform_includes.h&quot;
+<span class="lineNum">      25 </span>            : #include &lt;MmsPdu.h&gt;
+<span class="lineNum">      26 </span>            : #include &quot;mms_common.h&quot;
+<span class="lineNum">      27 </span>            : #include &quot;mms_client_connection.h&quot;
+<span class="lineNum">      28 </span>            : #include &quot;byte_buffer.h&quot;
+<span class="lineNum">      29 </span>            : #include &quot;stack_config.h&quot;
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : #include &quot;mms_client_internal.h&quot;
+<span class="lineNum">      32 </span>            : #include &quot;mms_common_internal.h&quot;
+<span class="lineNum">      33 </span>            : #include &quot;mms_value_internal.h&quot;
+<a name="34"><span class="lineNum">      34 </span>            : </a>
+<span class="lineNum">      35 </span>            : MmsValue*
+<span class="lineNum">      36 </span><span class="lineNoCov">          0 : mmsClient_parseListOfAccessResults(AccessResult_t** accessResultList, int listSize, bool createArray)</span>
+<span class="lineNum">      37 </span>            : {
+<span class="lineNum">      38 </span><span class="lineNoCov">          0 :     MmsValue* valueList = NULL;</span>
+<span class="lineNum">      39 </span><span class="lineNoCov">          0 :     MmsValue* value = NULL;</span>
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 :     int elementCount = listSize;</span>
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :     if ((elementCount &gt; 1) || createArray)</span>
+<span class="lineNum">      44 </span><span class="lineNoCov">          0 :         valueList = MmsValue_createEmptyArray(elementCount);</span>
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :     int i = 0;</span>
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 :     for (i = 0; i &lt; elementCount; i++) {</span>
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span><span class="lineNoCov">          0 :         value = NULL;</span>
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :         AccessResult_PR presentType = accessResultList[i]-&gt;present;</span>
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :         if (presentType == AccessResult_PR_failure) {</span>
+<span class="lineNum">      55 </span>            :             if (DEBUG_MMS_CLIENT)
+<span class="lineNum">      56 </span>            :                 printf(&quot;MMS CLIENT: received access error!\n&quot;);
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :             if (accessResultList[i]-&gt;choice.failure.size &gt; 0) {</span>
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :                 int errorCode = (int) accessResultList[i]-&gt;choice.failure.buf[0];</span>
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :                 MmsDataAccessError dataAccessError = DATA_ACCESS_ERROR_UNKNOWN;</span>
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :                 if ((errorCode &gt;= 0) &amp;&amp; (errorCode &lt; 12))</span>
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :                     dataAccessError = (MmsDataAccessError) errorCode;</span>
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :                 value = MmsValue_newDataAccessError(dataAccessError);</span>
+<span class="lineNum">      67 </span>            :             }
+<span class="lineNum">      68 </span>            :             else
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :                 value = MmsValue_newDataAccessError(DATA_ACCESS_ERROR_UNKNOWN);</span>
+<span class="lineNum">      70 </span>            :         }
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :         else if (presentType == AccessResult_PR_array) {</span>
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :             int arrayElementCount =</span>
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :                     accessResultList[i]-&gt;choice.array.list.count;</span>
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :             if (arrayElementCount &gt; 0) {</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :                 value = (MmsValue*) GLOBAL_CALLOC(1, sizeof(MmsValue));</span>
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :                 value-&gt;type = MMS_ARRAY;</span>
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :                 value-&gt;value.structure.size = arrayElementCount;</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :                 value-&gt;value.structure.components = (MmsValue**) GLOBAL_CALLOC(arrayElementCount, sizeof(MmsValue*));</span>
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :                 if (value-&gt;value.structure.components) {</span>
+<span class="lineNum">      83 </span>            :                     int j;
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :                     for (j = 0; j &lt; arrayElementCount; j++) {</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :                         value-&gt;value.structure.components[j] = mmsMsg_parseDataElement(</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :                                 accessResultList[i]-&gt;choice.array.list.array[j]);</span>
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :                         if (value-&gt;value.structure.components[j] == NULL) {</span>
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            :                             if (DEBUG_MMS_CLIENT)
+<span class="lineNum">      92 </span>            :                                 printf(&quot;MMS CLIENT: failed to parse array element %i\n&quot;, j);
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :                             MmsValue_delete(value);</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :                             value = NULL;</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :                             break;</span>
+<span class="lineNum">      97 </span>            :                         }
+<span class="lineNum">      98 </span>            :                     }
+<span class="lineNum">      99 </span>            :                 }
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            :             }
+<span class="lineNum">     102 </span>            :             else {
+<span class="lineNum">     103 </span>            :                 if (DEBUG_MMS_CLIENT)
+<span class="lineNum">     104 </span>            :                     printf(&quot;MMS CLIENT: error parsing access result (invalid array size)!\n&quot;);
+<span class="lineNum">     105 </span>            :             }
+<span class="lineNum">     106 </span>            : 
+<span class="lineNum">     107 </span>            :         }
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :         else if (presentType == AccessResult_PR_structure) {</span>
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :             int componentCount =</span>
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :                     accessResultList[i]-&gt;choice.structure.list.count;</span>
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :             if (componentCount &gt; 0) {</span>
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :                 value = (MmsValue*) GLOBAL_CALLOC(1, sizeof(MmsValue));</span>
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :                 value-&gt;type = MMS_STRUCTURE;</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :                 value-&gt;value.structure.size = componentCount;</span>
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :                 value-&gt;value.structure.components = (MmsValue**) GLOBAL_CALLOC(componentCount, sizeof(MmsValue*));</span>
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :                 if (value-&gt;value.structure.components) {</span>
+<span class="lineNum">     120 </span>            :                     int j;
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :                     for (j = 0; j &lt; componentCount; j++) {</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :                         value-&gt;value.structure.components[j] = mmsMsg_parseDataElement(</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :                                 accessResultList[i]-&gt;choice.structure.list.array[j]);</span>
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :                         if (value-&gt;value.structure.components[j] == NULL) {</span>
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span>            :                             if (DEBUG_MMS_CLIENT)
+<span class="lineNum">     128 </span>            :                                 printf(&quot;MMS CLIENT: failed to parse struct element %i\n&quot;, j);
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :                             MmsValue_delete(value);</span>
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :                             value = NULL;</span>
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :                             break;</span>
+<span class="lineNum">     133 </span>            :                         }
+<span class="lineNum">     134 </span>            :                     }
+<span class="lineNum">     135 </span>            :                 }
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span>            :             }
+<span class="lineNum">     138 </span>            :             else {
+<span class="lineNum">     139 </span>            :                 if (DEBUG_MMS_CLIENT)
+<span class="lineNum">     140 </span>            :                     printf(&quot;MMS CLIENT: error parsing access result (invalid structure size)!\n&quot;);
+<span class="lineNum">     141 </span>            :             }
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span>            :         }
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :         else if (presentType == AccessResult_PR_bitstring) {</span>
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :             int size = accessResultList[i]-&gt;choice.bitstring.size;</span>
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :             if (size &gt; 0) {</span>
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :                 int maxSize = (size * 8);</span>
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :                 int bitSize = maxSize - accessResultList[i]-&gt;choice.bitstring.bits_unused;</span>
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :                 if ((bitSize &gt; 0) &amp;&amp; (maxSize &gt;= bitSize)) {</span>
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :                     value = (MmsValue*) GLOBAL_CALLOC(1, sizeof(MmsValue));</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :                     value-&gt;type = MMS_BIT_STRING;</span>
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span>            : 
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :                     value-&gt;value.bitString.size = (size * 8)</span>
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :                             - accessResultList[i]-&gt;choice.bitstring.bits_unused;</span>
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :                     value-&gt;value.bitString.buf = (uint8_t*) GLOBAL_MALLOC(size);</span>
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :                     memcpy(value-&gt;value.bitString.buf,</span>
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :                             accessResultList[i]-&gt;choice.bitstring.buf, size);</span>
+<span class="lineNum">     165 </span>            :                 }
+<span class="lineNum">     166 </span>            :                 else {
+<span class="lineNum">     167 </span>            :                     if (DEBUG_MMS_CLIENT)
+<span class="lineNum">     168 </span>            :                         printf(&quot;MMS CLIENT: error parsing access result (bit string padding problem)!\n&quot;);
+<span class="lineNum">     169 </span>            :                 }
+<span class="lineNum">     170 </span>            :             }
+<span class="lineNum">     171 </span>            :             else {
+<span class="lineNum">     172 </span>            :                 if (DEBUG_MMS_CLIENT)
+<span class="lineNum">     173 </span>            :                     printf(&quot;MMS CLIENT: error parsing access result (bit string size 0 or negative)!\n&quot;);
+<span class="lineNum">     174 </span>            :             }
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span>            :         }
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :         else if (presentType == AccessResult_PR_integer) {</span>
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :             int size = accessResultList[i]-&gt;choice.integer.size;</span>
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :             if (size &gt; 0) {</span>
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :                 Asn1PrimitiveValue* berInteger =</span>
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :                         BerInteger_createFromBuffer(accessResultList[i]-&gt;choice.integer.buf, size);</span>
+<span class="lineNum">     184 </span>            : 
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :                 value = MmsValue_newIntegerFromBerInteger(berInteger);</span>
+<span class="lineNum">     186 </span>            :             }
+<span class="lineNum">     187 </span>            :             else {
+<span class="lineNum">     188 </span>            :                 if (DEBUG_MMS_CLIENT)
+<span class="lineNum">     189 </span>            :                     printf(&quot;MMS CLIENT: error parsing access result (invalid integer size)!\n&quot;);
+<span class="lineNum">     190 </span>            :             }
+<span class="lineNum">     191 </span>            :         }
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :         else if (presentType == AccessResult_PR_unsigned) {</span>
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :             int size = accessResultList[i]-&gt;choice.Unsigned.size;</span>
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :             if (size &gt; 0) {</span>
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 :                 Asn1PrimitiveValue* berInteger =</span>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :                         BerInteger_createFromBuffer(accessResultList[i]-&gt;choice.Unsigned.buf,</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :                                 accessResultList[i]-&gt;choice.Unsigned.size);</span>
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :                 value = MmsValue_newUnsignedFromBerInteger(berInteger);</span>
+<span class="lineNum">     202 </span>            :             }
+<span class="lineNum">     203 </span>            :             else {
+<span class="lineNum">     204 </span>            :                 if (DEBUG_MMS_CLIENT)
+<span class="lineNum">     205 </span>            :                     printf(&quot;MMS CLIENT: error parsing access result (invalid unsigned size)!\n&quot;);
+<span class="lineNum">     206 </span>            :             }
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span>            :         }
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :         else if (presentType == AccessResult_PR_floatingpoint) {</span>
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :             int size = accessResultList[i]-&gt;choice.floatingpoint.size;</span>
+<span class="lineNum">     212 </span>            : 
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :             if (size == 5) { /* FLOAT32 */</span>
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :                 value = (MmsValue*) GLOBAL_CALLOC(1, sizeof(MmsValue));</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :                 value-&gt;type = MMS_FLOAT;</span>
+<span class="lineNum">     217 </span>            : 
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :                 value-&gt;value.floatingPoint.formatWidth = 32;</span>
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :                 value-&gt;value.floatingPoint.exponentWidth = accessResultList[i]-&gt;choice.floatingpoint.buf[0];</span>
+<span class="lineNum">     220 </span>            : 
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :                 uint8_t* floatBuf = (accessResultList[i]-&gt;choice.floatingpoint.buf + 1);</span>
+<span class="lineNum">     222 </span>            : 
+<span class="lineNum">     223 </span>            : #if (ORDER_LITTLE_ENDIAN == 1)
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :                 memcpyReverseByteOrder(value-&gt;value.floatingPoint.buf, floatBuf, 4);</span>
+<span class="lineNum">     225 </span>            : #else
+<span class="lineNum">     226 </span>            :                 memcpy(value-&gt;value.floatingPoint.buf, floatBuf, 4);
+<span class="lineNum">     227 </span>            : #endif
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span>            :             }
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :             else if (size == 9) { /* FLOAT64 */</span>
+<span class="lineNum">     231 </span>            : 
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :                 value = (MmsValue*) GLOBAL_CALLOC(1, sizeof(MmsValue));</span>
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :                 value-&gt;type = MMS_FLOAT;</span>
+<span class="lineNum">     234 </span>            : 
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :                 value-&gt;value.floatingPoint.formatWidth = 64;</span>
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :                 value-&gt;value.floatingPoint.exponentWidth = accessResultList[i]-&gt;choice.floatingpoint.buf[0];</span>
+<span class="lineNum">     237 </span>            : 
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :                 uint8_t* floatBuf = (accessResultList[i]-&gt;choice.floatingpoint.buf + 1);</span>
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span>            : #if (ORDER_LITTLE_ENDIAN == 1)
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :                 memcpyReverseByteOrder(value-&gt;value.floatingPoint.buf, floatBuf, 8);</span>
+<span class="lineNum">     242 </span>            : #else
+<span class="lineNum">     243 </span>            :                 memcpy(value-&gt;value.floatingPoint.buf, floatBuf, 8);
+<span class="lineNum">     244 </span>            : #endif
+<span class="lineNum">     245 </span>            :             }
+<span class="lineNum">     246 </span>            :             else {
+<span class="lineNum">     247 </span>            :                 if (DEBUG_MMS_CLIENT)
+<span class="lineNum">     248 </span>            :                     printf(&quot;MMS CLIENT: error parsing float (size must be 5 or 9, is %i)\n&quot;, size);
+<span class="lineNum">     249 </span>            :             }
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span>            :         }
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :         else if (presentType == AccessResult_PR_visiblestring) {</span>
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :             int strSize = accessResultList[i]-&gt;choice.visiblestring.size;</span>
+<span class="lineNum">     255 </span>            : 
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :             if (strSize &gt;= 0) {</span>
+<span class="lineNum">     257 </span><span class="lineNoCov">          0 :                 value = (MmsValue*) GLOBAL_CALLOC(1, sizeof(MmsValue));</span>
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :                 value-&gt;type = MMS_VISIBLE_STRING;</span>
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :                 value-&gt;value.visibleString.buf = (char*) GLOBAL_MALLOC(strSize + 1);</span>
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :                 value-&gt;value.visibleString.size = strSize;</span>
+<span class="lineNum">     262 </span>            : 
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :                 memcpy(value-&gt;value.visibleString.buf,</span>
+<span class="lineNum">     264 </span><span class="lineNoCov">          0 :                         accessResultList[i]-&gt;choice.visiblestring.buf,</span>
+<span class="lineNum">     265 </span>            :                         strSize);
+<span class="lineNum">     266 </span>            : 
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :                 value-&gt;value.visibleString.buf[strSize] = 0;</span>
+<span class="lineNum">     268 </span>            :             }
+<span class="lineNum">     269 </span>            :             else {
+<span class="lineNum">     270 </span>            :                 if (DEBUG_MMS_CLIENT)
+<span class="lineNum">     271 </span>            :                     printf(&quot;MMS CLIENT: error parsing access result (invalid visible-string size)\n&quot;);
+<span class="lineNum">     272 </span>            :             }
+<span class="lineNum">     273 </span>            : 
+<span class="lineNum">     274 </span>            :         }
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :         else if (presentType == AccessResult_PR_mMSString) {</span>
+<span class="lineNum">     276 </span>            : 
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :             int strSize = accessResultList[i]-&gt;choice.mMSString.size;</span>
+<span class="lineNum">     278 </span>            : 
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :             if (strSize &gt;= 0) {</span>
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :                 value = (MmsValue*) GLOBAL_CALLOC(1, sizeof(MmsValue));</span>
+<span class="lineNum">     281 </span>            : 
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :                 value-&gt;type = MMS_STRING;</span>
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :                 value-&gt;value.visibleString.buf = (char*) GLOBAL_MALLOC(strSize + 1);</span>
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :                 value-&gt;value.visibleString.size = strSize;</span>
+<span class="lineNum">     285 </span>            : 
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :                 memcpy(value-&gt;value.visibleString.buf,</span>
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :                         accessResultList[i]-&gt;choice.mMSString.buf, strSize);</span>
+<span class="lineNum">     288 </span>            : 
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :                 value-&gt;value.visibleString.buf[strSize] = 0;</span>
+<span class="lineNum">     290 </span>            :             }
+<span class="lineNum">     291 </span>            :             else {
+<span class="lineNum">     292 </span>            :                 if (DEBUG_MMS_CLIENT)
+<span class="lineNum">     293 </span>            :                     printf(&quot;MMS CLIENT: error parsing access result (invalid mms-string size)\n&quot;);
+<span class="lineNum">     294 </span>            :             }
+<span class="lineNum">     295 </span>            :         }
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :         else if (presentType == AccessResult_PR_utctime) {</span>
+<span class="lineNum">     297 </span>            : 
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 :             int size = accessResultList[i]-&gt;choice.utctime.size;</span>
+<span class="lineNum">     299 </span>            : 
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 :             if (size == 8) {</span>
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 :                 value = (MmsValue*) GLOBAL_CALLOC(1, sizeof(MmsValue));</span>
+<span class="lineNum">     302 </span>            : 
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :                 value-&gt;type = MMS_UTC_TIME;</span>
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :                 memcpy(value-&gt;value.utcTime, accessResultList[i]-&gt;choice.utctime.buf, 8);</span>
+<span class="lineNum">     305 </span>            :             }
+<span class="lineNum">     306 </span>            :             else {
+<span class="lineNum">     307 </span>            :                 if (DEBUG_MMS_CLIENT)
+<span class="lineNum">     308 </span>            :                     printf(&quot;MMS CLIENT: error parsing UTC time (size is %i instead of 8\n&quot;, size);
+<span class="lineNum">     309 </span>            :             }
+<span class="lineNum">     310 </span>            :         }
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 :         else if (presentType == AccessResult_PR_boolean) {</span>
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :             value = MmsValue_newBoolean(accessResultList[i]-&gt;choice.boolean);</span>
+<span class="lineNum">     313 </span>            :         }
+<span class="lineNum">     314 </span><span class="lineNoCov">          0 :         else if (presentType == AccessResult_PR_binarytime) {</span>
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :             int size = accessResultList[i]-&gt;choice.binarytime.size;</span>
+<span class="lineNum">     316 </span>            : 
+<span class="lineNum">     317 </span><span class="lineNoCov">          0 :             if ((size == 4) || (size == 6)) {</span>
+<span class="lineNum">     318 </span><span class="lineNoCov">          0 :                 value = (MmsValue*) GLOBAL_CALLOC(1, sizeof(MmsValue));</span>
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 :                 value-&gt;type = MMS_BINARY_TIME;</span>
+<span class="lineNum">     320 </span><span class="lineNoCov">          0 :                 value-&gt;value.binaryTime.size = size;</span>
+<span class="lineNum">     321 </span><span class="lineNoCov">          0 :                 memcpy(value-&gt;value.binaryTime.buf, accessResultList[i]-&gt;choice.binarytime.buf, size);</span>
+<span class="lineNum">     322 </span>            :             }
+<span class="lineNum">     323 </span>            :             else {
+<span class="lineNum">     324 </span>            :                 if (DEBUG_MMS_CLIENT)
+<span class="lineNum">     325 </span>            :                     printf(&quot;MMS CLIENT: error parsing binary time (size must be 4 or 6, is %i\n&quot;, size);
+<span class="lineNum">     326 </span>            :             }
+<span class="lineNum">     327 </span>            :         }
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :         else if (presentType == AccessResult_PR_octetstring) {</span>
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :             int size = accessResultList[i]-&gt;choice.octetstring.size;</span>
+<span class="lineNum">     330 </span>            : 
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :             if (size &gt;= 0) {</span>
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :                 value = (MmsValue*) GLOBAL_CALLOC(1, sizeof(MmsValue));</span>
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :                 value-&gt;type = MMS_OCTET_STRING;</span>
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :                 value-&gt;value.octetString.maxSize = size;</span>
+<span class="lineNum">     335 </span><span class="lineNoCov">          0 :                 value-&gt;value.octetString.size = size;</span>
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :                 value-&gt;value.octetString.buf = (uint8_t*) GLOBAL_MALLOC(size);</span>
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :                 memcpy(value-&gt;value.octetString.buf, accessResultList[i]-&gt;choice.octetstring.buf, size);</span>
+<span class="lineNum">     338 </span>            :             }
+<span class="lineNum">     339 </span>            :             else {
+<span class="lineNum">     340 </span>            :                 if (DEBUG_MMS_CLIENT)
+<span class="lineNum">     341 </span>            :                     printf(&quot;MMS CLIENT: error parsing access result (invalid octet-string size)\n&quot;);
+<span class="lineNum">     342 </span>            :             }
+<span class="lineNum">     343 </span>            :         }
+<span class="lineNum">     344 </span>            :         else {
+<span class="lineNum">     345 </span>            :             if (DEBUG_MMS_CLIENT)
+<span class="lineNum">     346 </span>            :                 printf(&quot;MMS CLIENT: unknown type %i in access result\n&quot;, presentType);
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :             value = MmsValue_newDataAccessError(DATA_ACCESS_ERROR_OBJECT_VALUE_INVALID);</span>
+<span class="lineNum">     348 </span>            :         }
+<span class="lineNum">     349 </span>            : 
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :         if ((elementCount &gt; 1) || createArray)</span>
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :             MmsValue_setElement(valueList, i, value);</span>
+<span class="lineNum">     352 </span>            :     }
+<span class="lineNum">     353 </span>            : 
+<span class="lineNum">     354 </span><span class="lineNoCov">          0 :     if (valueList == NULL)</span>
+<span class="lineNum">     355 </span><span class="lineNoCov">          0 :         valueList = value;</span>
+<span class="lineNum">     356 </span>            : 
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :     return valueList;</span>
+<span class="lineNum">     358 </span>            : }
+<span class="lineNum">     359 </span>            : 
+<span class="lineNum">     360 </span>            : /*
+<span class="lineNum">     361 </span>            :  * \param createArray if multiple variables should be read (e.g. if a data set is read) an array should
+<span class="lineNum">     362 </span>            :  *                    be created that contains the access results.
+<a name="363"><span class="lineNum">     363 </span>            :  */</a>
+<span class="lineNum">     364 </span>            : MmsValue*
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 : mmsClient_parseReadResponse(ByteBuffer* message, uint32_t* invokeId, bool createArray)</span>
+<span class="lineNum">     366 </span>            : {
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 :     MmsPdu_t* mmsPdu = 0; /* allow asn1c to allocate structure */</span>
+<span class="lineNum">     368 </span>            : 
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :     MmsValue* valueList = NULL;</span>
+<span class="lineNum">     370 </span>            : 
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :     asn_dec_rval_t rval = ber_decode(NULL, &amp;asn_DEF_MmsPdu,</span>
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :             (void**) &amp;mmsPdu, ByteBuffer_getBuffer(message), ByteBuffer_getSize(message));</span>
+<span class="lineNum">     373 </span>            : 
+<span class="lineNum">     374 </span><span class="lineNoCov">          0 :     if (rval.code == RC_OK) {</span>
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :         if (mmsPdu-&gt;present == MmsPdu_PR_confirmedResponsePdu) {</span>
+<span class="lineNum">     376 </span>            : 
+<span class="lineNum">     377 </span><span class="lineNoCov">          0 :             if (invokeId != NULL)</span>
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :                 *invokeId = mmsClient_getInvokeId(&amp;mmsPdu-&gt;choice.confirmedResponsePdu);</span>
+<span class="lineNum">     379 </span>            : 
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :             if (mmsPdu-&gt;choice.confirmedResponsePdu.confirmedServiceResponse.present == ConfirmedServiceResponse_PR_read) {</span>
+<span class="lineNum">     381 </span><span class="lineNoCov">          0 :                 ReadResponse_t* response = &amp;(mmsPdu-&gt;choice.confirmedResponsePdu.confirmedServiceResponse.choice.read);</span>
+<span class="lineNum">     382 </span>            : 
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :                 int elementCount = response-&gt;listOfAccessResult.list.count;</span>
+<span class="lineNum">     384 </span>            : 
+<span class="lineNum">     385 </span><span class="lineNoCov">          0 :                 valueList = mmsClient_parseListOfAccessResults(response-&gt;listOfAccessResult.list.array,</span>
+<span class="lineNum">     386 </span>            :                         elementCount, createArray);
+<span class="lineNum">     387 </span>            :             }
+<span class="lineNum">     388 </span>            :         }
+<span class="lineNum">     389 </span>            :     }
+<span class="lineNum">     390 </span>            : 
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :     asn_DEF_MmsPdu.free_struct(&amp;asn_DEF_MmsPdu, mmsPdu, 0);</span>
+<span class="lineNum">     392 </span>            : 
+<span class="lineNum">     393 </span><span class="lineNoCov">          0 :     return valueList;</span>
+<span class="lineNum">     394 </span>            : }
+<a name="395"><span class="lineNum">     395 </span>            : </a>
+<span class="lineNum">     396 </span>            : static ReadRequest_t*
+<span class="lineNum">     397 </span><span class="lineNoCov">          0 : createReadRequest(MmsPdu_t* mmsPdu)</span>
+<span class="lineNum">     398 </span>            : {
+<span class="lineNum">     399 </span><span class="lineNoCov">          0 :     mmsPdu-&gt;choice.confirmedRequestPdu.confirmedServiceRequest.present =</span>
+<span class="lineNum">     400 </span>            :             ConfirmedServiceRequest_PR_read;
+<span class="lineNum">     401 </span>            : 
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :     return &amp;(mmsPdu-&gt;choice.confirmedRequestPdu.confirmedServiceRequest.choice.read);</span>
+<span class="lineNum">     403 </span>            : }
+<a name="404"><span class="lineNum">     404 </span>            : </a>
+<span class="lineNum">     405 </span>            : int
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 : mmsClient_createReadNamedVariableListRequest(uint32_t invokeId, const char* domainId, const char* itemId,</span>
+<span class="lineNum">     407 </span>            :         ByteBuffer* writeBuffer, bool specWithResult)
+<span class="lineNum">     408 </span>            : {
+<span class="lineNum">     409 </span><span class="lineNoCov">          0 :     MmsPdu_t* mmsPdu = mmsClient_createConfirmedRequestPdu(invokeId);</span>
+<span class="lineNum">     410 </span>            : 
+<span class="lineNum">     411 </span><span class="lineNoCov">          0 :     ReadRequest_t* readRequest = createReadRequest(mmsPdu);</span>
+<span class="lineNum">     412 </span>            : 
+<span class="lineNum">     413 </span><span class="lineNoCov">          0 :     if (specWithResult) {</span>
+<span class="lineNum">     414 </span><span class="lineNoCov">          0 :         readRequest-&gt;specificationWithResult = (BOOLEAN_t*) GLOBAL_CALLOC(1, sizeof(BOOLEAN_t));</span>
+<span class="lineNum">     415 </span><span class="lineNoCov">          0 :         (*(readRequest-&gt;specificationWithResult)) = true;</span>
+<span class="lineNum">     416 </span>            :     }
+<span class="lineNum">     417 </span>            :     else
+<span class="lineNum">     418 </span><span class="lineNoCov">          0 :         readRequest-&gt;specificationWithResult = NULL;</span>
+<span class="lineNum">     419 </span>            : 
+<span class="lineNum">     420 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.present = VariableAccessSpecification_PR_variableListName;</span>
+<span class="lineNum">     421 </span>            : 
+<span class="lineNum">     422 </span><span class="lineNoCov">          0 :     ObjectName_t* objectName = &amp;(readRequest-&gt;variableAccessSpecification.choice.variableListName);</span>
+<span class="lineNum">     423 </span>            : 
+<span class="lineNum">     424 </span><span class="lineNoCov">          0 :     if (domainId != NULL) {</span>
+<span class="lineNum">     425 </span><span class="lineNoCov">          0 :         objectName-&gt;present = ObjectName_PR_domainspecific;</span>
+<span class="lineNum">     426 </span>            : 
+<span class="lineNum">     427 </span><span class="lineNoCov">          0 :         objectName-&gt;choice.domainspecific.domainId.buf = (uint8_t*) StringUtils_copyString(domainId);</span>
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 :         objectName-&gt;choice.domainspecific.domainId.size = strlen(domainId);</span>
+<span class="lineNum">     429 </span>            : 
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 :         objectName-&gt;choice.domainspecific.itemId.buf = (uint8_t*) StringUtils_copyString(itemId);</span>
+<span class="lineNum">     431 </span><span class="lineNoCov">          0 :         objectName-&gt;choice.domainspecific.itemId.size = strlen(itemId);</span>
+<span class="lineNum">     432 </span>            :     }
+<span class="lineNum">     433 </span>            :     else {
+<span class="lineNum">     434 </span><span class="lineNoCov">          0 :         objectName-&gt;present = ObjectName_PR_vmdspecific;</span>
+<span class="lineNum">     435 </span>            : 
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 :         objectName-&gt;choice.vmdspecific.buf = (uint8_t*) StringUtils_copyString(itemId);</span>
+<span class="lineNum">     437 </span><span class="lineNoCov">          0 :         objectName-&gt;choice.vmdspecific.size = strlen(itemId);</span>
+<span class="lineNum">     438 </span>            :     }
+<span class="lineNum">     439 </span>            : 
+<span class="lineNum">     440 </span>            :     asn_enc_rval_t rval;
+<span class="lineNum">     441 </span>            : 
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :     rval = der_encode(&amp;asn_DEF_MmsPdu, mmsPdu,</span>
+<span class="lineNum">     443 </span>            :             (asn_app_consume_bytes_f*) mmsClient_write_out, (void*) writeBuffer);
+<span class="lineNum">     444 </span>            : 
+<span class="lineNum">     445 </span><span class="lineNoCov">          0 :     asn_DEF_MmsPdu.free_struct(&amp;asn_DEF_MmsPdu, mmsPdu, 0);</span>
+<span class="lineNum">     446 </span>            : 
+<span class="lineNum">     447 </span><span class="lineNoCov">          0 :     return rval.encoded;</span>
+<span class="lineNum">     448 </span>            : }
+<a name="449"><span class="lineNum">     449 </span>            : </a>
+<span class="lineNum">     450 </span>            : int
+<span class="lineNum">     451 </span><span class="lineNoCov">          0 : mmsClient_createReadAssociationSpecificNamedVariableListRequest(</span>
+<span class="lineNum">     452 </span>            :         uint32_t invokeId,
+<span class="lineNum">     453 </span>            :         const char* itemId,
+<span class="lineNum">     454 </span>            :         ByteBuffer* writeBuffer,
+<span class="lineNum">     455 </span>            :         bool specWithResult)
+<span class="lineNum">     456 </span>            : {
+<span class="lineNum">     457 </span><span class="lineNoCov">          0 :     MmsPdu_t* mmsPdu = mmsClient_createConfirmedRequestPdu(invokeId);</span>
+<span class="lineNum">     458 </span>            : 
+<span class="lineNum">     459 </span><span class="lineNoCov">          0 :     ReadRequest_t* readRequest = createReadRequest(mmsPdu);</span>
+<span class="lineNum">     460 </span>            : 
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :     if (specWithResult) {</span>
+<span class="lineNum">     462 </span><span class="lineNoCov">          0 :         readRequest-&gt;specificationWithResult = (BOOLEAN_t*) GLOBAL_CALLOC(1, sizeof(BOOLEAN_t));</span>
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :         (*(readRequest-&gt;specificationWithResult)) = true;</span>
+<span class="lineNum">     464 </span>            :     }
+<span class="lineNum">     465 </span>            :     else
+<span class="lineNum">     466 </span><span class="lineNoCov">          0 :         readRequest-&gt;specificationWithResult = NULL;</span>
+<span class="lineNum">     467 </span>            : 
+<span class="lineNum">     468 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.present = VariableAccessSpecification_PR_variableListName;</span>
+<span class="lineNum">     469 </span>            : 
+<span class="lineNum">     470 </span><span class="lineNoCov">          0 :     ObjectName_t* objectName = &amp;(readRequest-&gt;variableAccessSpecification.choice.variableListName);</span>
+<span class="lineNum">     471 </span>            : 
+<span class="lineNum">     472 </span><span class="lineNoCov">          0 :     objectName-&gt;present = ObjectName_PR_aaspecific;</span>
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 :     objectName-&gt;choice.aaspecific.buf = (uint8_t*) StringUtils_copyString(itemId);</span>
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :     objectName-&gt;choice.aaspecific.size = strlen(itemId);</span>
+<span class="lineNum">     476 </span>            : 
+<span class="lineNum">     477 </span>            :     asn_enc_rval_t rval;
+<span class="lineNum">     478 </span>            : 
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :     rval = der_encode(&amp;asn_DEF_MmsPdu, mmsPdu,</span>
+<span class="lineNum">     480 </span>            :             (asn_app_consume_bytes_f*) mmsClient_write_out, (void*) writeBuffer);
+<span class="lineNum">     481 </span>            : 
+<span class="lineNum">     482 </span><span class="lineNoCov">          0 :     asn_DEF_MmsPdu.free_struct(&amp;asn_DEF_MmsPdu, mmsPdu, 0);</span>
+<span class="lineNum">     483 </span>            : 
+<span class="lineNum">     484 </span><span class="lineNoCov">          0 :     return rval.encoded;</span>
+<span class="lineNum">     485 </span>            : }
+<span class="lineNum">     486 </span>            : 
+<span class="lineNum">     487 </span>            : /**
+<span class="lineNum">     488 </span>            :  * Request a single value
+<a name="489"><span class="lineNum">     489 </span>            :  */</a>
+<span class="lineNum">     490 </span>            : int
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 : mmsClient_createReadRequest(uint32_t invokeId, const char* domainId, const char* itemId, ByteBuffer* writeBuffer)</span>
+<span class="lineNum">     492 </span>            : {
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 :     MmsPdu_t* mmsPdu = mmsClient_createConfirmedRequestPdu(invokeId);</span>
+<span class="lineNum">     494 </span>            : 
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :     ReadRequest_t* readRequest = createReadRequest(mmsPdu);</span>
+<span class="lineNum">     496 </span>            : 
+<span class="lineNum">     497 </span><span class="lineNoCov">          0 :     readRequest-&gt;specificationWithResult = NULL;</span>
+<span class="lineNum">     498 </span>            : 
+<span class="lineNum">     499 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.present = VariableAccessSpecification_PR_listOfVariable;</span>
+<span class="lineNum">     500 </span>            : 
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.array =</span>
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 :             (ListOfVariableSeq_t**) GLOBAL_CALLOC(1, sizeof(ListOfVariableSeq_t*));</span>
+<span class="lineNum">     503 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.count = 1;</span>
+<span class="lineNum">     504 </span>            : 
+<span class="lineNum">     505 </span><span class="lineNoCov">          0 :     ListOfVariableSeq_t* listOfVars = (ListOfVariableSeq_t*) GLOBAL_CALLOC(1, sizeof(ListOfVariableSeq_t));</span>
+<span class="lineNum">     506 </span>            : 
+<span class="lineNum">     507 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.array[0] = listOfVars;</span>
+<span class="lineNum">     508 </span>            : 
+<span class="lineNum">     509 </span><span class="lineNoCov">          0 :     listOfVars-&gt;alternateAccess = NULL;</span>
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 :     listOfVars-&gt;variableSpecification.present = VariableSpecification_PR_name;</span>
+<span class="lineNum">     511 </span>            : 
+<span class="lineNum">     512 </span><span class="lineNoCov">          0 :     if (domainId != NULL) {</span>
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :         listOfVars-&gt;variableSpecification.choice.name.present = ObjectName_PR_domainspecific;</span>
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 :         listOfVars-&gt;variableSpecification.choice.name.choice.domainspecific.domainId.buf = (uint8_t*) domainId;</span>
+<span class="lineNum">     515 </span><span class="lineNoCov">          0 :         listOfVars-&gt;variableSpecification.choice.name.choice.domainspecific.domainId.size = strlen(domainId);</span>
+<span class="lineNum">     516 </span><span class="lineNoCov">          0 :         listOfVars-&gt;variableSpecification.choice.name.choice.domainspecific.itemId.buf = (uint8_t*) itemId;</span>
+<span class="lineNum">     517 </span><span class="lineNoCov">          0 :         listOfVars-&gt;variableSpecification.choice.name.choice.domainspecific.itemId.size = strlen(itemId);</span>
+<span class="lineNum">     518 </span>            :     }
+<span class="lineNum">     519 </span>            :     else {
+<span class="lineNum">     520 </span><span class="lineNoCov">          0 :         listOfVars-&gt;variableSpecification.choice.name.present = ObjectName_PR_vmdspecific;</span>
+<span class="lineNum">     521 </span><span class="lineNoCov">          0 :         listOfVars-&gt;variableSpecification.choice.name.choice.vmdspecific.buf = (uint8_t*) itemId;</span>
+<span class="lineNum">     522 </span><span class="lineNoCov">          0 :         listOfVars-&gt;variableSpecification.choice.name.choice.vmdspecific.size = strlen(itemId);</span>
+<span class="lineNum">     523 </span>            :     }
+<span class="lineNum">     524 </span>            : 
+<span class="lineNum">     525 </span>            :     asn_enc_rval_t rval;
+<span class="lineNum">     526 </span>            : 
+<span class="lineNum">     527 </span><span class="lineNoCov">          0 :     rval = der_encode(&amp;asn_DEF_MmsPdu, mmsPdu,</span>
+<span class="lineNum">     528 </span>            :             (asn_app_consume_bytes_f*) mmsClient_write_out, (void*) writeBuffer);
+<span class="lineNum">     529 </span>            : 
+<span class="lineNum">     530 </span>            :     /* clean up data structures */
+<span class="lineNum">     531 </span><span class="lineNoCov">          0 :     GLOBAL_FREEMEM(listOfVars);</span>
+<span class="lineNum">     532 </span><span class="lineNoCov">          0 :     GLOBAL_FREEMEM(readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.array);</span>
+<span class="lineNum">     533 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.array = NULL;</span>
+<span class="lineNum">     534 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.count = 0;</span>
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :     asn_DEF_MmsPdu.free_struct(&amp;asn_DEF_MmsPdu, mmsPdu, 0);</span>
+<span class="lineNum">     536 </span>            : 
+<span class="lineNum">     537 </span><span class="lineNoCov">          0 :     return rval.encoded;</span>
+<span class="lineNum">     538 </span>            : }
+<a name="539"><span class="lineNum">     539 </span>            : </a>
+<span class="lineNum">     540 </span>            : static AlternateAccess_t*
+<span class="lineNum">     541 </span><span class="lineNoCov">          0 : createAlternateAccessComponent(const char* componentName)</span>
+<span class="lineNum">     542 </span>            : {
+<span class="lineNum">     543 </span><span class="lineNoCov">          0 :     AlternateAccess_t* alternateAccess = (AlternateAccess_t*) GLOBAL_CALLOC(1, sizeof(AlternateAccess_t));</span>
+<span class="lineNum">     544 </span><span class="lineNoCov">          0 :     alternateAccess-&gt;list.count = 1;</span>
+<span class="lineNum">     545 </span><span class="lineNoCov">          0 :     alternateAccess-&gt;list.array = (struct AlternateAccess__Member**) GLOBAL_CALLOC(1, sizeof(struct AlternateAccess__Member*));</span>
+<span class="lineNum">     546 </span><span class="lineNoCov">          0 :     alternateAccess-&gt;list.array[0] = (struct AlternateAccess__Member*) GLOBAL_CALLOC(1, sizeof(struct AlternateAccess__Member));</span>
+<span class="lineNum">     547 </span><span class="lineNoCov">          0 :     alternateAccess-&gt;list.array[0]-&gt;present = AlternateAccess__Member_PR_unnamed;</span>
+<span class="lineNum">     548 </span>            : 
+<span class="lineNum">     549 </span><span class="lineNoCov">          0 :     alternateAccess-&gt;list.array[0]-&gt;choice.unnamed = (AlternateAccessSelection_t*) GLOBAL_CALLOC(1, sizeof(AlternateAccessSelection_t));</span>
+<span class="lineNum">     550 </span>            : 
+<span class="lineNum">     551 </span><span class="lineNoCov">          0 :     const char* separator = strchr(componentName, '$');</span>
+<span class="lineNum">     552 </span>            : 
+<span class="lineNum">     553 </span><span class="lineNoCov">          0 :     if (separator) {</span>
+<span class="lineNum">     554 </span><span class="lineNoCov">          0 :         int size = separator - componentName;</span>
+<span class="lineNum">     555 </span>            : 
+<span class="lineNum">     556 </span><span class="lineNoCov">          0 :         alternateAccess-&gt;list.array[0]-&gt;choice.unnamed-&gt;present = AlternateAccessSelection_PR_selectAlternateAccess;</span>
+<span class="lineNum">     557 </span><span class="lineNoCov">          0 :         alternateAccess-&gt;list.array[0]-&gt;choice.unnamed-&gt;choice.selectAlternateAccess.accessSelection.present =</span>
+<span class="lineNum">     558 </span>            :                 AlternateAccessSelection__selectAlternateAccess__accessSelection_PR_component;
+<span class="lineNum">     559 </span>            : 
+<span class="lineNum">     560 </span><span class="lineNoCov">          0 :         alternateAccess-&gt;list.array[0]-&gt;choice.unnamed-&gt;choice.selectAlternateAccess.accessSelection.choice.component.buf =</span>
+<span class="lineNum">     561 </span><span class="lineNoCov">          0 :                         (uint8_t*) StringUtils_copySubString((char*) componentName, (char*) separator);</span>
+<span class="lineNum">     562 </span><span class="lineNoCov">          0 :         alternateAccess-&gt;list.array[0]-&gt;choice.unnamed-&gt;choice.selectAlternateAccess.accessSelection.choice.component.size = size;</span>
+<span class="lineNum">     563 </span>            : 
+<span class="lineNum">     564 </span><span class="lineNoCov">          0 :         alternateAccess-&gt;list.array[0]-&gt;choice.unnamed-&gt;choice.selectAlternateAccess.alternateAccess = createAlternateAccessComponent(separator + 1);</span>
+<span class="lineNum">     565 </span>            :     }
+<span class="lineNum">     566 </span>            :     else {
+<span class="lineNum">     567 </span><span class="lineNoCov">          0 :         int size = strlen(componentName);</span>
+<span class="lineNum">     568 </span>            : 
+<span class="lineNum">     569 </span><span class="lineNoCov">          0 :         alternateAccess-&gt;list.array[0]-&gt;choice.unnamed-&gt;present = AlternateAccessSelection_PR_selectAccess;</span>
+<span class="lineNum">     570 </span>            : 
+<span class="lineNum">     571 </span><span class="lineNoCov">          0 :         alternateAccess-&gt;list.array[0]-&gt;choice.unnamed-&gt;choice.selectAccess.present =</span>
+<span class="lineNum">     572 </span>            :                 AlternateAccessSelection__selectAccess_PR_component;
+<span class="lineNum">     573 </span>            : 
+<span class="lineNum">     574 </span><span class="lineNoCov">          0 :                 alternateAccess-&gt;list.array[0]-&gt;choice.unnamed-&gt;choice.selectAccess.choice.component.buf =</span>
+<span class="lineNum">     575 </span><span class="lineNoCov">          0 :                         (uint8_t*) StringUtils_copyString(componentName);</span>
+<span class="lineNum">     576 </span><span class="lineNoCov">          0 :         alternateAccess-&gt;list.array[0]-&gt;choice.unnamed-&gt;choice.selectAccess.choice.component.size = size;</span>
+<span class="lineNum">     577 </span>            :     }
+<span class="lineNum">     578 </span>            : 
+<span class="lineNum">     579 </span><span class="lineNoCov">          0 :     return alternateAccess;</span>
+<span class="lineNum">     580 </span>            : }
+<a name="581"><span class="lineNum">     581 </span>            : </a>
+<span class="lineNum">     582 </span>            : static void
+<span class="lineNum">     583 </span><span class="lineNoCov">          0 : deleteAlternateAccessComponent(AlternateAccess_t* alternateAccess)</span>
+<span class="lineNum">     584 </span>            : {
+<span class="lineNum">     585 </span><span class="lineNoCov">          0 :     if (alternateAccess-&gt;list.array[0]-&gt;choice.unnamed-&gt;choice.selectAlternateAccess.alternateAccess)</span>
+<span class="lineNum">     586 </span><span class="lineNoCov">          0 :         deleteAlternateAccessComponent(alternateAccess-&gt;list.array[0]-&gt;choice.unnamed-&gt;choice.selectAlternateAccess.alternateAccess);</span>
+<span class="lineNum">     587 </span>            : 
+<span class="lineNum">     588 </span><span class="lineNoCov">          0 :     if (alternateAccess-&gt;list.array[0]-&gt;choice.unnamed-&gt;present == AlternateAccessSelection_PR_selectAlternateAccess)</span>
+<span class="lineNum">     589 </span><span class="lineNoCov">          0 :         GLOBAL_FREEMEM(alternateAccess-&gt;list.array[0]-&gt;choice.unnamed-&gt;choice.selectAlternateAccess.accessSelection.choice.component.buf);</span>
+<span class="lineNum">     590 </span><span class="lineNoCov">          0 :     else if (alternateAccess-&gt;list.array[0]-&gt;choice.unnamed-&gt;present == AlternateAccessSelection_PR_selectAccess)</span>
+<span class="lineNum">     591 </span><span class="lineNoCov">          0 :         GLOBAL_FREEMEM(alternateAccess-&gt;list.array[0]-&gt;choice.unnamed-&gt;choice.selectAccess.choice.component.buf);</span>
+<span class="lineNum">     592 </span>            : 
+<span class="lineNum">     593 </span><span class="lineNoCov">          0 :     GLOBAL_FREEMEM(alternateAccess-&gt;list.array[0]-&gt;choice.unnamed);</span>
+<span class="lineNum">     594 </span><span class="lineNoCov">          0 :     GLOBAL_FREEMEM(alternateAccess-&gt;list.array[0]);</span>
+<span class="lineNum">     595 </span><span class="lineNoCov">          0 :     GLOBAL_FREEMEM(alternateAccess-&gt;list.array);</span>
+<span class="lineNum">     596 </span><span class="lineNoCov">          0 :     GLOBAL_FREEMEM(alternateAccess);</span>
+<span class="lineNum">     597 </span><span class="lineNoCov">          0 : }</span>
+<a name="598"><span class="lineNum">     598 </span>            : </a>
+<span class="lineNum">     599 </span>            : static ListOfVariableSeq_t*
+<span class="lineNum">     600 </span><span class="lineNoCov">          0 : createNewVariableSpecification(const char* domainId, const char* itemId, const char* componentName, bool associationSpecific)</span>
+<span class="lineNum">     601 </span>            : {
+<span class="lineNum">     602 </span><span class="lineNoCov">          0 :     ListOfVariableSeq_t* varSpec = (ListOfVariableSeq_t*) GLOBAL_CALLOC(1, sizeof(ListOfVariableSeq_t));</span>
+<span class="lineNum">     603 </span>            : 
+<span class="lineNum">     604 </span><span class="lineNoCov">          0 :     varSpec-&gt;variableSpecification.present = VariableSpecification_PR_name;</span>
+<span class="lineNum">     605 </span>            : 
+<span class="lineNum">     606 </span><span class="lineNoCov">          0 :     if (domainId) {</span>
+<span class="lineNum">     607 </span><span class="lineNoCov">          0 :         varSpec-&gt;variableSpecification.choice.name.present = ObjectName_PR_domainspecific;</span>
+<span class="lineNum">     608 </span><span class="lineNoCov">          0 :         varSpec-&gt;variableSpecification.choice.name.choice.domainspecific.domainId.buf = (uint8_t*) domainId;</span>
+<span class="lineNum">     609 </span><span class="lineNoCov">          0 :         varSpec-&gt;variableSpecification.choice.name.choice.domainspecific.domainId.size = strlen(domainId);</span>
+<span class="lineNum">     610 </span><span class="lineNoCov">          0 :         varSpec-&gt;variableSpecification.choice.name.choice.domainspecific.itemId.buf = (uint8_t*) itemId;</span>
+<span class="lineNum">     611 </span><span class="lineNoCov">          0 :         varSpec-&gt;variableSpecification.choice.name.choice.domainspecific.itemId.size = strlen(itemId);</span>
+<span class="lineNum">     612 </span>            :     }
+<span class="lineNum">     613 </span><span class="lineNoCov">          0 :     else if (associationSpecific) {</span>
+<span class="lineNum">     614 </span><span class="lineNoCov">          0 :         varSpec-&gt;variableSpecification.choice.name.present = ObjectName_PR_aaspecific;</span>
+<span class="lineNum">     615 </span><span class="lineNoCov">          0 :         varSpec-&gt;variableSpecification.choice.name.choice.aaspecific.buf = (uint8_t*) itemId;</span>
+<span class="lineNum">     616 </span><span class="lineNoCov">          0 :         varSpec-&gt;variableSpecification.choice.name.choice.aaspecific.size = strlen(itemId);</span>
+<span class="lineNum">     617 </span>            :     }
+<span class="lineNum">     618 </span>            :     else {
+<span class="lineNum">     619 </span><span class="lineNoCov">          0 :         varSpec-&gt;variableSpecification.choice.name.present = ObjectName_PR_vmdspecific;</span>
+<span class="lineNum">     620 </span><span class="lineNoCov">          0 :         varSpec-&gt;variableSpecification.choice.name.choice.vmdspecific.buf = (uint8_t*) itemId;</span>
+<span class="lineNum">     621 </span><span class="lineNoCov">          0 :         varSpec-&gt;variableSpecification.choice.name.choice.vmdspecific.size = strlen(itemId);</span>
+<span class="lineNum">     622 </span>            :     }
+<span class="lineNum">     623 </span>            : 
+<span class="lineNum">     624 </span><span class="lineNoCov">          0 :     if (componentName)</span>
+<span class="lineNum">     625 </span><span class="lineNoCov">          0 :         varSpec-&gt;alternateAccess = createAlternateAccessComponent(componentName);</span>
+<span class="lineNum">     626 </span>            : 
+<span class="lineNum">     627 </span><span class="lineNoCov">          0 :     return varSpec;</span>
+<span class="lineNum">     628 </span>            : }
+<span class="lineNum">     629 </span>            : 
+<span class="lineNum">     630 </span>            : /**
+<span class="lineNum">     631 </span>            :  * Request a single value with optional component
+<a name="632"><span class="lineNum">     632 </span>            :  */</a>
+<span class="lineNum">     633 </span>            : int
+<span class="lineNum">     634 </span><span class="lineNoCov">          0 : mmsClient_createReadRequestComponent(uint32_t invokeId, const char* domainId, const char* itemId, const char* component, ByteBuffer* writeBuffer)</span>
+<span class="lineNum">     635 </span>            : {
+<span class="lineNum">     636 </span><span class="lineNoCov">          0 :     MmsPdu_t* mmsPdu = mmsClient_createConfirmedRequestPdu(invokeId);</span>
+<span class="lineNum">     637 </span>            : 
+<span class="lineNum">     638 </span><span class="lineNoCov">          0 :     ReadRequest_t* readRequest = createReadRequest(mmsPdu);</span>
+<span class="lineNum">     639 </span>            : 
+<span class="lineNum">     640 </span><span class="lineNoCov">          0 :     readRequest-&gt;specificationWithResult = NULL;</span>
+<span class="lineNum">     641 </span>            : 
+<span class="lineNum">     642 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.present = VariableAccessSpecification_PR_listOfVariable;</span>
+<span class="lineNum">     643 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.count = 1;</span>
+<span class="lineNum">     644 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.size = 1;</span>
+<span class="lineNum">     645 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.array =</span>
+<span class="lineNum">     646 </span><span class="lineNoCov">          0 :             (ListOfVariableSeq_t**) GLOBAL_CALLOC(1, sizeof(ListOfVariableSeq_t*));</span>
+<span class="lineNum">     647 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.array[0] = createNewVariableSpecification(domainId, itemId, component, false);</span>
+<span class="lineNum">     648 </span>            : 
+<span class="lineNum">     649 </span>            :     asn_enc_rval_t rval;
+<span class="lineNum">     650 </span>            : 
+<span class="lineNum">     651 </span><span class="lineNoCov">          0 :     rval = der_encode(&amp;asn_DEF_MmsPdu, mmsPdu,</span>
+<span class="lineNum">     652 </span>            :             (asn_app_consume_bytes_f*) mmsClient_write_out, (void*) writeBuffer);
+<span class="lineNum">     653 </span>            : 
+<span class="lineNum">     654 </span>            :     /* clean up data structures */
+<span class="lineNum">     655 </span><span class="lineNoCov">          0 :     deleteAlternateAccessComponent(readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.array[0]-&gt;alternateAccess);</span>
+<span class="lineNum">     656 </span>            : 
+<span class="lineNum">     657 </span><span class="lineNoCov">          0 :     GLOBAL_FREEMEM(readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.array[0]);</span>
+<span class="lineNum">     658 </span><span class="lineNoCov">          0 :     GLOBAL_FREEMEM(readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.array);</span>
+<span class="lineNum">     659 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.array = NULL;</span>
+<span class="lineNum">     660 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.count = 0;</span>
+<span class="lineNum">     661 </span><span class="lineNoCov">          0 :     asn_DEF_MmsPdu.free_struct(&amp;asn_DEF_MmsPdu, mmsPdu, 0);</span>
+<span class="lineNum">     662 </span>            : 
+<span class="lineNum">     663 </span><span class="lineNoCov">          0 :     return rval.encoded;</span>
+<span class="lineNum">     664 </span>            : }
+<a name="665"><span class="lineNum">     665 </span>            : </a>
+<span class="lineNum">     666 </span>            : static ListOfVariableSeq_t*
+<span class="lineNum">     667 </span><span class="lineNoCov">          0 : createVariableIdentifier(const char* domainId, const char* itemId)</span>
+<span class="lineNum">     668 </span>            : {
+<span class="lineNum">     669 </span><span class="lineNoCov">          0 :     ListOfVariableSeq_t* variableIdentifier = (ListOfVariableSeq_t*) GLOBAL_CALLOC(1, sizeof(ListOfVariableSeq_t));</span>
+<span class="lineNum">     670 </span>            : 
+<span class="lineNum">     671 </span><span class="lineNoCov">          0 :     variableIdentifier-&gt;variableSpecification.present = VariableSpecification_PR_name;</span>
+<span class="lineNum">     672 </span><span class="lineNoCov">          0 :     variableIdentifier-&gt;variableSpecification.choice.name.present = ObjectName_PR_domainspecific;</span>
+<span class="lineNum">     673 </span><span class="lineNoCov">          0 :     variableIdentifier-&gt;variableSpecification.choice.name.choice.domainspecific.domainId.buf = (uint8_t*) domainId;</span>
+<span class="lineNum">     674 </span><span class="lineNoCov">          0 :     variableIdentifier-&gt;variableSpecification.choice.name.choice.domainspecific.domainId.size = strlen(domainId);</span>
+<span class="lineNum">     675 </span><span class="lineNoCov">          0 :     variableIdentifier-&gt;variableSpecification.choice.name.choice.domainspecific.itemId.buf = (uint8_t*) itemId;</span>
+<span class="lineNum">     676 </span><span class="lineNoCov">          0 :     variableIdentifier-&gt;variableSpecification.choice.name.choice.domainspecific.itemId.size = strlen(itemId);</span>
+<span class="lineNum">     677 </span>            : 
+<span class="lineNum">     678 </span><span class="lineNoCov">          0 :     return variableIdentifier;</span>
+<span class="lineNum">     679 </span>            : }
+<a name="680"><span class="lineNum">     680 </span>            : </a>
+<span class="lineNum">     681 </span>            : int
+<span class="lineNum">     682 </span><span class="lineNoCov">          0 : mmsClient_createReadRequestAlternateAccessIndex(uint32_t invokeId, const char* domainId, const char* itemId,</span>
+<span class="lineNum">     683 </span>            :         uint32_t index, uint32_t elementCount, ByteBuffer* writeBuffer)
+<span class="lineNum">     684 </span>            : {
+<span class="lineNum">     685 </span><span class="lineNoCov">          0 :     MmsPdu_t* mmsPdu = mmsClient_createConfirmedRequestPdu(invokeId);</span>
+<span class="lineNum">     686 </span><span class="lineNoCov">          0 :     ReadRequest_t* readRequest = createReadRequest(mmsPdu);</span>
+<span class="lineNum">     687 </span>            : 
+<span class="lineNum">     688 </span><span class="lineNoCov">          0 :     readRequest-&gt;specificationWithResult = NULL;</span>
+<span class="lineNum">     689 </span>            : 
+<span class="lineNum">     690 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.present = VariableAccessSpecification_PR_listOfVariable;</span>
+<span class="lineNum">     691 </span>            : 
+<span class="lineNum">     692 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.array = (ListOfVariableSeq_t**) GLOBAL_CALLOC(1, sizeof(ListOfVariableSeq_t*));</span>
+<span class="lineNum">     693 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.count = 1;</span>
+<span class="lineNum">     694 </span>            : 
+<span class="lineNum">     695 </span><span class="lineNoCov">          0 :     ListOfVariableSeq_t* variableIdentifier = createVariableIdentifier(domainId, itemId);</span>
+<span class="lineNum">     696 </span>            : 
+<span class="lineNum">     697 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.array[0] = variableIdentifier;</span>
+<span class="lineNum">     698 </span>            : 
+<span class="lineNum">     699 </span><span class="lineNoCov">          0 :     variableIdentifier-&gt;alternateAccess = mmsClient_createAlternateAccess(index, elementCount);</span>
+<span class="lineNum">     700 </span>            : 
+<span class="lineNum">     701 </span>            :     asn_enc_rval_t rval;
+<span class="lineNum">     702 </span>            : 
+<span class="lineNum">     703 </span><span class="lineNoCov">          0 :     rval = der_encode(&amp;asn_DEF_MmsPdu, mmsPdu,</span>
+<span class="lineNum">     704 </span>            :             (asn_app_consume_bytes_f*) mmsClient_write_out, (void*) writeBuffer);
+<span class="lineNum">     705 </span>            : 
+<span class="lineNum">     706 </span><span class="lineNoCov">          0 :     variableIdentifier-&gt;variableSpecification.choice.name.choice.domainspecific.domainId.buf = 0;</span>
+<span class="lineNum">     707 </span><span class="lineNoCov">          0 :     variableIdentifier-&gt;variableSpecification.choice.name.choice.domainspecific.domainId.size = 0;</span>
+<span class="lineNum">     708 </span><span class="lineNoCov">          0 :     variableIdentifier-&gt;variableSpecification.choice.name.choice.domainspecific.itemId.buf = 0;</span>
+<span class="lineNum">     709 </span><span class="lineNoCov">          0 :     variableIdentifier-&gt;variableSpecification.choice.name.choice.domainspecific.itemId.size = 0;</span>
+<span class="lineNum">     710 </span>            : 
+<span class="lineNum">     711 </span><span class="lineNoCov">          0 :     asn_DEF_MmsPdu.free_struct(&amp;asn_DEF_MmsPdu, mmsPdu, 0);</span>
+<span class="lineNum">     712 </span>            : 
+<span class="lineNum">     713 </span><span class="lineNoCov">          0 :     return rval.encoded;</span>
+<span class="lineNum">     714 </span>            : }
+<a name="715"><span class="lineNum">     715 </span>            : </a>
+<span class="lineNum">     716 </span>            : int
+<span class="lineNum">     717 </span><span class="lineNoCov">          0 : mmsClient_createReadRequestAlternateAccessSingleIndexComponent(uint32_t invokeId, const char* domainId, const char* itemId,</span>
+<span class="lineNum">     718 </span>            :         uint32_t arrayIndex, const char* component, ByteBuffer* writeBuffer)
+<span class="lineNum">     719 </span>            : {
+<span class="lineNum">     720 </span><span class="lineNoCov">          0 :     MmsPdu_t* mmsPdu = mmsClient_createConfirmedRequestPdu(invokeId);</span>
+<span class="lineNum">     721 </span><span class="lineNoCov">          0 :     ReadRequest_t* readRequest = createReadRequest(mmsPdu);</span>
+<span class="lineNum">     722 </span>            : 
+<span class="lineNum">     723 </span><span class="lineNoCov">          0 :     readRequest-&gt;specificationWithResult = NULL;</span>
+<span class="lineNum">     724 </span>            : 
+<span class="lineNum">     725 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.present = VariableAccessSpecification_PR_listOfVariable;</span>
+<span class="lineNum">     726 </span>            : 
+<span class="lineNum">     727 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.array = (ListOfVariableSeq_t**) GLOBAL_CALLOC(1, sizeof(ListOfVariableSeq_t*));</span>
+<span class="lineNum">     728 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.count = 1;</span>
+<span class="lineNum">     729 </span>            : 
+<span class="lineNum">     730 </span><span class="lineNoCov">          0 :     ListOfVariableSeq_t* variableIdentifier = createVariableIdentifier(domainId, itemId);</span>
+<span class="lineNum">     731 </span>            : 
+<span class="lineNum">     732 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.array[0] = variableIdentifier;</span>
+<span class="lineNum">     733 </span>            : 
+<span class="lineNum">     734 </span><span class="lineNoCov">          0 :     variableIdentifier-&gt;alternateAccess = mmsClient_createAlternateAccessIndexComponent(arrayIndex, component);</span>
+<span class="lineNum">     735 </span>            : 
+<span class="lineNum">     736 </span>            :     asn_enc_rval_t rval;
+<span class="lineNum">     737 </span>            : 
+<span class="lineNum">     738 </span><span class="lineNoCov">          0 :     rval = der_encode(&amp;asn_DEF_MmsPdu, mmsPdu,</span>
+<span class="lineNum">     739 </span>            :             (asn_app_consume_bytes_f*) mmsClient_write_out, (void*) writeBuffer);
+<span class="lineNum">     740 </span>            : 
+<span class="lineNum">     741 </span><span class="lineNoCov">          0 :     variableIdentifier-&gt;variableSpecification.choice.name.choice.domainspecific.domainId.buf = 0;</span>
+<span class="lineNum">     742 </span><span class="lineNoCov">          0 :     variableIdentifier-&gt;variableSpecification.choice.name.choice.domainspecific.domainId.size = 0;</span>
+<span class="lineNum">     743 </span><span class="lineNoCov">          0 :     variableIdentifier-&gt;variableSpecification.choice.name.choice.domainspecific.itemId.buf = 0;</span>
+<span class="lineNum">     744 </span><span class="lineNoCov">          0 :     variableIdentifier-&gt;variableSpecification.choice.name.choice.domainspecific.itemId.size = 0;</span>
+<span class="lineNum">     745 </span>            : 
+<span class="lineNum">     746 </span><span class="lineNoCov">          0 :     asn_DEF_MmsPdu.free_struct(&amp;asn_DEF_MmsPdu, mmsPdu, 0);</span>
+<span class="lineNum">     747 </span>            : 
+<span class="lineNum">     748 </span><span class="lineNoCov">          0 :     return rval.encoded;</span>
+<span class="lineNum">     749 </span>            : }
+<a name="750"><span class="lineNum">     750 </span>            : </a>
+<span class="lineNum">     751 </span>            : static ListOfVariableSeq_t**
+<span class="lineNum">     752 </span><span class="lineNoCov">          0 : createListOfVariables(ReadRequest_t* readRequest, int valuesCount)</span>
+<span class="lineNum">     753 </span>            : {
+<span class="lineNum">     754 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.present = VariableAccessSpecification_PR_listOfVariable;</span>
+<span class="lineNum">     755 </span>            : 
+<span class="lineNum">     756 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.array = (ListOfVariableSeq_t**)</span>
+<span class="lineNum">     757 </span><span class="lineNoCov">          0 :             GLOBAL_CALLOC(valuesCount, sizeof(ListOfVariableSeq_t*));</span>
+<span class="lineNum">     758 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.count = valuesCount;</span>
+<span class="lineNum">     759 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.size = valuesCount;</span>
+<span class="lineNum">     760 </span>            : 
+<span class="lineNum">     761 </span><span class="lineNoCov">          0 :     return readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.array;</span>
+<span class="lineNum">     762 </span>            : }
+<span class="lineNum">     763 </span>            : 
+<span class="lineNum">     764 </span>            : /**
+<span class="lineNum">     765 </span>            :  * Request multiple values of a single domain
+<a name="766"><span class="lineNum">     766 </span>            :  */</a>
+<span class="lineNum">     767 </span>            : int
+<span class="lineNum">     768 </span><span class="lineNoCov">          0 : mmsClient_createReadRequestMultipleValues(uint32_t invokeId, const char* domainId, LinkedList items,</span>
+<span class="lineNum">     769 </span>            :         ByteBuffer* writeBuffer)
+<span class="lineNum">     770 </span>            : {
+<span class="lineNum">     771 </span><span class="lineNoCov">          0 :     MmsPdu_t* mmsPdu = mmsClient_createConfirmedRequestPdu(invokeId);</span>
+<span class="lineNum">     772 </span>            : 
+<span class="lineNum">     773 </span><span class="lineNoCov">          0 :     ReadRequest_t* readRequest = createReadRequest(mmsPdu);</span>
+<span class="lineNum">     774 </span>            : 
+<span class="lineNum">     775 </span><span class="lineNoCov">          0 :     readRequest-&gt;specificationWithResult = NULL;</span>
+<span class="lineNum">     776 </span>            : 
+<span class="lineNum">     777 </span><span class="lineNoCov">          0 :     int valuesCount = LinkedList_size(items);</span>
+<span class="lineNum">     778 </span>            : 
+<span class="lineNum">     779 </span><span class="lineNoCov">          0 :     ListOfVariableSeq_t** listOfVars = createListOfVariables(readRequest, valuesCount);</span>
+<span class="lineNum">     780 </span>            : 
+<span class="lineNum">     781 </span><span class="lineNoCov">          0 :     LinkedList item = items;</span>
+<span class="lineNum">     782 </span>            : 
+<span class="lineNum">     783 </span><span class="lineNoCov">          0 :     int i = 0;</span>
+<span class="lineNum">     784 </span>            : 
+<span class="lineNum">     785 </span><span class="lineNoCov">          0 :     while ((item = LinkedList_getNext(item)) != NULL) {</span>
+<span class="lineNum">     786 </span><span class="lineNoCov">          0 :         listOfVars[i] = createVariableIdentifier(domainId, (char*) (item-&gt;data));</span>
+<span class="lineNum">     787 </span><span class="lineNoCov">          0 :         i++;</span>
+<span class="lineNum">     788 </span>            :     }
+<span class="lineNum">     789 </span>            : 
+<span class="lineNum">     790 </span>            :     asn_enc_rval_t rval;
+<span class="lineNum">     791 </span>            : 
+<span class="lineNum">     792 </span><span class="lineNoCov">          0 :     rval = der_encode(&amp;asn_DEF_MmsPdu, mmsPdu,</span>
+<span class="lineNum">     793 </span>            :             (asn_app_consume_bytes_f*) mmsClient_write_out, (void*) writeBuffer);
+<span class="lineNum">     794 </span>            : 
+<span class="lineNum">     795 </span><span class="lineNoCov">          0 :     for (i = 0; i &lt; valuesCount; i++) {</span>
+<span class="lineNum">     796 </span><span class="lineNoCov">          0 :         GLOBAL_FREEMEM(listOfVars[i]);</span>
+<span class="lineNum">     797 </span>            :     }
+<span class="lineNum">     798 </span><span class="lineNoCov">          0 :     GLOBAL_FREEMEM(listOfVars);</span>
+<span class="lineNum">     799 </span>            : 
+<span class="lineNum">     800 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.count = 0;</span>
+<span class="lineNum">     801 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.size = 0;</span>
+<span class="lineNum">     802 </span><span class="lineNoCov">          0 :     readRequest-&gt;variableAccessSpecification.choice.listOfVariable.list.array = NULL;</span>
+<span class="lineNum">     803 </span>            : 
+<span class="lineNum">     804 </span><span class="lineNoCov">          0 :     asn_DEF_MmsPdu.free_struct(&amp;asn_DEF_MmsPdu, mmsPdu, 0);</span>
+<span class="lineNum">     805 </span>            : 
+<span class="lineNum">     806 </span><span class="lineNoCov">          0 :     return rval.encoded;</span>
+<span class="lineNum">     807 </span>            : }
+<span class="lineNum">     808 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

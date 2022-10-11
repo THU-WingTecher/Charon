@@ -1,0 +1,71 @@
+// If adding a case here, add the expected is_topic_type results to run_test.pl
+
+struct NonAnnotatedStruct {
+  long value;
+};
+
+@topic
+struct TopicStruct {
+  long value;
+};
+
+@topic(platform="*")
+struct TopicStarStruct {
+  long value;
+};
+
+@topic(platform="DDS")
+struct TopicDdsStruct {
+  long value;
+};
+
+@topic(platform="OpenDDS")
+struct TopicOpenDdsStruct {
+  long value;
+};
+
+@topic(platform="Invalid")
+struct TopicInvalidStruct {
+  long value;
+};
+
+@nested
+struct NestedStruct {
+  long value;
+};
+
+@nested(TRUE)
+struct NestedTrueStruct {
+  long value;
+};
+
+@nested(FALSE)
+struct NestedFalseStruct {
+  long value;
+};
+
+module NonAnnotatedModule {
+  struct NonAnnotatedStruct {
+    long value;
+  };
+
+  @topic
+  struct TopicStruct {
+    long value;
+  };
+
+  @nested
+  struct NestedStruct {
+    long value;
+  };
+
+  @nested(TRUE)
+  struct NestedTrueStruct {
+    long value;
+  };
+
+  @nested(FALSE)
+  struct NestedFalseStruct {
+    long value;
+  };
+};

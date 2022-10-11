@@ -1,0 +1,8 @@
+// Base project for DDS tests that build a library from the generated code.
+
+project: dcps_java, dcps_test {
+  libout = .
+
+  Source_Files {
+  }
+}

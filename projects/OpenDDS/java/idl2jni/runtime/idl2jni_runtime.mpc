@@ -1,0 +1,31 @@
+project: taolib, java, javah, optional_jni_check, dds_macros, i2jrt_optional, install {
+
+  // make sure this can't be built as a static lib
+  sharedname   = idl2jni_runtime
+  staticname   =
+
+  libout       = $(DDS_ROOT)/lib
+  dynamicflags = IDL2JNI_RUNTIME_BUILD_DLL
+
+  specific {
+    jarname    = i2jrt
+    dds        = 1     // Use OpenDDS's version number
+    install_dir = java/idl2jni/runtime
+  }
+
+  Java_Files {
+    i2jrt
+  }
+
+  JavaH_Files {
+    classes/i2jrt/TAOObject.class << classes/i2jrt/TAOLocalObject.class
+    classes/i2jrt/ORB.class
+  }
+
+  verbatim(gnuace, postinstall) {
+"	cp $(DDS_ROOT)/lib/i2jrt.jar $(DESTDIR)$(INSTALL_PREFIX)/$(INSTALL_LIB)"
+"	@$(MKDIR) $(DESTDIR)$(INSTALL_PREFIX)/share/dds/java/build_scripts"
+"	cp ../../build_scripts/java?_wrapper.pl $(DESTDIR)$(INSTALL_PREFIX)/share/dds/java/build_scripts"
+"	cp *.h $(DESTDIR)$(INSTALL_PREFIX)/share/dds/java"
+  }
+}

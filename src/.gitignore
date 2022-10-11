@@ -1,0 +1,3 @@
+Charon-3.0.202-source/output/**
+!Charon-3.0.202-source/output/**/*.pit
+Charon-3.0.202-source/slag/*

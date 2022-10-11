@@ -1,0 +1,10 @@
+project: dcpsexe, dcps_test, dcps_cm, dcps_transports_for_test {
+  exename = StatusConditionTest
+
+  Idl_Files {
+  }
+
+  Source_Files {
+    StatusConditionTest.cpp
+  }
+}

@@ -1,0 +1,13 @@
+
+project(DDS*PublisherSubscriber) : dcpsexe, dcps_test, dcps_transports_for_test {
+  exename = pubsub
+  requires += built_in_topics
+
+  Source_Files {
+    pubsub.cpp
+  }
+
+  TypeSupport_Files {
+    Messenger.idl
+  }
+}

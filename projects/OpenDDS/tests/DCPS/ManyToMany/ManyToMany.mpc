@@ -1,0 +1,30 @@
+
+project(DDS*Publisher): dcpsexe, dcps_test, dcps_transports_for_test {
+  exename   = publisher
+  libpaths += ../LargeSample
+  after    += DDS_LargeSample_Idl
+  libs   += DDS_LargeSample_Idl
+
+  Idl_Files {
+  }
+
+  Source_Files {
+    publisher.cpp
+    Writer.cpp
+  }
+}
+
+project(DDS*Subscriber): dcpsexe, dcps_test, dcps_transports_for_test {
+  exename   = subscriber
+  libpaths += ../LargeSample
+  after    += DDS_LargeSample_Idl
+  libs   += DDS_LargeSample_Idl
+
+  Idl_Files {
+  }
+
+  Source_Files {
+    subscriber.cpp
+    DataReaderListener.cpp
+  }
+}

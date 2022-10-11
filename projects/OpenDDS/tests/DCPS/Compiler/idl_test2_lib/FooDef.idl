@@ -1,0 +1,17 @@
+module Xyz {
+  // Example user defined "Foo" structure
+  @topic
+  struct Foo {
+    @key long  a_long_value;  // the instance key
+    long  handle_value;
+    long  sample_sequence;
+    long  writer_id;
+  };
+};
+
+//Need to verify that we can have a "Foo" (or in this case, a "Bar") outside
+//of a module in IDL.
+@topic
+struct Bar {
+  unsigned long data;
+};

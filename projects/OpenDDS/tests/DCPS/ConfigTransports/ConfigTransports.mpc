@@ -1,0 +1,38 @@
+project(*Publisher): dcpsexe, dcps_test, dcps_transports_for_test {
+  exename   = publisher
+  libpaths += ../FooType4
+  libpaths += ../common
+  libs     +=  common DcpsFooType4
+  after    += DcpsFooType4 common
+
+  Source_Files {
+    common.cpp
+    publisher.cpp
+    Options.cpp
+    Factory.cpp
+    Pusher.cpp
+    DDSTEST.cpp
+    DataWriterListenerImpl.cpp
+    DataReaderListener.cpp
+  }
+}
+
+
+project(*Subscriber): dcpsexe, dcps_test, dcps_transports_for_test {
+  exename   = subscriber
+  libpaths += ../FooType4
+  libpaths += ../common
+  libs     +=  common DcpsFooType4
+  after    += DcpsFooType4 common *Publisher
+
+  Source_Files {
+    common.cpp
+    subscriber.cpp
+    Options.cpp
+    Factory.cpp
+    Puller.cpp
+    DDSTEST.cpp
+    DataWriterListenerImpl.cpp
+    DataReaderListener.cpp
+  }
+}

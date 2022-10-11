@@ -1,0 +1,394 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - libiec51850_basic_io.info - asn1c/per_support.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">asn1c</a> - per_support.c<span style="font-size: 80%;"> (source / <a href="per_support.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">libiec51850_basic_io.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">177</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-06 13:31:57</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2005, 2006 Lev Walkin &lt;vlm@lionet.info&gt;. All rights reserved.
+<span class="lineNum">       3 </span>            :  * Redistribution and modifications are permitted subject to BSD license.
+<span class="lineNum">       4 </span>            :  */
+<span class="lineNum">       5 </span>            : #include &lt;asn_system.h&gt;
+<span class="lineNum">       6 </span>            : #include &lt;asn_internal.h&gt;
+<span class="lineNum">       7 </span>            : #include &lt;per_support.h&gt;
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : /*
+<span class="lineNum">      10 </span>            :  * Extract a small number of bits (&lt;= 31) from the specified PER data pointer.
+<a name="11"><span class="lineNum">      11 </span>            :  */</a>
+<span class="lineNum">      12 </span>            : int32_t
+<span class="lineNum">      13 </span><span class="lineNoCov">          0 : per_get_few_bits(asn_per_data_t *pd, int nbits) {</span>
+<span class="lineNum">      14 </span>            :         size_t off;     /* Next after last bit offset */
+<span class="lineNum">      15 </span>            :         uint32_t accum;
+<span class="lineNum">      16 </span>            :         const uint8_t *buf;
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span><span class="lineNoCov">          0 :         if(nbits &lt; 0 || pd-&gt;nboff + nbits &gt; pd-&gt;nbits)</span>
+<span class="lineNum">      19 </span><span class="lineNoCov">          0 :                 return -1;</span>
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span><span class="lineNoCov">          0 :         ASN_DEBUG(&quot;[PER get %d bits from %p+%d bits]&quot;,</span>
+<span class="lineNum">      22 </span>            :                 nbits, pd-&gt;buffer, pd-&gt;nboff);
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            :         /*
+<span class="lineNum">      25 </span>            :          * Normalize position indicator.
+<span class="lineNum">      26 </span>            :          */
+<span class="lineNum">      27 </span><span class="lineNoCov">          0 :         if(pd-&gt;nboff &gt;= 8) {</span>
+<span class="lineNum">      28 </span><span class="lineNoCov">          0 :                 pd-&gt;buffer += (pd-&gt;nboff &gt;&gt; 3);</span>
+<span class="lineNum">      29 </span><span class="lineNoCov">          0 :                 pd-&gt;nbits  -= (pd-&gt;nboff &amp; ~0x07);</span>
+<span class="lineNum">      30 </span><span class="lineNoCov">          0 :                 pd-&gt;nboff  &amp;= 0x07;</span>
+<span class="lineNum">      31 </span>            :         }
+<span class="lineNum">      32 </span><span class="lineNoCov">          0 :         off = (pd-&gt;nboff += nbits);</span>
+<span class="lineNum">      33 </span><span class="lineNoCov">          0 :         buf = pd-&gt;buffer;</span>
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            :         /*
+<span class="lineNum">      36 </span>            :          * Extract specified number of bits.
+<span class="lineNum">      37 </span>            :          */
+<span class="lineNum">      38 </span><span class="lineNoCov">          0 :         if(off &lt;= 8)</span>
+<span class="lineNum">      39 </span><span class="lineNoCov">          0 :                 accum = nbits ? (buf[0]) &gt;&gt; (8 - off) : 0;</span>
+<span class="lineNum">      40 </span><span class="lineNoCov">          0 :         else if(off &lt;= 16)</span>
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 :                 accum = ((buf[0] &lt;&lt; 8) + buf[1]) &gt;&gt; (16 - off);</span>
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 :         else if(off &lt;= 24)</span>
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :                 accum = ((buf[0] &lt;&lt; 16) + (buf[1] &lt;&lt; 8) + buf[2]) &gt;&gt; (24 - off);</span>
+<span class="lineNum">      44 </span><span class="lineNoCov">          0 :         else if(off &lt;= 31)</span>
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 :                 accum = ((buf[0] &lt;&lt; 24) + (buf[1] &lt;&lt; 16)</span>
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :                         + (buf[2] &lt;&lt; 8) + (buf[3])) &gt;&gt; (32 - off);</span>
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 :         else if(nbits &lt;= 31) {</span>
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 :                 asn_per_data_t tpd = *pd;</span>
+<span class="lineNum">      49 </span>            :                 /* Here are we with our 31-bits limit plus 1..7 bits offset. */
+<span class="lineNum">      50 </span><span class="lineNoCov">          0 :                 tpd.nboff -= nbits;</span>
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 :                 accum  = per_get_few_bits(&amp;tpd, nbits - 24) &lt;&lt; 24;</span>
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :                 accum |= per_get_few_bits(&amp;tpd, 24);</span>
+<span class="lineNum">      53 </span>            :         } else {
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :                 pd-&gt;nboff -= nbits;  /* Oops, revert back */</span>
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :                 return -1;</span>
+<span class="lineNum">      56 </span>            :         }
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :         return (accum &amp; (((uint32_t)1 &lt;&lt; nbits) - 1));</span>
+<span class="lineNum">      59 </span>            : }
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span>            : /*
+<span class="lineNum">      62 </span>            :  * Extract a large number of bits from the specified PER data pointer.
+<a name="63"><span class="lineNum">      63 </span>            :  */</a>
+<span class="lineNum">      64 </span>            : int
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 : per_get_many_bits(asn_per_data_t *pd, uint8_t *dst, int alright, int nbits) {</span>
+<span class="lineNum">      66 </span>            :         int32_t value;
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :         if(alright &amp;&amp; (nbits &amp; 7)) {</span>
+<span class="lineNum">      69 </span>            :                 /* Perform right alignment of a first few bits */
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :                 value = per_get_few_bits(pd, nbits &amp; 0x07);</span>
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :                 if(value &lt; 0) return -1;</span>
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :                 *dst++ = value; /* value is already right-aligned */</span>
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :                 nbits &amp;= ~7;</span>
+<span class="lineNum">      74 </span>            :         }
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :         while(nbits) {</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :                 if(nbits &gt;= 24) {</span>
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :                         value = per_get_few_bits(pd, 24);</span>
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :                         if(value &lt; 0) return -1;</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :                         *(dst++) = value &gt;&gt; 16;</span>
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :                         *(dst++) = value &gt;&gt; 8;</span>
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :                         *(dst++) = value;</span>
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :                         nbits -= 24;</span>
+<span class="lineNum">      84 </span>            :                 } else {
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :                         value = per_get_few_bits(pd, nbits);</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :                         if(value &lt; 0) return -1;</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :                         if(nbits &amp; 7) {     /* implies left alignment */</span>
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :                                 value &lt;&lt;= 8 - (nbits &amp; 7),</span>
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :                                 nbits += 8 - (nbits &amp; 7);</span>
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :                                 if(nbits &gt; 24)</span>
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :                                         *dst++ = value &gt;&gt; 24;</span>
+<span class="lineNum">      92 </span>            :                         }
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :                         if(nbits &gt; 16)</span>
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :                                 *dst++ = value &gt;&gt; 16;</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :                         if(nbits &gt; 8)</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :                                 *dst++ = value &gt;&gt; 8;</span>
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :                         *dst++ = value;</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">      99 </span>            :                 }
+<span class="lineNum">     100 </span>            :         }
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     103 </span>            : }
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            : /*
+<span class="lineNum">     106 </span>            :  * Get the length &quot;n&quot; from the stream.
+<a name="107"><span class="lineNum">     107 </span>            :  */</a>
+<span class="lineNum">     108 </span>            : ssize_t
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 : uper_get_length(asn_per_data_t *pd, int ebits, int *repeat) {</span>
+<span class="lineNum">     110 </span>            :         ssize_t value;
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :         *repeat = 0;</span>
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :         if(ebits &gt;= 0) return per_get_few_bits(pd, ebits);</span>
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :         value = per_get_few_bits(pd, 8);</span>
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :         if(value &lt; 0) return -1;</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :         if((value &amp; 128) == 0)      /* #10.9.3.6 */</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :                 return (value &amp; 0x7F);</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :         if((value &amp; 64) == 0) {     /* #10.9.3.7 */</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :                 value = ((value &amp; 63) &lt;&lt; 8) | per_get_few_bits(pd, 8);</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :                 if(value &lt; 0) return -1;</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :                 return value;</span>
+<span class="lineNum">     124 </span>            :         }
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :         value &amp;= 63;        /* this is &quot;m&quot; from X.691, #10.9.3.8 */</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :         if(value &lt; 1 || value &gt; 4)</span>
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :                 return -1;</span>
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :         *repeat = 1;</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :         return (16384 * value);</span>
+<span class="lineNum">     130 </span>            : }
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span>            : /*
+<span class="lineNum">     133 </span>            :  * Get the normally small non-negative whole number.
+<span class="lineNum">     134 </span>            :  * X.691, #10.6
+<a name="135"><span class="lineNum">     135 </span>            :  */</a>
+<span class="lineNum">     136 </span>            : ssize_t
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 : uper_get_nsnnwn(asn_per_data_t *pd) {</span>
+<span class="lineNum">     138 </span>            :         ssize_t value;
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :         value = per_get_few_bits(pd, 7);</span>
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :         if(value &amp; 64) {    /* implicit (value &lt; 0) */</span>
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :                 value &amp;= 63;</span>
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :                 value &lt;&lt;= 2;</span>
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :                 value |= per_get_few_bits(pd, 2);</span>
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :                 if(value &amp; 128)     /* implicit (value &lt; 0) */</span>
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :                         return -1;</span>
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :                 if(value == 0)</span>
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :                         return 0;</span>
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :                 if(value &gt;= 3)</span>
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :                         return -1;</span>
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :                 value = per_get_few_bits(pd, 8 * value);</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :                 return value;</span>
+<span class="lineNum">     153 </span>            :         }
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :         return value;</span>
+<span class="lineNum">     156 </span>            : }
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span>            : /*
+<span class="lineNum">     159 </span>            :  * Put the normally small non-negative whole number.
+<span class="lineNum">     160 </span>            :  * X.691, #10.6
+<a name="161"><span class="lineNum">     161 </span>            :  */</a>
+<span class="lineNum">     162 </span>            : int
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 : uper_put_nsnnwn(asn_per_outp_t *po, int n) {</span>
+<span class="lineNum">     164 </span>            :         int bytes;
+<span class="lineNum">     165 </span>            : 
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :         if(n &lt;= 63) {</span>
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :                 if(n &lt; 0) return -1;</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :                 return per_put_few_bits(po, n, 7);</span>
+<span class="lineNum">     169 </span>            :         }
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 :         if(n &lt; 256)</span>
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :                 bytes = 1;</span>
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :         else if(n &lt; 65536)</span>
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :                 bytes = 2;</span>
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :         else if(n &lt; 256 * 65536)</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :                 bytes = 3;</span>
+<span class="lineNum">     176 </span>            :         else
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :                 return -1;      /* This is not a &quot;normally small&quot; value */</span>
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :         if(per_put_few_bits(po, bytes, 8))</span>
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :                 return -1;</span>
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :         return per_put_few_bits(po, n, 8 * bytes);</span>
+<span class="lineNum">     182 </span>            : }
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span>            : 
+<span class="lineNum">     185 </span>            : /*
+<span class="lineNum">     186 </span>            :  * Put a small number of bits (&lt;= 31).
+<a name="187"><span class="lineNum">     187 </span>            :  */</a>
+<span class="lineNum">     188 </span>            : int
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 : per_put_few_bits(asn_per_outp_t *po, uint32_t bits, int obits) {</span>
+<span class="lineNum">     190 </span>            :         size_t off;     /* Next after last bit offset */
+<span class="lineNum">     191 </span>            :         size_t omsk;    /* Existing last byte meaningful bits mask */
+<span class="lineNum">     192 </span>            :         uint8_t *buf;
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :         if(obits &lt;= 0 || obits &gt;= 32) return obits ? -1 : 0;</span>
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :         ASN_DEBUG(&quot;[PER put %d bits to %p+%d bits]&quot;,</span>
+<span class="lineNum">     197 </span>            :                         obits, po-&gt;buffer, po-&gt;nboff);
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span>            :         /*
+<span class="lineNum">     200 </span>            :          * Normalize position indicator.
+<span class="lineNum">     201 </span>            :          */
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :         if(po-&gt;nboff &gt;= 8) {</span>
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :                 po-&gt;buffer += (po-&gt;nboff &gt;&gt; 3);</span>
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :                 po-&gt;nbits  -= (po-&gt;nboff &amp; ~0x07);</span>
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :                 po-&gt;nboff  &amp;= 0x07;</span>
+<span class="lineNum">     206 </span>            :         }
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span>            :         /*
+<span class="lineNum">     209 </span>            :          * Flush whole-bytes output, if necessary.
+<span class="lineNum">     210 </span>            :          */
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :         if(po-&gt;nboff + obits &gt; po-&gt;nbits) {</span>
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :                 int complete_bytes = (po-&gt;buffer - po-&gt;tmpspace);</span>
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :                 if(po-&gt;outper(po-&gt;buffer, complete_bytes, po-&gt;op_key) &lt; 0)</span>
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :                         return -1;</span>
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :                 if(po-&gt;nboff)</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :                         po-&gt;tmpspace[0] = po-&gt;buffer[0];</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :                 po-&gt;buffer = po-&gt;tmpspace;</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :                 po-&gt;nbits = 8 * sizeof(po-&gt;tmpspace);</span>
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :                 po-&gt;flushed_bytes += complete_bytes;</span>
+<span class="lineNum">     220 </span>            :         }
+<span class="lineNum">     221 </span>            : 
+<span class="lineNum">     222 </span>            :         /*
+<span class="lineNum">     223 </span>            :          * Now, due to sizeof(tmpspace), we are guaranteed large enough space.
+<span class="lineNum">     224 </span>            :          */
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :         buf = po-&gt;buffer;</span>
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :         omsk = ~((1 &lt;&lt; (8 - po-&gt;nboff)) - 1);</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :         off = (po-&gt;nboff += obits);</span>
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span>            :         /* Clear data of debris before meaningful bits */
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :         bits &amp;= (((uint32_t)1 &lt;&lt; obits) - 1);</span>
+<span class="lineNum">     231 </span>            : 
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :         ASN_DEBUG(&quot;[PER out %d %u/%x (t=%d,o=%d) %x&amp;%x=%x]&quot;, obits, bits, bits,</span>
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :                 po-&gt;nboff - obits, off, buf[0], omsk&amp;0xff, buf[0] &amp; omsk);</span>
+<span class="lineNum">     234 </span>            : 
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :         if(off &lt;= 8) /* Completely within 1 byte */</span>
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :                 bits &lt;&lt;= (8 - off),</span>
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :                 buf[0] = (buf[0] &amp; omsk) | bits;</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :         else if(off &lt;= 16)</span>
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :                 bits &lt;&lt;= (16 - off),</span>
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :                 buf[0] = (buf[0] &amp; omsk) | (bits &gt;&gt; 8),</span>
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :                 buf[1] = bits;</span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :         else if(off &lt;= 24)</span>
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :                 bits &lt;&lt;= (24 - off),</span>
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :                 buf[0] = (buf[0] &amp; omsk) | (bits &gt;&gt; 16),</span>
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :                 buf[1] = bits &gt;&gt; 8,</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :                 buf[2] = bits;</span>
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :         else if(off &lt;= 31)</span>
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :                 bits &lt;&lt;= (32 - off),</span>
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :                 buf[0] = (buf[0] &amp; omsk) | (bits &gt;&gt; 24),</span>
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :                 buf[1] = bits &gt;&gt; 16,</span>
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :                 buf[2] = bits &gt;&gt; 8,</span>
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :                 buf[3] = bits;</span>
+<span class="lineNum">     253 </span>            :         else {
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :                 ASN_DEBUG(&quot;-&gt;[PER out split %d]&quot;, obits);</span>
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :                 per_put_few_bits(po, bits &gt;&gt; 8, 24);</span>
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :                 per_put_few_bits(po, bits, obits - 24);</span>
+<span class="lineNum">     257 </span><span class="lineNoCov">          0 :                 ASN_DEBUG(&quot;&lt;-[PER out split %d]&quot;, obits);</span>
+<span class="lineNum">     258 </span>            :         }
+<span class="lineNum">     259 </span>            : 
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :         ASN_DEBUG(&quot;[PER out %u/%x =&gt; %02x buf+%d]&quot;,</span>
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :                 bits, bits, buf[0], po-&gt;buffer - po-&gt;tmpspace);</span>
+<span class="lineNum">     262 </span>            : 
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     264 </span>            : }
+<span class="lineNum">     265 </span>            : 
+<span class="lineNum">     266 </span>            : 
+<span class="lineNum">     267 </span>            : /*
+<span class="lineNum">     268 </span>            :  * Output a large number of bits.
+<a name="269"><span class="lineNum">     269 </span>            :  */</a>
+<span class="lineNum">     270 </span>            : int
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 : per_put_many_bits(asn_per_outp_t *po, const uint8_t *src, int nbits) {</span>
+<span class="lineNum">     272 </span>            : 
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :         while(nbits) {</span>
+<span class="lineNum">     274 </span>            :                 uint32_t value;
+<span class="lineNum">     275 </span>            : 
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :                 if(nbits &gt;= 24) {</span>
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :                         value = (src[0] &lt;&lt; 16) | (src[1] &lt;&lt; 8) | src[2];</span>
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :                         src += 3;</span>
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :                         nbits -= 24;</span>
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :                         if(per_put_few_bits(po, value, 24))</span>
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :                                 return -1;</span>
+<span class="lineNum">     282 </span>            :                 } else {
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :                         value = src[0];</span>
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :                         if(nbits &gt; 8)</span>
+<span class="lineNum">     285 </span><span class="lineNoCov">          0 :                                 value = (value &lt;&lt; 8) | src[1];</span>
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :                         if(nbits &gt; 16)</span>
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :                                 value = (value &lt;&lt; 8) | src[2];</span>
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :                         if(nbits &amp; 0x07)</span>
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :                                 value &gt;&gt;= (8 - (nbits &amp; 0x07));</span>
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :                         if(per_put_few_bits(po, value, nbits))</span>
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :                                 return -1;</span>
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     293 </span>            :                 }
+<span class="lineNum">     294 </span>            :         }
+<span class="lineNum">     295 </span>            : 
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     297 </span>            : }
+<span class="lineNum">     298 </span>            : 
+<span class="lineNum">     299 </span>            : /*
+<span class="lineNum">     300 </span>            :  * Put the length &quot;n&quot; (or part of it) into the stream.
+<a name="301"><span class="lineNum">     301 </span>            :  */</a>
+<span class="lineNum">     302 </span>            : ssize_t
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 : uper_put_length(asn_per_outp_t *po, size_t length) {</span>
+<span class="lineNum">     304 </span>            : 
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :         if(length &lt;= 127)    /* #10.9.3.6 */</span>
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :                 return per_put_few_bits(po, length, 8)</span>
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :                         ? -1 : (ssize_t)length;</span>
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :         else if(length &lt; 16384)      /* #10.9.3.7 */</span>
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 :                 return per_put_few_bits(po, length|0x8000, 16)</span>
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :                         ? -1 : (ssize_t)length;</span>
+<span class="lineNum">     311 </span>            : 
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :         length &gt;&gt;= 14;</span>
+<span class="lineNum">     313 </span><span class="lineNoCov">          0 :         if(length &gt; 4) length = 4;</span>
+<span class="lineNum">     314 </span>            : 
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :         return per_put_few_bits(po, 0xC0 | length, 8)</span>
+<span class="lineNum">     316 </span><span class="lineNoCov">          0 :                         ? -1 : (ssize_t)(length &lt;&lt; 14);</span>
+<span class="lineNum">     317 </span>            : }
+<span class="lineNum">     318 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

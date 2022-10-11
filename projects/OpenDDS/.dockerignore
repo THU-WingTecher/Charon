@@ -1,0 +1,7 @@
+**/.shobj
+**/.obj
+**/.depend.*
+.git
+ACE_wrappers
+.dockerignore
+Dockerfile*

@@ -1,0 +1,1746 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - libiec51850_basic_io.info - /root/libiec61850/src/iec61850/server/impl/ied_server.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../index.html">top level</a> - <a href="index.html">root/libiec61850/src/iec61850/server/impl</a> - ied_server.c<span style="font-size: 80%;"> (source / <a href="ied_server.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">libiec51850_basic_io.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">263</td>
+            <td class="headerCovTableEntry">606</td>
+            <td class="headerCovTableEntryLo">43.4 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-06 13:31:57</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntry">74</td>
+            <td class="headerCovTableEntryLo">28.4 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *  ied_server.c
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *  Copyright 2013-2020 Michael Zillgith
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  *  This file is part of libIEC61850.
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  libIEC61850 is free software: you can redistribute it and/or modify
+<span class="lineNum">       9 </span>            :  *  it under the terms of the GNU General Public License as published by
+<span class="lineNum">      10 </span>            :  *  the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">      11 </span>            :  *  (at your option) any later version.
+<span class="lineNum">      12 </span>            :  *
+<span class="lineNum">      13 </span>            :  *  libIEC61850 is distributed in the hope that it will be useful,
+<span class="lineNum">      14 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      15 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      16 </span>            :  *  GNU General Public License for more details.
+<span class="lineNum">      17 </span>            :  *
+<span class="lineNum">      18 </span>            :  *  You should have received a copy of the GNU General Public License
+<span class="lineNum">      19 </span>            :  *  along with libIEC61850.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      20 </span>            :  *
+<span class="lineNum">      21 </span>            :  *  See COPYING file for the complete license text.
+<span class="lineNum">      22 </span>            :  */
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : #include &quot;iec61850_server.h&quot;
+<span class="lineNum">      25 </span>            : #include &quot;mms_mapping.h&quot;
+<span class="lineNum">      26 </span>            : #include &quot;mms_mapping_internal.h&quot;
+<span class="lineNum">      27 </span>            : #include &quot;mms_value_internal.h&quot;
+<span class="lineNum">      28 </span>            : #include &quot;mms_server_libinternal.h&quot;
+<span class="lineNum">      29 </span>            : #include &quot;control.h&quot;
+<span class="lineNum">      30 </span>            : #include &quot;stack_config.h&quot;
+<span class="lineNum">      31 </span>            : #include &quot;ied_server_private.h&quot;
+<span class="lineNum">      32 </span>            : #include &quot;hal_thread.h&quot;
+<span class="lineNum">      33 </span>            : #include &quot;reporting.h&quot;
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : #include &quot;libiec61850_platform_includes.h&quot;
+<span class="lineNum">      36 </span>            : #include &quot;mms_sv.h&quot;
+<span class="lineNum">      37 </span>            : #include &quot;mms_goose.h&quot;
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : #ifndef DEBUG_IED_SERVER
+<span class="lineNum">      40 </span>            : #define DEBUG_IED_SERVER 0
+<span class="lineNum">      41 </span>            : #endif
+<span class="lineNum">      42 </span>            : 
+<a name="43"><span class="lineNum">      43 </span>            : #if (CONFIG_IEC61850_CONTROL_SERVICE == 1)</a>
+<span class="lineNum">      44 </span>            : static bool
+<span class="lineNum">      45 </span><span class="lineCov">          1 : createControlObjects(IedServer self, MmsDomain* domain, char* lnName, MmsVariableSpecification* typeSpec, char* namePrefix)</span>
+<span class="lineNum">      46 </span>            : {
+<span class="lineNum">      47 </span><span class="lineCov">          1 :     MmsMapping* mapping = self-&gt;mmsMapping;</span>
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span><span class="lineCov">          1 :     bool success = false;</span>
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span><span class="lineCov">          1 :     if (typeSpec-&gt;type == MMS_STRUCTURE) {</span>
+<span class="lineNum">      52 </span><span class="lineCov">          1 :         int coCount = typeSpec-&gt;typeSpec.structure.elementCount;</span>
+<span class="lineNum">      53 </span>            :         int i;
+<span class="lineNum">      54 </span><span class="lineCov">         10 :         for (i = 0; i &lt; coCount; i++) {</span>
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            :             char objectName[65];
+<span class="lineNum">      57 </span><span class="lineCov">          4 :             objectName[0] = 0;</span>
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span><span class="lineCov">          4 :             if (namePrefix != NULL) {</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :                 strcat(objectName, namePrefix);</span>
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :                 strcat(objectName, &quot;$&quot;);</span>
+<span class="lineNum">      62 </span>            :             }
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span><span class="lineCov">          4 :             bool hasCancel = false;</span>
+<span class="lineNum">      65 </span><span class="lineCov">          4 :             int cancelIndex = 0;</span>
+<span class="lineNum">      66 </span><span class="lineCov">          4 :             bool hasSBOw = false;</span>
+<span class="lineNum">      67 </span><span class="lineCov">          4 :             bool hasSBO = false;</span>
+<span class="lineNum">      68 </span><span class="lineCov">          4 :             int sBOwIndex = 0;</span>
+<span class="lineNum">      69 </span><span class="lineCov">          4 :             int operIndex = 0;</span>
+<span class="lineNum">      70 </span><span class="lineCov">          4 :             int sBOIndex = 0;</span>
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span><span class="lineCov">          4 :             MmsVariableSpecification* coSpec = typeSpec-&gt;typeSpec.structure.elements[i];</span>
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span><span class="lineCov">          4 :             if (coSpec-&gt;type == MMS_STRUCTURE) {</span>
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span><span class="lineCov">          4 :                 int coElementCount = coSpec-&gt;typeSpec.structure.elementCount;</span>
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span><span class="lineCov">          4 :                 MmsVariableSpecification* operSpec = NULL;</span>
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            :                 int j;
+<span class="lineNum">      81 </span><span class="lineCov">          8 :                 for (j = 0; j &lt; coElementCount; j++) {</span>
+<span class="lineNum">      82 </span><span class="lineCov">          4 :                     MmsVariableSpecification* coElementSpec = coSpec-&gt;typeSpec.structure.elements[j];</span>
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span><span class="lineCov">          4 :                     if (strcmp(coElementSpec-&gt;name, &quot;Oper&quot;) == 0) {</span>
+<span class="lineNum">      85 </span><span class="lineCov">          4 :                         operSpec = coElementSpec;</span>
+<span class="lineNum">      86 </span><span class="lineCov">          4 :                         operIndex = j;</span>
+<span class="lineNum">      87 </span>            :                     }
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :                     else if (strcmp(coElementSpec-&gt;name, &quot;Cancel&quot;) == 0) {</span>
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :                         hasCancel = true;</span>
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :                         cancelIndex = j;</span>
+<span class="lineNum">      91 </span>            :                     }
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :                     else if (strcmp(coElementSpec-&gt;name, &quot;SBOw&quot;) == 0) {</span>
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :                         hasSBOw = true;</span>
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :                         sBOwIndex = j;</span>
+<span class="lineNum">      95 </span>            :                     }
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :                     else if ((strcmp(coElementSpec-&gt;name, &quot;SBO&quot;) == 0)) {</span>
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :                         hasSBO = true;</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :                         sBOIndex = j;</span>
+<span class="lineNum">      99 </span>            :                     }
+<span class="lineNum">     100 </span>            :                     else {
+<span class="lineNum">     101 </span>            :                         if (DEBUG_IED_SERVER)
+<span class="lineNum">     102 </span>            :                             printf(&quot;IED_SERVER: createControlObjects: Unknown element in CO: %s\n&quot;, coElementSpec-&gt;name);
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     105 </span>            :                     }
+<span class="lineNum">     106 </span>            :                 }
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span><span class="lineCov">          4 :                 if (operSpec) {</span>
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span><span class="lineCov">          4 :                     strcat(objectName, coSpec-&gt;name);</span>
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span>            :                     if (DEBUG_IED_SERVER)
+<span class="lineNum">     113 </span>            :                         printf(&quot;IED_SERVER: create control object LN:%s DO:%s\n&quot;, lnName, objectName);
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span><span class="lineCov">          4 :                     ControlObject* controlObject = ControlObject_create(self, domain, lnName, objectName, operSpec);</span>
+<span class="lineNum">     116 </span>            : 
+<span class="lineNum">     117 </span><span class="lineCov">          4 :                     if (controlObject == NULL)</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :                         goto exit_function;</span>
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span><span class="lineCov">          4 :                     MmsValue* structure = MmsValue_newDefaultValue(coSpec);</span>
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span><span class="lineCov">          4 :                     if (structure == NULL) {</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :                         ControlObject_destroy(controlObject);</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :                         goto exit_function;</span>
+<span class="lineNum">     125 </span>            :                     }
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span><span class="lineCov">          4 :                     ControlObject_setMmsValue(controlObject, structure);</span>
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span><span class="lineCov">          4 :                     ControlObject_setTypeSpec(controlObject, coSpec);</span>
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span><span class="lineCov">          4 :                     controlObject-&gt;oper = MmsValue_getElement(structure, operIndex);</span>
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span><span class="lineCov">          4 :                     if (hasCancel)</span>
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :                         controlObject-&gt;cancel = MmsValue_getElement(structure, cancelIndex);</span>
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span><span class="lineCov">          4 :                     if (hasSBOw)</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :                         controlObject-&gt;sbow = MmsValue_getElement(structure, sBOwIndex);</span>
+<span class="lineNum">     138 </span>            : 
+<span class="lineNum">     139 </span><span class="lineCov">          4 :                     if (hasSBO)</span>
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :                         controlObject-&gt;sbo = MmsValue_getElement(structure, sBOIndex);</span>
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span><span class="lineCov">          4 :                     MmsMapping_addControlObject(mapping, controlObject);</span>
+<span class="lineNum">     143 </span>            :                 }
+<span class="lineNum">     144 </span>            :                 else {
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :                     strcat(objectName, coSpec-&gt;name);</span>
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :                     if (createControlObjects(self, domain, lnName, coSpec, objectName) == false)</span>
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :                         goto exit_function;</span>
+<span class="lineNum">     149 </span>            :                 }
+<span class="lineNum">     150 </span>            :             }
+<span class="lineNum">     151 </span>            :         }
+<span class="lineNum">     152 </span>            :     }
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span><span class="lineCov">          1 :     success = true;</span>
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span>            : exit_function:
+<span class="lineNum">     157 </span><span class="lineCov">          1 :     return success;</span>
+<span class="lineNum">     158 </span>            : }
+<span class="lineNum">     159 </span>            : #endif /* (CONFIG_IEC61850_CONTROL_SERVICE == 1) */
+<a name="160"><span class="lineNum">     160 </span>            : </a>
+<span class="lineNum">     161 </span>            : static bool
+<span class="lineNum">     162 </span><span class="lineCov">          1 : createMmsServerCache(IedServer self)</span>
+<span class="lineNum">     163 </span>            : {
+<span class="lineNum">     164 </span>            :     assert(self != NULL);
+<span class="lineNum">     165 </span>            : 
+<span class="lineNum">     166 </span><span class="lineCov">          1 :     bool success = false;</span>
+<span class="lineNum">     167 </span>            : 
+<span class="lineNum">     168 </span><span class="lineCov">          1 :     int domain = 0;</span>
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span><span class="lineCov">          2 :     for (domain = 0; domain &lt; self-&gt;mmsDevice-&gt;domainCount; domain++) {</span>
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span>            :         /* Install all top level MMS named variables (=Logical nodes) in the MMS server cache */
+<span class="lineNum">     173 </span><span class="lineCov">          1 :         MmsDomain* logicalDevice = self-&gt;mmsDevice-&gt;domains[domain];</span>
+<span class="lineNum">     174 </span>            : 
+<span class="lineNum">     175 </span>            :         int i;
+<span class="lineNum">     176 </span>            : 
+<span class="lineNum">     177 </span><span class="lineCov">          4 :         for (i = 0; i &lt; logicalDevice-&gt;namedVariablesCount; i++) {</span>
+<span class="lineNum">     178 </span><span class="lineCov">          3 :             char* lnName = logicalDevice-&gt;namedVariables[i]-&gt;name;</span>
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span>            :             if (DEBUG_IED_SERVER)
+<span class="lineNum">     181 </span>            :                 printf(&quot;IED_SERVER: Insert into cache %s - %s\n&quot;, logicalDevice-&gt;domainName, lnName);
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span><span class="lineCov">          3 :             int fcCount = logicalDevice-&gt;namedVariables[i]-&gt;typeSpec.structure.elementCount;</span>
+<span class="lineNum">     184 </span>            :             int j;
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span><span class="lineCov">         16 :             for (j = 0; j &lt; fcCount; j++) {</span>
+<span class="lineNum">     187 </span><span class="lineCov">         13 :                 MmsVariableSpecification* fcSpec = logicalDevice-&gt;namedVariables[i]-&gt;typeSpec.structure.elements[j];</span>
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span><span class="lineCov">         13 :                 char* fcName = fcSpec-&gt;name;</span>
+<span class="lineNum">     190 </span>            : 
+<span class="lineNum">     191 </span>            : #if (CONFIG_IEC61850_CONTROL_SERVICE == 1)
+<span class="lineNum">     192 </span><span class="lineCov">         13 :                 if (strcmp(fcName, &quot;CO&quot;) == 0) {</span>
+<span class="lineNum">     193 </span><span class="lineCov">          1 :                     createControlObjects(self, logicalDevice, lnName, fcSpec, NULL);</span>
+<span class="lineNum">     194 </span>            :                 }
+<span class="lineNum">     195 </span>            :                 else
+<span class="lineNum">     196 </span>            : #endif /* (CONFIG_IEC61850_CONTROL_SERVICE == 1) */
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span><span class="lineCov">         12 :                 if ((strcmp(fcName, &quot;BR&quot;) != 0) &amp;&amp; (strcmp(fcName, &quot;RP&quot;) != 0)</span>
+<span class="lineNum">     199 </span>            : 
+<span class="lineNum">     200 </span>            : #if (CONFIG_INCLUDE_GOOSE_SUPPORT == 1)
+<span class="lineNum">     201 </span><span class="lineCov">         10 :                         &amp;&amp; (strcmp(fcName, &quot;GO&quot;) != 0)</span>
+<span class="lineNum">     202 </span>            : #endif
+<span class="lineNum">     203 </span>            : 
+<span class="lineNum">     204 </span>            : #if (CONFIG_IEC61850_SAMPLED_VALUES_SUPPORT == 1)
+<span class="lineNum">     205 </span><span class="lineCov">         10 :                         &amp;&amp; (strcmp(fcName, &quot;MS&quot;) != 0) &amp;&amp; (strcmp(fcName, &quot;US&quot;) != 0)</span>
+<span class="lineNum">     206 </span>            : #endif
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span>            : #if (CONFIG_IEC61850_LOG_SERVICE == 1)
+<span class="lineNum">     209 </span><span class="lineCov">         10 :                         &amp;&amp; (strcmp(fcName, &quot;LG&quot;) != 0)</span>
+<span class="lineNum">     210 </span>            : #endif
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span>            :                    )
+<span class="lineNum">     213 </span>            :                 {
+<span class="lineNum">     214 </span>            :                     char variableName[65];
+<span class="lineNum">     215 </span>            : 
+<span class="lineNum">     216 </span><span class="lineCov">         10 :                     StringUtils_createStringInBuffer(variableName, 3, lnName, &quot;$&quot;, fcName);</span>
+<span class="lineNum">     217 </span>            : 
+<span class="lineNum">     218 </span><span class="lineCov">         10 :                     MmsValue* defaultValue = MmsValue_newDefaultValue(fcSpec);</span>
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span><span class="lineCov">         10 :                     if (defaultValue == NULL)</span>
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :                         goto exit_function;</span>
+<span class="lineNum">     222 </span>            : 
+<span class="lineNum">     223 </span>            :                     if (DEBUG_IED_SERVER)
+<span class="lineNum">     224 </span>            :                         printf(&quot;ied_server.c: Insert into cache %s - %s\n&quot;, logicalDevice-&gt;domainName, variableName);
+<span class="lineNum">     225 </span>            : 
+<span class="lineNum">     226 </span><span class="lineCov">         10 :                     MmsServer_insertIntoCache(self-&gt;mmsServer, logicalDevice, variableName, defaultValue);</span>
+<span class="lineNum">     227 </span>            :                 }
+<span class="lineNum">     228 </span>            :             }
+<span class="lineNum">     229 </span>            :         }
+<span class="lineNum">     230 </span>            :     }
+<span class="lineNum">     231 </span>            : 
+<span class="lineNum">     232 </span><span class="lineCov">          1 :     success = true;</span>
+<span class="lineNum">     233 </span>            : 
+<span class="lineNum">     234 </span>            : exit_function:
+<span class="lineNum">     235 </span><span class="lineCov">          1 :     return success;</span>
+<span class="lineNum">     236 </span>            : }
+<a name="237"><span class="lineNum">     237 </span>            : </a>
+<span class="lineNum">     238 </span>            : static void
+<span class="lineNum">     239 </span><span class="lineCov">        119 : installDefaultValuesForDataAttribute(IedServer self, DataAttribute* dataAttribute,</span>
+<span class="lineNum">     240 </span>            :         char* objectReference, int position)
+<span class="lineNum">     241 </span>            : {
+<span class="lineNum">     242 </span><span class="lineCov">        119 :     sprintf(objectReference + position, &quot;.%s&quot;, dataAttribute-&gt;name);</span>
+<span class="lineNum">     243 </span>            : 
+<span class="lineNum">     244 </span>            :     char mmsVariableName[65]; /* maximum size is 64 according to 61850-8-1 */
+<span class="lineNum">     245 </span>            : 
+<span class="lineNum">     246 </span><span class="lineCov">        119 :     MmsValue* value = dataAttribute-&gt;mmsValue;</span>
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span><span class="lineCov">        119 :     MmsMapping_createMmsVariableNameFromObjectReference(objectReference, dataAttribute-&gt;fc, mmsVariableName);</span>
+<span class="lineNum">     249 </span>            : 
+<span class="lineNum">     250 </span>            :     char domainName[65];
+<span class="lineNum">     251 </span>            : 
+<span class="lineNum">     252 </span><span class="lineCov">        119 :     strncpy(domainName, self-&gt;model-&gt;name, 64);</span>
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span><span class="lineCov">        119 :     MmsMapping_getMmsDomainFromObjectReference(objectReference, domainName + strlen(domainName));</span>
+<span class="lineNum">     255 </span>            : 
+<span class="lineNum">     256 </span><span class="lineCov">        119 :     MmsDomain* domain = MmsDevice_getDomain(self-&gt;mmsDevice, domainName);</span>
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span><span class="lineCov">        119 :     if (domain == NULL) {</span>
+<span class="lineNum">     259 </span>            :         if (DEBUG_IED_SERVER)
+<span class="lineNum">     260 </span>            :             printf(&quot;Error domain (%s) not found for %s!\n&quot;, domainName, objectReference);
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">     262 </span>            :     }
+<span class="lineNum">     263 </span>            : 
+<span class="lineNum">     264 </span><span class="lineCov">        119 :     MmsValue* cacheValue = MmsServer_getValueFromCache(self-&gt;mmsServer, domain, mmsVariableName);</span>
+<span class="lineNum">     265 </span>            : 
+<span class="lineNum">     266 </span><span class="lineCov">        119 :     dataAttribute-&gt;mmsValue = cacheValue;</span>
+<span class="lineNum">     267 </span>            : 
+<span class="lineNum">     268 </span><span class="lineCov">        119 :     if (value != NULL) {</span>
+<span class="lineNum">     269 </span>            : 
+<span class="lineNum">     270 </span><span class="lineCov">         16 :         if (cacheValue != NULL)</span>
+<span class="lineNum">     271 </span><span class="lineCov">         16 :             MmsValue_update(cacheValue, value);</span>
+<span class="lineNum">     272 </span>            : 
+<span class="lineNum">     273 </span>            :         #if (DEBUG_IED_SERVER == 1)
+<span class="lineNum">     274 </span>            :             if (cacheValue == NULL) {
+<span class="lineNum">     275 </span>            :                 printf(&quot;IED_SERVER: exception: invalid initializer for %s\n&quot;, mmsVariableName);
+<span class="lineNum">     276 </span>            :                 exit(-1);
+<span class="lineNum">     277 </span>            :             }
+<span class="lineNum">     278 </span>            :         #endif
+<span class="lineNum">     279 </span>            : 
+<span class="lineNum">     280 </span><span class="lineCov">         16 :         MmsValue_delete(value);</span>
+<span class="lineNum">     281 </span>            :     }
+<span class="lineNum">     282 </span>            : 
+<span class="lineNum">     283 </span><span class="lineCov">        119 :     int childPosition = strlen(objectReference);</span>
+<span class="lineNum">     284 </span><span class="lineCov">        119 :     DataAttribute* subDataAttribute = (DataAttribute*) dataAttribute-&gt;firstChild;</span>
+<span class="lineNum">     285 </span>            : 
+<span class="lineNum">     286 </span><span class="lineCov">        276 :     while (subDataAttribute != NULL) {</span>
+<span class="lineNum">     287 </span><span class="lineCov">         38 :         installDefaultValuesForDataAttribute(self, subDataAttribute, objectReference, childPosition);</span>
+<span class="lineNum">     288 </span>            : 
+<span class="lineNum">     289 </span><span class="lineCov">         38 :         subDataAttribute = (DataAttribute*) subDataAttribute-&gt;sibling;</span>
+<span class="lineNum">     290 </span>            :     }
+<span class="lineNum">     291 </span>            : }
+<a name="292"><span class="lineNum">     292 </span>            : </a>
+<span class="lineNum">     293 </span>            : static void
+<span class="lineNum">     294 </span><span class="lineCov">         23 : installDefaultValuesForDataObject(IedServer self, DataObject* dataObject,</span>
+<span class="lineNum">     295 </span>            :         char* objectReference, int position)
+<span class="lineNum">     296 </span>            : {
+<span class="lineNum">     297 </span><span class="lineCov">         23 :     if (dataObject-&gt;elementCount &gt; 0) {</span>
+<span class="lineNum">     298 </span>            :         if (DEBUG_IED_SERVER)
+<span class="lineNum">     299 </span>            :             printf(&quot;IED_SERVER: DataObject is an array. Skip installing default values in cache\n&quot;);
+<span class="lineNum">     300 </span>            : 
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">     302 </span>            :     }
+<span class="lineNum">     303 </span>            : 
+<span class="lineNum">     304 </span><span class="lineCov">         23 :     sprintf(objectReference + position, &quot;.%s&quot;, dataObject-&gt;name);</span>
+<span class="lineNum">     305 </span>            : 
+<span class="lineNum">     306 </span><span class="lineCov">         23 :     ModelNode* childNode = dataObject-&gt;firstChild;</span>
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span><span class="lineCov">         23 :     int childPosition = strlen(objectReference);</span>
+<span class="lineNum">     309 </span>            : 
+<span class="lineNum">     310 </span><span class="lineCov">        127 :     while (childNode != NULL) {</span>
+<span class="lineNum">     311 </span><span class="lineCov">         81 :         if (childNode-&gt;modelType == DataObjectModelType) {</span>
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :             installDefaultValuesForDataObject(self, (DataObject*) childNode, objectReference, childPosition);</span>
+<span class="lineNum">     313 </span>            :         }
+<span class="lineNum">     314 </span><span class="lineCov">         81 :         else if (childNode-&gt;modelType == DataAttributeModelType) {</span>
+<span class="lineNum">     315 </span><span class="lineCov">         81 :             installDefaultValuesForDataAttribute(self, (DataAttribute*) childNode, objectReference, childPosition);</span>
+<span class="lineNum">     316 </span>            :         }
+<span class="lineNum">     317 </span>            : 
+<span class="lineNum">     318 </span><span class="lineCov">         81 :         childNode = childNode-&gt;sibling;</span>
+<span class="lineNum">     319 </span>            :     }
+<span class="lineNum">     320 </span>            : }
+<a name="321"><span class="lineNum">     321 </span>            : </a>
+<span class="lineNum">     322 </span>            : static void
+<span class="lineNum">     323 </span><span class="lineCov">          1 : installDefaultValuesInCache(IedServer self)</span>
+<span class="lineNum">     324 </span>            : {
+<span class="lineNum">     325 </span><span class="lineCov">          1 :     IedModel* model = self-&gt;model;</span>
+<span class="lineNum">     326 </span>            : 
+<span class="lineNum">     327 </span>            :     char objectReference[130];
+<span class="lineNum">     328 </span>            : 
+<span class="lineNum">     329 </span><span class="lineCov">          1 :     LogicalDevice* logicalDevice = model-&gt;firstChild;</span>
+<span class="lineNum">     330 </span>            : 
+<span class="lineNum">     331 </span><span class="lineCov">          3 :     while (logicalDevice != NULL) {</span>
+<span class="lineNum">     332 </span><span class="lineCov">          1 :         sprintf(objectReference, &quot;%s&quot;, logicalDevice-&gt;name);</span>
+<span class="lineNum">     333 </span>            : 
+<span class="lineNum">     334 </span><span class="lineCov">          1 :         LogicalNode* logicalNode = (LogicalNode*) logicalDevice-&gt;firstChild;</span>
+<span class="lineNum">     335 </span>            : 
+<span class="lineNum">     336 </span><span class="lineCov">          1 :         char* nodeReference = objectReference + strlen(objectReference);</span>
+<span class="lineNum">     337 </span>            : 
+<span class="lineNum">     338 </span><span class="lineCov">          5 :         while (logicalNode != NULL) {</span>
+<span class="lineNum">     339 </span><span class="lineCov">          3 :             sprintf(nodeReference, &quot;/%s&quot;, logicalNode-&gt;name);</span>
+<span class="lineNum">     340 </span>            : 
+<span class="lineNum">     341 </span><span class="lineCov">          3 :             DataObject* dataObject = (DataObject*) logicalNode-&gt;firstChild;</span>
+<span class="lineNum">     342 </span>            : 
+<span class="lineNum">     343 </span><span class="lineCov">          3 :             int refPosition = strlen(objectReference);</span>
+<span class="lineNum">     344 </span>            : 
+<span class="lineNum">     345 </span><span class="lineCov">         29 :             while (dataObject != NULL) {</span>
+<span class="lineNum">     346 </span><span class="lineCov">         23 :                 installDefaultValuesForDataObject(self, dataObject, objectReference, refPosition);</span>
+<span class="lineNum">     347 </span>            : 
+<span class="lineNum">     348 </span><span class="lineCov">         23 :                 dataObject = (DataObject*) dataObject-&gt;sibling;</span>
+<span class="lineNum">     349 </span>            :             }
+<span class="lineNum">     350 </span>            : 
+<span class="lineNum">     351 </span><span class="lineCov">          3 :             logicalNode = (LogicalNode*) logicalNode-&gt;sibling;</span>
+<span class="lineNum">     352 </span>            :         }
+<span class="lineNum">     353 </span>            : 
+<span class="lineNum">     354 </span><span class="lineCov">          1 :         logicalDevice = (LogicalDevice*) logicalDevice-&gt;sibling;</span>
+<span class="lineNum">     355 </span>            :     }
+<span class="lineNum">     356 </span><span class="lineCov">          1 : }</span>
+<a name="357"><span class="lineNum">     357 </span>            : </a>
+<span class="lineNum">     358 </span>            : static void
+<span class="lineNum">     359 </span><span class="lineCov">          1 : updateDataSetsWithCachedValues(IedServer self)</span>
+<span class="lineNum">     360 </span>            : {
+<span class="lineNum">     361 </span><span class="lineCov">          1 :     DataSet* dataSet = self-&gt;model-&gt;dataSets;</span>
+<span class="lineNum">     362 </span>            : 
+<span class="lineNum">     363 </span><span class="lineCov">          1 :     int iedNameLength = strlen(self-&gt;model-&gt;name);</span>
+<span class="lineNum">     364 </span>            : 
+<span class="lineNum">     365 </span><span class="lineCov">          1 :     if (iedNameLength &lt;= 64) {</span>
+<span class="lineNum">     366 </span>            : 
+<span class="lineNum">     367 </span><span class="lineCov">          5 :         while (dataSet != NULL) {</span>
+<span class="lineNum">     368 </span>            : 
+<span class="lineNum">     369 </span><span class="lineCov">          3 :             DataSetEntry* dataSetEntry = dataSet-&gt;fcdas;</span>
+<span class="lineNum">     370 </span>            : 
+<span class="lineNum">     371 </span><span class="lineCov">         22 :             while (dataSetEntry != NULL) {</span>
+<span class="lineNum">     372 </span>            : 
+<span class="lineNum">     373 </span>            :                 char domainName[65];
+<span class="lineNum">     374 </span>            : 
+<span class="lineNum">     375 </span><span class="lineCov">         16 :                 strncpy(domainName, self-&gt;model-&gt;name, 64);</span>
+<span class="lineNum">     376 </span><span class="lineCov">         16 :                 strncat(domainName, dataSetEntry-&gt;logicalDeviceName, 64 - iedNameLength);</span>
+<span class="lineNum">     377 </span>            : 
+<span class="lineNum">     378 </span><span class="lineCov">         16 :                 MmsDomain* domain = MmsDevice_getDomain(self-&gt;mmsDevice, domainName);</span>
+<span class="lineNum">     379 </span>            : 
+<span class="lineNum">     380 </span>            :                 char variableName[66];
+<span class="lineNum">     381 </span>            : 
+<span class="lineNum">     382 </span><span class="lineCov">         16 :                 strncpy(variableName, dataSetEntry-&gt;variableName, 65);</span>
+<span class="lineNum">     383 </span><span class="lineCov">         16 :                 variableName[65] = 0;</span>
+<span class="lineNum">     384 </span>            : 
+<span class="lineNum">     385 </span><span class="lineCov">         16 :                 MmsVariableSpecification* typeSpec = NULL;</span>
+<span class="lineNum">     386 </span>            : 
+<span class="lineNum">     387 </span><span class="lineCov">         16 :                 MmsValue* value = MmsServer_getValueFromCacheEx(self-&gt;mmsServer, domain, variableName, &amp;typeSpec);</span>
+<span class="lineNum">     388 </span>            : 
+<span class="lineNum">     389 </span><span class="lineCov">         16 :                 if (value == NULL) {</span>
+<span class="lineNum">     390 </span>            :                     if (DEBUG_IED_SERVER) {
+<span class="lineNum">     391 </span>            :                         printf(&quot;IED_SERVER: LD: %s dataset: %s : error cannot get value from cache for %s -&gt; %s!\n&quot;,
+<span class="lineNum">     392 </span>            :                                 dataSet-&gt;logicalDeviceName, dataSet-&gt;name,
+<span class="lineNum">     393 </span>            :                                 dataSetEntry-&gt;logicalDeviceName,
+<span class="lineNum">     394 </span>            :                                 dataSetEntry-&gt;variableName);
+<span class="lineNum">     395 </span>            :                     }
+<span class="lineNum">     396 </span>            :                 }
+<span class="lineNum">     397 </span>            :                 else {
+<span class="lineNum">     398 </span>            :                     /* check if array element */
+<span class="lineNum">     399 </span>            : 
+<span class="lineNum">     400 </span><span class="lineCov">         16 :                     if (dataSetEntry-&gt;index != -1) {</span>
+<span class="lineNum">     401 </span><span class="lineNoCov">          0 :                         if (typeSpec-&gt;type == MMS_ARRAY) {</span>
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :                             MmsValue* elementValue = MmsValue_getElement(value, dataSetEntry-&gt;index);</span>
+<span class="lineNum">     403 </span>            : 
+<span class="lineNum">     404 </span><span class="lineNoCov">          0 :                             if (elementValue) {</span>
+<span class="lineNum">     405 </span>            : 
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 :                                 if (dataSetEntry-&gt;componentName) {</span>
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :                                     MmsVariableSpecification* elementType = typeSpec-&gt;typeSpec.array.elementTypeSpec;</span>
+<span class="lineNum">     408 </span>            : 
+<span class="lineNum">     409 </span><span class="lineNoCov">          0 :                                     MmsValue* subElementValue = MmsVariableSpecification_getChildValue(elementType, elementValue, dataSetEntry-&gt;componentName);</span>
+<span class="lineNum">     410 </span>            : 
+<span class="lineNum">     411 </span><span class="lineNoCov">          0 :                                     if (subElementValue) {</span>
+<span class="lineNum">     412 </span><span class="lineNoCov">          0 :                                         dataSetEntry-&gt;value = subElementValue;</span>
+<span class="lineNum">     413 </span>            :                                     }
+<span class="lineNum">     414 </span>            :                                     else {
+<span class="lineNum">     415 </span>            :                                         if (DEBUG_IED_SERVER)
+<span class="lineNum">     416 </span>            :                                             printf(&quot;IED_SERVER: ERROR - component %s of array element not found\n&quot;, dataSetEntry-&gt;componentName);
+<span class="lineNum">     417 </span>            :                                     }
+<span class="lineNum">     418 </span>            : 
+<span class="lineNum">     419 </span>            :                                 }
+<span class="lineNum">     420 </span>            :                                 else {
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 :                                     dataSetEntry-&gt;value = elementValue;</span>
+<span class="lineNum">     422 </span>            :                                 }
+<span class="lineNum">     423 </span>            :                             }
+<span class="lineNum">     424 </span>            :                             else {
+<span class="lineNum">     425 </span>            :                                 if (DEBUG_IED_SERVER)
+<span class="lineNum">     426 </span>            :                                     printf(&quot;IED_SERVER: ERROR - array element %i not found\n&quot;, dataSetEntry-&gt;index);
+<span class="lineNum">     427 </span>            :                             }
+<span class="lineNum">     428 </span>            :                         }
+<span class="lineNum">     429 </span>            :                         else {
+<span class="lineNum">     430 </span>            :                             if (DEBUG_IED_SERVER)
+<span class="lineNum">     431 </span>            :                                 printf(&quot;IED_SERVER: ERROR - variable %s/%s is not an array\n&quot;, dataSetEntry-&gt;logicalDeviceName, dataSetEntry-&gt;variableName);
+<span class="lineNum">     432 </span>            :                         }
+<span class="lineNum">     433 </span>            :                     }
+<span class="lineNum">     434 </span>            :                     else {
+<span class="lineNum">     435 </span><span class="lineCov">         16 :                         dataSetEntry-&gt;value = value;</span>
+<span class="lineNum">     436 </span>            :                     }
+<span class="lineNum">     437 </span>            :                 }
+<span class="lineNum">     438 </span>            : 
+<span class="lineNum">     439 </span><span class="lineCov">         16 :                 dataSetEntry = dataSetEntry-&gt;sibling;</span>
+<span class="lineNum">     440 </span>            :             }
+<span class="lineNum">     441 </span>            : 
+<span class="lineNum">     442 </span><span class="lineCov">          3 :             dataSet = dataSet-&gt;sibling;</span>
+<span class="lineNum">     443 </span>            :         }
+<span class="lineNum">     444 </span>            :     }
+<span class="lineNum">     445 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     446 </span>            : 
+<a name="447"><span class="lineNum">     447 </span>            : </a>
+<span class="lineNum">     448 </span>            : IedServer
+<span class="lineNum">     449 </span><span class="lineCov">          1 : IedServer_createWithConfig(IedModel* dataModel, TLSConfiguration tlsConfiguration, IedServerConfig serverConfiguration)</span>
+<span class="lineNum">     450 </span>            : {
+<span class="lineNum">     451 </span><span class="lineCov">          1 :     IedServer self = (IedServer) GLOBAL_CALLOC(1, sizeof(struct sIedServer));</span>
+<span class="lineNum">     452 </span>            : 
+<span class="lineNum">     453 </span><span class="lineCov">          1 :     if (self) {</span>
+<span class="lineNum">     454 </span>            : 
+<span class="lineNum">     455 </span><span class="lineCov">          1 :         self-&gt;model = dataModel;</span>
+<span class="lineNum">     456 </span>            : 
+<span class="lineNum">     457 </span><span class="lineCov">          1 :         self-&gt;running = false;</span>
+<span class="lineNum">     458 </span><span class="lineCov">          1 :         self-&gt;localIpAddress = NULL;</span>
+<span class="lineNum">     459 </span>            : 
+<span class="lineNum">     460 </span>            : #if (CONFIG_IEC61850_EDITION_1 == 1)
+<span class="lineNum">     461 </span>            :         self-&gt;edition = IEC_61850_EDITION_1;
+<span class="lineNum">     462 </span>            : #else
+<span class="lineNum">     463 </span><span class="lineCov">          1 :         self-&gt;edition = IEC_61850_EDITION_2;</span>
+<span class="lineNum">     464 </span>            : #endif
+<span class="lineNum">     465 </span>            : 
+<span class="lineNum">     466 </span>            : #if (CONFIG_MMS_SERVER_CONFIG_SERVICES_AT_RUNTIME == 1)
+<span class="lineNum">     467 </span><span class="lineCov">          1 :         self-&gt;logServiceEnabled = true;</span>
+<span class="lineNum">     468 </span>            : 
+<span class="lineNum">     469 </span><span class="lineCov">          1 :         if (serverConfiguration) {</span>
+<span class="lineNum">     470 </span><span class="lineCov">          1 :             self-&gt;logServiceEnabled = serverConfiguration-&gt;enableLogService;</span>
+<span class="lineNum">     471 </span><span class="lineCov">          1 :             self-&gt;edition = serverConfiguration-&gt;edition;</span>
+<span class="lineNum">     472 </span>            :         }
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span>            : #endif /* (CONFIG_MMS_SERVER_CONFIG_SERVICES_AT_RUNTIME == 1) */
+<span class="lineNum">     475 </span>            : 
+<span class="lineNum">     476 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">     477 </span><span class="lineCov">          1 :         self-&gt;dataModelLock = Semaphore_create(1);</span>
+<span class="lineNum">     478 </span><span class="lineCov">          1 :         self-&gt;clientConnectionsLock = Semaphore_create(1);</span>
+<span class="lineNum">     479 </span>            : #endif /* (CONFIG_MMS_SERVER_CONFIG_SERVICES_AT_RUNTIME == 1) */
+<span class="lineNum">     480 </span>            : 
+<span class="lineNum">     481 </span>            : #if (CONFIG_IEC61850_REPORT_SERVICE == 1)
+<span class="lineNum">     482 </span><span class="lineCov">          1 :         if (serverConfiguration) {</span>
+<span class="lineNum">     483 </span><span class="lineCov">          1 :             self-&gt;reportBufferSizeBRCBs = serverConfiguration-&gt;reportBufferSize;</span>
+<span class="lineNum">     484 </span><span class="lineCov">          1 :             self-&gt;reportBufferSizeURCBs = serverConfiguration-&gt;reportBufferSizeURCBs;</span>
+<span class="lineNum">     485 </span>            :         }
+<span class="lineNum">     486 </span>            :         else {
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 :             self-&gt;reportBufferSizeBRCBs = CONFIG_REPORTING_DEFAULT_REPORT_BUFFER_SIZE;</span>
+<span class="lineNum">     488 </span><span class="lineNoCov">          0 :             self-&gt;reportBufferSizeURCBs = CONFIG_REPORTING_DEFAULT_REPORT_BUFFER_SIZE;</span>
+<span class="lineNum">     489 </span>            :         }
+<span class="lineNum">     490 </span>            : #endif
+<span class="lineNum">     491 </span>            : 
+<span class="lineNum">     492 </span><span class="lineCov">          1 :         self-&gt;mmsMapping = MmsMapping_create(dataModel, self);</span>
+<span class="lineNum">     493 </span>            : 
+<span class="lineNum">     494 </span><span class="lineCov">          1 :         self-&gt;mmsDevice = MmsMapping_getMmsDeviceModel(self-&gt;mmsMapping);</span>
+<span class="lineNum">     495 </span>            : 
+<span class="lineNum">     496 </span><span class="lineCov">          1 :         self-&gt;mmsServer = MmsServer_create(self-&gt;mmsDevice, tlsConfiguration);</span>
+<span class="lineNum">     497 </span>            : 
+<span class="lineNum">     498 </span>            : #if (CONFIG_MMS_SERVER_CONFIG_SERVICES_AT_RUNTIME == 1)
+<span class="lineNum">     499 </span><span class="lineCov">          1 :         if (serverConfiguration) {</span>
+<span class="lineNum">     500 </span><span class="lineCov">          1 :             MmsServer_enableFileService(self-&gt;mmsServer, serverConfiguration-&gt;enableFileService);</span>
+<span class="lineNum">     501 </span><span class="lineCov">          1 :             MmsServer_enableDynamicNamedVariableListService(self-&gt;mmsServer, serverConfiguration-&gt;enableDynamicDataSetService);</span>
+<span class="lineNum">     502 </span><span class="lineCov">          1 :             MmsServer_setMaxAssociationSpecificDataSets(self-&gt;mmsServer, serverConfiguration-&gt;maxAssociationSpecificDataSets);</span>
+<span class="lineNum">     503 </span><span class="lineCov">          1 :             MmsServer_setMaxDomainSpecificDataSets(self-&gt;mmsServer, serverConfiguration-&gt;maxDomainSpecificDataSets);</span>
+<span class="lineNum">     504 </span><span class="lineCov">          1 :             MmsServer_setMaxDataSetEntries(self-&gt;mmsServer, serverConfiguration-&gt;maxDataSetEntries);</span>
+<span class="lineNum">     505 </span><span class="lineCov">          1 :             MmsServer_enableJournalService(self-&gt;mmsServer, serverConfiguration-&gt;enableLogService);</span>
+<span class="lineNum">     506 </span><span class="lineCov">          1 :             MmsServer_setFilestoreBasepath(self-&gt;mmsServer, serverConfiguration-&gt;fileServiceBasepath);</span>
+<span class="lineNum">     507 </span><span class="lineCov">          1 :             MmsServer_setMaxConnections(self-&gt;mmsServer, serverConfiguration-&gt;maxMmsConnections);</span>
+<span class="lineNum">     508 </span>            :         }
+<span class="lineNum">     509 </span>            : #endif
+<span class="lineNum">     510 </span>            : 
+<span class="lineNum">     511 </span><span class="lineCov">          1 :         MmsMapping_setMmsServer(self-&gt;mmsMapping, self-&gt;mmsServer);</span>
+<span class="lineNum">     512 </span>            : 
+<span class="lineNum">     513 </span><span class="lineCov">          1 :         MmsMapping_installHandlers(self-&gt;mmsMapping);</span>
+<span class="lineNum">     514 </span>            : 
+<span class="lineNum">     515 </span><span class="lineCov">          1 :         createMmsServerCache(self);</span>
+<span class="lineNum">     516 </span>            : 
+<span class="lineNum">     517 </span><span class="lineCov">          1 :         dataModel-&gt;initializer();</span>
+<span class="lineNum">     518 </span>            : 
+<span class="lineNum">     519 </span><span class="lineCov">          1 :         installDefaultValuesInCache(self); /* This will also connect cached MmsValues to DataAttributes */</span>
+<span class="lineNum">     520 </span>            : 
+<span class="lineNum">     521 </span><span class="lineCov">          1 :         updateDataSetsWithCachedValues(self);</span>
+<span class="lineNum">     522 </span>            : 
+<span class="lineNum">     523 </span><span class="lineCov">          1 :         self-&gt;clientConnections = LinkedList_create();</span>
+<span class="lineNum">     524 </span>            : 
+<span class="lineNum">     525 </span>            :         /* default write access policy allows access to SP, SE and SV FCDAs but denies access to DC and CF FCDAs */
+<span class="lineNum">     526 </span><span class="lineCov">          1 :         self-&gt;writeAccessPolicies = ALLOW_WRITE_ACCESS_SP | ALLOW_WRITE_ACCESS_SV | ALLOW_WRITE_ACCESS_SE;</span>
+<span class="lineNum">     527 </span>            : 
+<span class="lineNum">     528 </span><span class="lineCov">          1 :         MmsMapping_initializeControlObjects(self-&gt;mmsMapping);</span>
+<span class="lineNum">     529 </span>            : 
+<span class="lineNum">     530 </span>            : #if (CONFIG_IEC61850_REPORT_SERVICE == 1)
+<span class="lineNum">     531 </span><span class="lineCov">          1 :         Reporting_activateBufferedReports(self-&gt;mmsMapping);</span>
+<span class="lineNum">     532 </span>            : #endif
+<span class="lineNum">     533 </span>            : 
+<span class="lineNum">     534 </span>            : #if (CONFIG_IEC61850_SETTING_GROUPS == 1)
+<span class="lineNum">     535 </span><span class="lineCov">          1 :         MmsMapping_configureSettingGroups(self-&gt;mmsMapping);</span>
+<span class="lineNum">     536 </span>            : #endif
+<span class="lineNum">     537 </span>            :     }
+<span class="lineNum">     538 </span>            : 
+<span class="lineNum">     539 </span><span class="lineCov">          1 :     return self;</span>
+<span class="lineNum">     540 </span>            : }
+<a name="541"><span class="lineNum">     541 </span>            : </a>
+<span class="lineNum">     542 </span>            : IedServer
+<span class="lineNum">     543 </span><span class="lineNoCov">          0 : IedServer_create(IedModel* dataModel)</span>
+<span class="lineNum">     544 </span>            : {
+<span class="lineNum">     545 </span><span class="lineNoCov">          0 :     return IedServer_createWithConfig(dataModel, NULL, NULL);</span>
+<span class="lineNum">     546 </span>            : }
+<a name="547"><span class="lineNum">     547 </span>            : </a>
+<span class="lineNum">     548 </span>            : IedServer
+<span class="lineNum">     549 </span><span class="lineNoCov">          0 : IedServer_createWithTlsSupport(IedModel* dataModel, TLSConfiguration tlsConfiguration)</span>
+<span class="lineNum">     550 </span>            : {
+<span class="lineNum">     551 </span><span class="lineNoCov">          0 :     return IedServer_createWithConfig(dataModel, tlsConfiguration, NULL);</span>
+<span class="lineNum">     552 </span>            : }
+<a name="553"><span class="lineNum">     553 </span>            : </a>
+<span class="lineNum">     554 </span>            : void
+<span class="lineNum">     555 </span><span class="lineCov">          1 : IedServer_destroy(IedServer self)</span>
+<span class="lineNum">     556 </span>            : {
+<span class="lineNum">     557 </span>            : 
+<span class="lineNum">     558 </span>            :     /* Stop server if running */
+<span class="lineNum">     559 </span><span class="lineCov">          1 :     if (self-&gt;running) {</span>
+<span class="lineNum">     560 </span>            : #if (CONFIG_MMS_THREADLESS_STACK == 1)
+<span class="lineNum">     561 </span>            :         IedServer_stopThreadless(self);
+<span class="lineNum">     562 </span>            : #else
+<span class="lineNum">     563 </span><span class="lineNoCov">          0 :         IedServer_stop(self);</span>
+<span class="lineNum">     564 </span>            : #endif
+<span class="lineNum">     565 </span>            :     }
+<span class="lineNum">     566 </span>            : 
+<span class="lineNum">     567 </span>            : #if ((CONFIG_MMS_SINGLE_THREADED == 1) &amp;&amp; (CONFIG_MMS_THREADLESS_STACK == 0))
+<span class="lineNum">     568 </span>            : 
+<span class="lineNum">     569 </span>            :     if (self-&gt;serverThread)
+<span class="lineNum">     570 </span>            :         Thread_destroy(self-&gt;serverThread);
+<span class="lineNum">     571 </span>            : 
+<span class="lineNum">     572 </span>            : #endif
+<span class="lineNum">     573 </span>            : 
+<span class="lineNum">     574 </span><span class="lineCov">          1 :     MmsServer_destroy(self-&gt;mmsServer);</span>
+<span class="lineNum">     575 </span>            : 
+<span class="lineNum">     576 </span><span class="lineCov">          1 :     if (self-&gt;localIpAddress != NULL)</span>
+<span class="lineNum">     577 </span><span class="lineNoCov">          0 :         GLOBAL_FREEMEM(self-&gt;localIpAddress);</span>
+<span class="lineNum">     578 </span>            : 
+<span class="lineNum">     579 </span><span class="lineCov">          1 :     MmsMapping_destroy(self-&gt;mmsMapping);</span>
+<span class="lineNum">     580 </span>            : 
+<span class="lineNum">     581 </span><span class="lineCov">          1 :     LinkedList_destroyDeep(self-&gt;clientConnections, (LinkedListValueDeleteFunction) private_ClientConnection_destroy);</span>
+<span class="lineNum">     582 </span>            : 
+<span class="lineNum">     583 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">     584 </span><span class="lineCov">          1 :     Semaphore_destroy(self-&gt;dataModelLock);</span>
+<span class="lineNum">     585 </span><span class="lineCov">          1 :     Semaphore_destroy(self-&gt;clientConnectionsLock);</span>
+<span class="lineNum">     586 </span>            : #endif
+<span class="lineNum">     587 </span>            : 
+<span class="lineNum">     588 </span>            : #if (CONFIG_IEC61850_SUPPORT_SERVER_IDENTITY == 1)
+<span class="lineNum">     589 </span>            : 
+<span class="lineNum">     590 </span><span class="lineCov">          1 :     if (self-&gt;vendorName)</span>
+<span class="lineNum">     591 </span><span class="lineCov">          1 :         GLOBAL_FREEMEM(self-&gt;vendorName);</span>
+<span class="lineNum">     592 </span>            : 
+<span class="lineNum">     593 </span><span class="lineCov">          1 :     if (self-&gt;modelName)</span>
+<span class="lineNum">     594 </span><span class="lineCov">          1 :         GLOBAL_FREEMEM(self-&gt;modelName);</span>
+<span class="lineNum">     595 </span>            : 
+<span class="lineNum">     596 </span><span class="lineCov">          1 :     if (self-&gt;revision)</span>
+<span class="lineNum">     597 </span><span class="lineCov">          1 :         GLOBAL_FREEMEM(self-&gt;revision);</span>
+<span class="lineNum">     598 </span>            : #endif /* (CONFIG_IEC61850_SUPPORT_SERVER_IDENTITY == 1) */
+<span class="lineNum">     599 </span>            : 
+<span class="lineNum">     600 </span><span class="lineCov">          1 :     GLOBAL_FREEMEM(self);</span>
+<span class="lineNum">     601 </span><span class="lineCov">          1 : }</span>
+<a name="602"><span class="lineNum">     602 </span>            : </a>
+<span class="lineNum">     603 </span>            : void
+<span class="lineNum">     604 </span><span class="lineNoCov">          0 : IedServer_setAuthenticator(IedServer self, AcseAuthenticator authenticator, void* authenticatorParameter)</span>
+<span class="lineNum">     605 </span>            : {
+<span class="lineNum">     606 </span><span class="lineNoCov">          0 :     MmsServer_setClientAuthenticator(self-&gt;mmsServer, authenticator, authenticatorParameter);</span>
+<span class="lineNum">     607 </span><span class="lineNoCov">          0 : }</span>
+<a name="608"><span class="lineNum">     608 </span>            : </a>
+<span class="lineNum">     609 </span>            : MmsServer
+<span class="lineNum">     610 </span><span class="lineCov">          4 : IedServer_getMmsServer(IedServer self)</span>
+<span class="lineNum">     611 </span>            : {
+<span class="lineNum">     612 </span><span class="lineCov">          4 :     return self-&gt;mmsServer;</span>
+<span class="lineNum">     613 </span>            : }
+<span class="lineNum">     614 </span>            : 
+<span class="lineNum">     615 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">     616 </span>            : #if (CONFIG_MMS_SINGLE_THREADED == 1)
+<span class="lineNum">     617 </span>            : static void
+<span class="lineNum">     618 </span>            : singleThreadedServerThread(void* parameter)
+<span class="lineNum">     619 </span>            : {
+<span class="lineNum">     620 </span>            :     IedServer self = (IedServer) parameter;
+<span class="lineNum">     621 </span>            : 
+<span class="lineNum">     622 </span>            :     MmsMapping* mmsMapping = self-&gt;mmsMapping;
+<span class="lineNum">     623 </span>            : 
+<span class="lineNum">     624 </span>            :     bool running = true;
+<span class="lineNum">     625 </span>            : 
+<span class="lineNum">     626 </span>            :     if (DEBUG_IED_SERVER)
+<span class="lineNum">     627 </span>            :         printf(&quot;IED_SERVER: server thread started!\n&quot;);
+<span class="lineNum">     628 </span>            : 
+<span class="lineNum">     629 </span>            :     while (running) {
+<span class="lineNum">     630 </span>            :         MmsServer_handleIncomingMessages(self-&gt;mmsServer);
+<span class="lineNum">     631 </span>            : 
+<span class="lineNum">     632 </span>            :         IedServer_performPeriodicTasks(self);
+<span class="lineNum">     633 </span>            : 
+<span class="lineNum">     634 </span>            :         running = mmsMapping-&gt;reportThreadRunning;
+<span class="lineNum">     635 </span>            :     }
+<span class="lineNum">     636 </span>            : 
+<span class="lineNum">     637 </span>            :     if (DEBUG_IED_SERVER)
+<span class="lineNum">     638 </span>            :         printf(&quot;IED_SERVER: server thread finished!\n&quot;);
+<span class="lineNum">     639 </span>            : }
+<span class="lineNum">     640 </span>            : #endif /* (CONFIG_MMS_SINGLE_THREADED == 1) */
+<span class="lineNum">     641 </span>            : #endif /* (CONFIG_MMS_THREADLESS_STACK != 1) */
+<span class="lineNum">     642 </span>            : 
+<a name="643"><span class="lineNum">     643 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)</a>
+<span class="lineNum">     644 </span>            : void
+<span class="lineNum">     645 </span><span class="lineCov">          1 : IedServer_start(IedServer self, int tcpPort)</span>
+<span class="lineNum">     646 </span>            : {
+<span class="lineNum">     647 </span><span class="lineCov">          1 :     if (self-&gt;running == false) {</span>
+<span class="lineNum">     648 </span>            : 
+<span class="lineNum">     649 </span>            : #if (CONFIG_MMS_SINGLE_THREADED == 1)
+<span class="lineNum">     650 </span>            :         MmsServer_startListeningThreadless(self-&gt;mmsServer, tcpPort);
+<span class="lineNum">     651 </span>            : 
+<span class="lineNum">     652 </span>            :         self-&gt;mmsMapping-&gt;reportThreadRunning = true;
+<span class="lineNum">     653 </span>            : 
+<span class="lineNum">     654 </span>            :         self-&gt;serverThread = Thread_create((ThreadExecutionFunction) singleThreadedServerThread, (void*) self, false);
+<span class="lineNum">     655 </span>            : 
+<span class="lineNum">     656 </span>            :         Thread_start(self-&gt;serverThread);
+<span class="lineNum">     657 </span>            : #else
+<span class="lineNum">     658 </span><span class="lineCov">          1 :         MmsServer_startListening(self-&gt;mmsServer, tcpPort);</span>
+<span class="lineNum">     659 </span><span class="lineCov">          1 :         MmsMapping_startEventWorkerThread(self-&gt;mmsMapping);</span>
+<span class="lineNum">     660 </span>            : #endif
+<span class="lineNum">     661 </span>            : 
+<span class="lineNum">     662 </span><span class="lineCov">          1 :         self-&gt;running = true;</span>
+<span class="lineNum">     663 </span>            :     }
+<span class="lineNum">     664 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     665 </span>            : #endif
+<a name="666"><span class="lineNum">     666 </span>            : </a>
+<span class="lineNum">     667 </span>            : bool
+<span class="lineNum">     668 </span><span class="lineCov">          1 : IedServer_isRunning(IedServer self)</span>
+<span class="lineNum">     669 </span>            : {
+<span class="lineNum">     670 </span><span class="lineCov">          1 :     return MmsServer_isRunning(self-&gt;mmsServer);</span>
+<span class="lineNum">     671 </span>            : }
+<a name="672"><span class="lineNum">     672 </span>            : </a>
+<span class="lineNum">     673 </span>            : IedModel*
+<span class="lineNum">     674 </span><span class="lineNoCov">          0 : IedServer_getDataModel(IedServer self)</span>
+<span class="lineNum">     675 </span>            : {
+<span class="lineNum">     676 </span><span class="lineNoCov">          0 :     return self-&gt;model;</span>
+<span class="lineNum">     677 </span>            : }
+<span class="lineNum">     678 </span>            : 
+<a name="679"><span class="lineNum">     679 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)</a>
+<span class="lineNum">     680 </span>            : void
+<span class="lineNum">     681 </span><span class="lineCov">          1 : IedServer_stop(IedServer self)</span>
+<span class="lineNum">     682 </span>            : {
+<span class="lineNum">     683 </span><span class="lineCov">          1 :     if (self-&gt;running) {</span>
+<span class="lineNum">     684 </span><span class="lineCov">          1 :         self-&gt;running = false;</span>
+<span class="lineNum">     685 </span>            : 
+<span class="lineNum">     686 </span><span class="lineCov">          1 :         MmsMapping_stopEventWorkerThread(self-&gt;mmsMapping);</span>
+<span class="lineNum">     687 </span>            : 
+<span class="lineNum">     688 </span>            : #if (CONFIG_MMS_SINGLE_THREADED == 1)
+<span class="lineNum">     689 </span>            :         Thread_destroy(self-&gt;serverThread);
+<span class="lineNum">     690 </span>            :         self-&gt;serverThread = NULL;
+<span class="lineNum">     691 </span>            : 
+<span class="lineNum">     692 </span>            :         MmsServer_stopListeningThreadless(self-&gt;mmsServer);
+<span class="lineNum">     693 </span>            : #else
+<span class="lineNum">     694 </span><span class="lineCov">          1 :         MmsServer_stopListening(self-&gt;mmsServer);</span>
+<span class="lineNum">     695 </span>            : #endif
+<span class="lineNum">     696 </span>            :     }
+<span class="lineNum">     697 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     698 </span>            : #endif /* (CONFIG_MMS_THREADLESS_STACK != 1) */
+<a name="699"><span class="lineNum">     699 </span>            : </a>
+<span class="lineNum">     700 </span>            : void
+<span class="lineNum">     701 </span><span class="lineNoCov">          0 : IedServer_setFilestoreBasepath(IedServer self, const char* basepath)</span>
+<span class="lineNum">     702 </span>            : {
+<span class="lineNum">     703 </span>            :     /* simply pass to MMS server API */
+<span class="lineNum">     704 </span><span class="lineNoCov">          0 :     MmsServer_setFilestoreBasepath(self-&gt;mmsServer, basepath);</span>
+<span class="lineNum">     705 </span><span class="lineNoCov">          0 : }</span>
+<a name="706"><span class="lineNum">     706 </span>            : </a>
+<span class="lineNum">     707 </span>            : void
+<span class="lineNum">     708 </span><span class="lineNoCov">          0 : IedServer_setLocalIpAddress(IedServer self, const char* localIpAddress)</span>
+<span class="lineNum">     709 </span>            : {
+<span class="lineNum">     710 </span><span class="lineNoCov">          0 :     if (self-&gt;localIpAddress != NULL)</span>
+<span class="lineNum">     711 </span><span class="lineNoCov">          0 :         GLOBAL_FREEMEM(self-&gt;localIpAddress);</span>
+<span class="lineNum">     712 </span>            : 
+<span class="lineNum">     713 </span><span class="lineNoCov">          0 :     self-&gt;localIpAddress = StringUtils_copyString(localIpAddress);</span>
+<span class="lineNum">     714 </span>            : 
+<span class="lineNum">     715 </span><span class="lineNoCov">          0 :     MmsServer_setLocalIpAddress(self-&gt;mmsServer, self-&gt;localIpAddress);</span>
+<span class="lineNum">     716 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     717 </span>            : 
+<a name="718"><span class="lineNum">     718 </span>            : </a>
+<span class="lineNum">     719 </span>            : void
+<span class="lineNum">     720 </span><span class="lineNoCov">          0 : IedServer_startThreadless(IedServer self, int tcpPort)</span>
+<span class="lineNum">     721 </span>            : {
+<span class="lineNum">     722 </span><span class="lineNoCov">          0 :     if (self-&gt;running == false) {</span>
+<span class="lineNum">     723 </span><span class="lineNoCov">          0 :         MmsServer_startListeningThreadless(self-&gt;mmsServer, tcpPort);</span>
+<span class="lineNum">     724 </span><span class="lineNoCov">          0 :         self-&gt;running = true;</span>
+<span class="lineNum">     725 </span>            :     }
+<span class="lineNum">     726 </span><span class="lineNoCov">          0 : }</span>
+<a name="727"><span class="lineNum">     727 </span>            : </a>
+<span class="lineNum">     728 </span>            : int
+<span class="lineNum">     729 </span><span class="lineNoCov">          0 : IedServer_getNumberOfOpenConnections(IedServer self)</span>
+<span class="lineNum">     730 </span>            : {
+<span class="lineNum">     731 </span><span class="lineNoCov">          0 :     return MmsServer_getConnectionCounter(self-&gt;mmsServer);</span>
+<span class="lineNum">     732 </span>            : }
+<a name="733"><span class="lineNum">     733 </span>            : </a>
+<span class="lineNum">     734 </span>            : int
+<span class="lineNum">     735 </span><span class="lineNoCov">          0 : IedServer_waitReady(IedServer self, unsigned int timeoutMs)</span>
+<span class="lineNum">     736 </span>            : {
+<span class="lineNum">     737 </span><span class="lineNoCov">          0 :    return MmsServer_waitReady(self-&gt;mmsServer, timeoutMs);</span>
+<span class="lineNum">     738 </span>            : }
+<a name="739"><span class="lineNum">     739 </span>            : </a>
+<span class="lineNum">     740 </span>            : void
+<span class="lineNum">     741 </span><span class="lineNoCov">          0 : IedServer_processIncomingData(IedServer self)</span>
+<span class="lineNum">     742 </span>            : {
+<span class="lineNum">     743 </span><span class="lineNoCov">          0 :     MmsServer_handleIncomingMessages(self-&gt;mmsServer);</span>
+<span class="lineNum">     744 </span><span class="lineNoCov">          0 : }</span>
+<a name="745"><span class="lineNum">     745 </span>            : </a>
+<span class="lineNum">     746 </span>            : void
+<span class="lineNum">     747 </span><span class="lineNoCov">          0 : IedServer_stopThreadless(IedServer self)</span>
+<span class="lineNum">     748 </span>            : {
+<span class="lineNum">     749 </span><span class="lineNoCov">          0 :     if (self-&gt;running) {</span>
+<span class="lineNum">     750 </span><span class="lineNoCov">          0 :         self-&gt;running = false;</span>
+<span class="lineNum">     751 </span>            : 
+<span class="lineNum">     752 </span><span class="lineNoCov">          0 :         MmsServer_stopListeningThreadless(self-&gt;mmsServer);</span>
+<span class="lineNum">     753 </span>            :     }
+<span class="lineNum">     754 </span><span class="lineNoCov">          0 : }</span>
+<a name="755"><span class="lineNum">     755 </span>            : </a>
+<span class="lineNum">     756 </span>            : void
+<span class="lineNum">     757 </span><span class="lineCov">         23 : IedServer_lockDataModel(IedServer self)</span>
+<span class="lineNum">     758 </span>            : {
+<span class="lineNum">     759 </span><span class="lineCov">         23 :     MmsServer_lockModel(self-&gt;mmsServer);</span>
+<span class="lineNum">     760 </span>            : 
+<span class="lineNum">     761 </span><span class="lineCov">         23 :     self-&gt;mmsMapping-&gt;isModelLocked = true;</span>
+<span class="lineNum">     762 </span><span class="lineCov">         23 : }</span>
+<a name="763"><span class="lineNum">     763 </span>            : </a>
+<span class="lineNum">     764 </span>            : void
+<span class="lineNum">     765 </span><span class="lineCov">         23 : IedServer_unlockDataModel(IedServer self)</span>
+<span class="lineNum">     766 </span>            : {
+<span class="lineNum">     767 </span>            : #if (CONFIG_INCLUDE_GOOSE_SUPPORT == 1)
+<span class="lineNum">     768 </span>            :     /* check if GOOSE messages have to be sent */
+<span class="lineNum">     769 </span><span class="lineCov">         23 :     GOOSE_sendPendingEvents(self-&gt;mmsMapping);</span>
+<span class="lineNum">     770 </span>            : #endif /* (CONFIG_INCLUDE_GOOSE_SUPPORT == 1) */
+<span class="lineNum">     771 </span>            : 
+<span class="lineNum">     772 </span>            :     /* check if reports have to be sent! */
+<span class="lineNum">     773 </span><span class="lineCov">         23 :     Reporting_processReportEventsAfterUnlock(self-&gt;mmsMapping);</span>
+<span class="lineNum">     774 </span>            : 
+<span class="lineNum">     775 </span><span class="lineCov">         23 :     self-&gt;mmsMapping-&gt;isModelLocked = false;</span>
+<span class="lineNum">     776 </span>            : 
+<span class="lineNum">     777 </span><span class="lineCov">         23 :     MmsServer_unlockModel(self-&gt;mmsServer);</span>
+<span class="lineNum">     778 </span><span class="lineCov">         23 : }</span>
+<span class="lineNum">     779 </span>            : 
+<a name="780"><span class="lineNum">     780 </span>            : #if (CONFIG_IEC61850_CONTROL_SERVICE == 1)</a>
+<span class="lineNum">     781 </span>            : static ControlObject*
+<span class="lineNum">     782 </span><span class="lineCov">          4 : lookupControlObject(IedServer self, DataObject* node)</span>
+<span class="lineNum">     783 </span>            : {
+<span class="lineNum">     784 </span>            :     char objectReference[130];
+<span class="lineNum">     785 </span>            : 
+<span class="lineNum">     786 </span><span class="lineCov">          4 :     ModelNode_getObjectReference((ModelNode*) node, objectReference);</span>
+<span class="lineNum">     787 </span>            : 
+<span class="lineNum">     788 </span><span class="lineCov">          4 :     char* separator = strchr(objectReference, '/');</span>
+<span class="lineNum">     789 </span>            : 
+<span class="lineNum">     790 </span><span class="lineCov">          4 :     *separator = 0;</span>
+<span class="lineNum">     791 </span>            : 
+<span class="lineNum">     792 </span><span class="lineCov">          4 :     MmsDomain* domain = MmsDevice_getDomain(self-&gt;mmsDevice, objectReference);</span>
+<span class="lineNum">     793 </span>            : 
+<span class="lineNum">     794 </span><span class="lineCov">          4 :     char* lnName = separator + 1;</span>
+<span class="lineNum">     795 </span>            : 
+<span class="lineNum">     796 </span><span class="lineCov">          4 :     separator = strchr(lnName, '.');</span>
+<span class="lineNum">     797 </span>            : 
+<span class="lineNum">     798 </span>            :     assert(separator != NULL);
+<span class="lineNum">     799 </span>            : 
+<span class="lineNum">     800 </span><span class="lineCov">          4 :     *separator = 0;</span>
+<span class="lineNum">     801 </span>            : 
+<span class="lineNum">     802 </span><span class="lineCov">          4 :     char* objectName = separator + 1;</span>
+<span class="lineNum">     803 </span>            : 
+<span class="lineNum">     804 </span><span class="lineCov">          4 :     StringUtils_replace(objectName, '.', '$');</span>
+<span class="lineNum">     805 </span>            : 
+<span class="lineNum">     806 </span>            :     if (DEBUG_IED_SERVER)
+<span class="lineNum">     807 </span>            :         printf(&quot;IED_SERVER: looking for control object: %s\n&quot;, objectName);
+<span class="lineNum">     808 </span>            : 
+<span class="lineNum">     809 </span><span class="lineCov">          4 :     ControlObject* controlObject = MmsMapping_getControlObject(self-&gt;mmsMapping, domain,</span>
+<span class="lineNum">     810 </span>            :             lnName, objectName);
+<span class="lineNum">     811 </span>            : 
+<span class="lineNum">     812 </span><span class="lineCov">          4 :     if (controlObject)</span>
+<span class="lineNum">     813 </span><span class="lineCov">          4 :         controlObject-&gt;dataObject = node;</span>
+<span class="lineNum">     814 </span>            : 
+<span class="lineNum">     815 </span><span class="lineCov">          4 :     return controlObject;</span>
+<span class="lineNum">     816 </span>            : }
+<a name="817"><span class="lineNum">     817 </span>            : </a>
+<span class="lineNum">     818 </span>            : void
+<span class="lineNum">     819 </span><span class="lineCov">          4 : IedServer_setControlHandler(</span>
+<span class="lineNum">     820 </span>            :         IedServer self,
+<span class="lineNum">     821 </span>            :         DataObject* node,
+<span class="lineNum">     822 </span>            :         ControlHandler listener,
+<span class="lineNum">     823 </span>            :         void* parameter)
+<span class="lineNum">     824 </span>            : {
+<span class="lineNum">     825 </span><span class="lineCov">          4 :     ControlObject* controlObject = lookupControlObject(self, node);</span>
+<span class="lineNum">     826 </span>            : 
+<span class="lineNum">     827 </span><span class="lineCov">          4 :     if (controlObject != NULL) {</span>
+<span class="lineNum">     828 </span><span class="lineCov">          4 :         ControlObject_installListener(controlObject, listener, parameter);</span>
+<span class="lineNum">     829 </span>            :         if (DEBUG_IED_SERVER)
+<span class="lineNum">     830 </span>            :             printf(&quot;IED_SERVER: Installed control handler for %s!\n&quot;, node-&gt;name);
+<span class="lineNum">     831 </span>            :     }
+<span class="lineNum">     832 </span>            :     else
+<span class="lineNum">     833 </span>            :         if (DEBUG_IED_SERVER)
+<span class="lineNum">     834 </span>            :             printf(&quot;IED_SERVER: Failed to install control handler!\n&quot;);
+<span class="lineNum">     835 </span><span class="lineCov">          4 : }</span>
+<a name="836"><span class="lineNum">     836 </span>            : </a>
+<span class="lineNum">     837 </span>            : void
+<span class="lineNum">     838 </span><span class="lineNoCov">          0 : IedServer_setPerformCheckHandler(IedServer self, DataObject* node, ControlPerformCheckHandler handler, void* parameter)</span>
+<span class="lineNum">     839 </span>            : {
+<span class="lineNum">     840 </span><span class="lineNoCov">          0 :     ControlObject* controlObject = lookupControlObject(self, node);</span>
+<span class="lineNum">     841 </span>            : 
+<span class="lineNum">     842 </span><span class="lineNoCov">          0 :     if (controlObject != NULL)</span>
+<span class="lineNum">     843 </span><span class="lineNoCov">          0 :         ControlObject_installCheckHandler(controlObject, handler, parameter);</span>
+<span class="lineNum">     844 </span><span class="lineNoCov">          0 : }</span>
+<a name="845"><span class="lineNum">     845 </span>            : </a>
+<span class="lineNum">     846 </span>            : void
+<span class="lineNum">     847 </span><span class="lineNoCov">          0 : IedServer_setWaitForExecutionHandler(IedServer self, DataObject* node, ControlWaitForExecutionHandler handler,</span>
+<span class="lineNum">     848 </span>            :         void* parameter)
+<span class="lineNum">     849 </span>            : {
+<span class="lineNum">     850 </span><span class="lineNoCov">          0 :     ControlObject* controlObject = lookupControlObject(self, node);</span>
+<span class="lineNum">     851 </span>            : 
+<span class="lineNum">     852 </span><span class="lineNoCov">          0 :     if (controlObject != NULL)</span>
+<span class="lineNum">     853 </span><span class="lineNoCov">          0 :         ControlObject_installWaitForExecutionHandler(controlObject, handler, parameter);</span>
+<span class="lineNum">     854 </span><span class="lineNoCov">          0 : }</span>
+<a name="855"><span class="lineNum">     855 </span>            : </a>
+<span class="lineNum">     856 </span>            : void
+<span class="lineNum">     857 </span><span class="lineNoCov">          0 : IedServer_updateCtlModel(IedServer self, DataObject* ctlObject, ControlModel value)</span>
+<span class="lineNum">     858 </span>            : {
+<span class="lineNum">     859 </span><span class="lineNoCov">          0 :     ControlObject* controlObject = lookupControlObject(self, ctlObject);</span>
+<span class="lineNum">     860 </span>            : 
+<span class="lineNum">     861 </span><span class="lineNoCov">          0 :     if (controlObject != NULL)</span>
+<span class="lineNum">     862 </span><span class="lineNoCov">          0 :         ControlObject_updateControlModel(controlObject, value, ctlObject);</span>
+<span class="lineNum">     863 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     864 </span>            : 
+<span class="lineNum">     865 </span>            : #endif /* (CONFIG_IEC61850_CONTROL_SERVICE == 1) */
+<span class="lineNum">     866 </span>            : 
+<span class="lineNum">     867 </span>            : #if (CONFIG_IEC61850_SAMPLED_VALUES_SUPPORT == 1)
+<a name="868"><span class="lineNum">     868 </span>            : </a>
+<span class="lineNum">     869 </span>            : void
+<span class="lineNum">     870 </span><span class="lineNoCov">          0 : IedServer_setSVCBHandler(IedServer self, SVControlBlock* svcb, SVCBEventHandler handler, void* parameter)</span>
+<span class="lineNum">     871 </span>            : {
+<span class="lineNum">     872 </span><span class="lineNoCov">          0 :     LIBIEC61850_SV_setSVCBHandler(self-&gt;mmsMapping, svcb, handler, parameter);</span>
+<span class="lineNum">     873 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     874 </span>            : 
+<span class="lineNum">     875 </span>            : #endif /* (CONFIG_IEC61850_SAMPLED_VALUES_SUPPORT == 1) */
+<a name="876"><span class="lineNum">     876 </span>            : </a>
+<span class="lineNum">     877 </span>            : MmsValue*
+<span class="lineNum">     878 </span><span class="lineNoCov">          0 : IedServer_getAttributeValue(IedServer self, DataAttribute* dataAttribute)</span>
+<span class="lineNum">     879 </span>            : {
+<span class="lineNum">     880 </span><span class="lineNoCov">          0 :     return dataAttribute-&gt;mmsValue;</span>
+<span class="lineNum">     881 </span>            : }
+<a name="882"><span class="lineNum">     882 </span>            : </a>
+<span class="lineNum">     883 </span>            : bool
+<span class="lineNum">     884 </span><span class="lineNoCov">          0 : IedServer_getBooleanAttributeValue(IedServer self, const DataAttribute* dataAttribute)</span>
+<span class="lineNum">     885 </span>            : {
+<span class="lineNum">     886 </span>            :     assert(self != NULL);
+<span class="lineNum">     887 </span>            :     assert(dataAttribute != NULL);
+<span class="lineNum">     888 </span>            :     assert(dataAttribute-&gt;mmsValue != NULL);
+<span class="lineNum">     889 </span>            :     assert(MmsValue_getType(dataAttribute-&gt;mmsValue) == MMS_BOOLEAN);
+<span class="lineNum">     890 </span>            : 
+<span class="lineNum">     891 </span><span class="lineNoCov">          0 :     return MmsValue_getBoolean(dataAttribute-&gt;mmsValue);</span>
+<span class="lineNum">     892 </span>            : }
+<a name="893"><span class="lineNum">     893 </span>            : </a>
+<span class="lineNum">     894 </span>            : int32_t
+<span class="lineNum">     895 </span><span class="lineNoCov">          0 : IedServer_getInt32AttributeValue(IedServer self, const DataAttribute* dataAttribute)</span>
+<span class="lineNum">     896 </span>            : {
+<span class="lineNum">     897 </span>            :     assert(self != NULL);
+<span class="lineNum">     898 </span>            :     assert(dataAttribute != NULL);
+<span class="lineNum">     899 </span>            :     assert(dataAttribute-&gt;mmsValue != NULL);
+<span class="lineNum">     900 </span>            :     assert((MmsValue_getType(dataAttribute-&gt;mmsValue) == MMS_INTEGER) ||
+<span class="lineNum">     901 </span>            :             (MmsValue_getType(dataAttribute-&gt;mmsValue) == MMS_UNSIGNED));
+<span class="lineNum">     902 </span>            : 
+<span class="lineNum">     903 </span><span class="lineNoCov">          0 :     return MmsValue_toInt32(dataAttribute-&gt;mmsValue);</span>
+<span class="lineNum">     904 </span>            : }
+<a name="905"><span class="lineNum">     905 </span>            : </a>
+<span class="lineNum">     906 </span>            : int64_t
+<span class="lineNum">     907 </span><span class="lineNoCov">          0 : IedServer_getInt64AttributeValue(IedServer self, const DataAttribute* dataAttribute)</span>
+<span class="lineNum">     908 </span>            : {
+<span class="lineNum">     909 </span>            :     assert(self != NULL);
+<span class="lineNum">     910 </span>            :     assert(dataAttribute != NULL);
+<span class="lineNum">     911 </span>            :     assert(dataAttribute-&gt;mmsValue != NULL);
+<span class="lineNum">     912 </span>            :     assert((MmsValue_getType(dataAttribute-&gt;mmsValue) == MMS_INTEGER) ||
+<span class="lineNum">     913 </span>            :             (MmsValue_getType(dataAttribute-&gt;mmsValue) == MMS_UNSIGNED));
+<span class="lineNum">     914 </span>            : 
+<span class="lineNum">     915 </span><span class="lineNoCov">          0 :     return MmsValue_toInt64(dataAttribute-&gt;mmsValue);</span>
+<span class="lineNum">     916 </span>            : }
+<a name="917"><span class="lineNum">     917 </span>            : </a>
+<span class="lineNum">     918 </span>            : uint32_t
+<span class="lineNum">     919 </span><span class="lineNoCov">          0 : IedServer_getUInt32AttributeValue(IedServer self, const DataAttribute* dataAttribute)</span>
+<span class="lineNum">     920 </span>            : {
+<span class="lineNum">     921 </span>            :     assert(self != NULL);
+<span class="lineNum">     922 </span>            :     assert(dataAttribute != NULL);
+<span class="lineNum">     923 </span>            :     assert(dataAttribute-&gt;mmsValue != NULL);
+<span class="lineNum">     924 </span>            :     assert((MmsValue_getType(dataAttribute-&gt;mmsValue) == MMS_INTEGER) ||
+<span class="lineNum">     925 </span>            :             (MmsValue_getType(dataAttribute-&gt;mmsValue) == MMS_UNSIGNED));
+<span class="lineNum">     926 </span>            : 
+<span class="lineNum">     927 </span><span class="lineNoCov">          0 :     return MmsValue_toUint32(dataAttribute-&gt;mmsValue);</span>
+<span class="lineNum">     928 </span>            : }
+<a name="929"><span class="lineNum">     929 </span>            : </a>
+<span class="lineNum">     930 </span>            : float
+<span class="lineNum">     931 </span><span class="lineNoCov">          0 : IedServer_getFloatAttributeValue(IedServer self, const DataAttribute* dataAttribute)</span>
+<span class="lineNum">     932 </span>            : {
+<span class="lineNum">     933 </span>            :     assert(self != NULL);
+<span class="lineNum">     934 </span>            :     assert(dataAttribute != NULL);
+<span class="lineNum">     935 </span>            :     assert(dataAttribute-&gt;mmsValue != NULL);
+<span class="lineNum">     936 </span>            :     assert(MmsValue_getType(dataAttribute-&gt;mmsValue) == MMS_FLOAT);
+<span class="lineNum">     937 </span>            : 
+<span class="lineNum">     938 </span><span class="lineNoCov">          0 :     return MmsValue_toFloat(dataAttribute-&gt;mmsValue);</span>
+<span class="lineNum">     939 </span>            : }
+<a name="940"><span class="lineNum">     940 </span>            : </a>
+<span class="lineNum">     941 </span>            : uint64_t
+<span class="lineNum">     942 </span><span class="lineNoCov">          0 : IedServer_getUTCTimeAttributeValue(IedServer self, const DataAttribute* dataAttribute)</span>
+<span class="lineNum">     943 </span>            : {
+<span class="lineNum">     944 </span>            :     assert(self != NULL);
+<span class="lineNum">     945 </span>            :     assert(dataAttribute != NULL);
+<span class="lineNum">     946 </span>            :     assert(dataAttribute-&gt;mmsValue != NULL);
+<span class="lineNum">     947 </span>            :     assert(MmsValue_getType(dataAttribute-&gt;mmsValue) == MMS_UTC_TIME);
+<span class="lineNum">     948 </span>            : 
+<span class="lineNum">     949 </span><span class="lineNoCov">          0 :     return MmsValue_getUtcTimeInMs(dataAttribute-&gt;mmsValue);</span>
+<span class="lineNum">     950 </span>            : }
+<a name="951"><span class="lineNum">     951 </span>            : </a>
+<span class="lineNum">     952 </span>            : uint32_t
+<span class="lineNum">     953 </span><span class="lineNoCov">          0 : IedServer_getBitStringAttributeValue(IedServer self, const DataAttribute* dataAttribute)</span>
+<span class="lineNum">     954 </span>            : {
+<span class="lineNum">     955 </span>            :     assert(self != NULL);
+<span class="lineNum">     956 </span>            :     assert(dataAttribute != NULL);
+<span class="lineNum">     957 </span>            :     assert(dataAttribute-&gt;mmsValue != NULL);
+<span class="lineNum">     958 </span>            :     assert(MmsValue_getType(dataAttribute-&gt;mmsValue) == MMS_BIT_STRING);
+<span class="lineNum">     959 </span>            :     assert(MmsValue_getBitStringSize(dataAttribute-&gt;mmsValue) &lt; 33);
+<span class="lineNum">     960 </span>            : 
+<span class="lineNum">     961 </span><span class="lineNoCov">          0 :     return MmsValue_getBitStringAsInteger(dataAttribute-&gt;mmsValue);</span>
+<span class="lineNum">     962 </span>            : }
+<a name="963"><span class="lineNum">     963 </span>            : </a>
+<span class="lineNum">     964 </span>            : const char*
+<span class="lineNum">     965 </span><span class="lineNoCov">          0 : IedServer_getStringAttributeValue(IedServer self, const DataAttribute* dataAttribute)</span>
+<span class="lineNum">     966 </span>            : {
+<span class="lineNum">     967 </span>            :     assert(self != NULL);
+<span class="lineNum">     968 </span>            :     assert(dataAttribute != NULL);
+<span class="lineNum">     969 </span>            :     assert(dataAttribute-&gt;mmsValue != NULL);
+<span class="lineNum">     970 </span>            :     assert(MmsValue_getType(dataAttribute-&gt;mmsValue) == MMS_VISIBLE_STRING);
+<span class="lineNum">     971 </span>            : 
+<span class="lineNum">     972 </span><span class="lineNoCov">          0 :     return MmsValue_toString(dataAttribute-&gt;mmsValue);</span>
+<span class="lineNum">     973 </span>            : }
+<a name="974"><span class="lineNum">     974 </span>            : </a>
+<span class="lineNum">     975 </span>            : static inline void
+<span class="lineNum">     976 </span><span class="lineNoCov">          0 : checkForUpdateTrigger(IedServer self, DataAttribute* dataAttribute)</span>
+<span class="lineNum">     977 </span>            : {
+<span class="lineNum">     978 </span>            : #if ((CONFIG_IEC61850_REPORT_SERVICE == 1) || (CONFIG_IEC61850_LOG_SERVICE == 1))
+<span class="lineNum">     979 </span><span class="lineNoCov">          0 :     if (dataAttribute-&gt;triggerOptions &amp; TRG_OPT_DATA_UPDATE) {</span>
+<span class="lineNum">     980 </span>            : 
+<span class="lineNum">     981 </span>            : #if (CONFIG_IEC61850_REPORT_SERVICE == 1)
+<span class="lineNum">     982 </span><span class="lineNoCov">          0 :         MmsMapping_triggerReportObservers(self-&gt;mmsMapping, dataAttribute-&gt;mmsValue,</span>
+<span class="lineNum">     983 </span>            :                 REPORT_CONTROL_VALUE_UPDATE);
+<span class="lineNum">     984 </span>            : #endif
+<span class="lineNum">     985 </span>            : 
+<span class="lineNum">     986 </span>            : #if (CONFIG_IEC61850_LOG_SERVICE == 1)
+<span class="lineNum">     987 </span><span class="lineNoCov">          0 :         MmsMapping_triggerLogging(self-&gt;mmsMapping, dataAttribute-&gt;mmsValue,</span>
+<span class="lineNum">     988 </span>            :                 LOG_CONTROL_VALUE_UPDATE);
+<span class="lineNum">     989 </span>            : #endif
+<span class="lineNum">     990 </span>            : 
+<span class="lineNum">     991 </span>            : 
+<span class="lineNum">     992 </span>            :     }
+<span class="lineNum">     993 </span>            : #endif /* ((CONFIG_IEC61850_REPORT_SERVICE == 1) || (CONFIG_IEC61850_LOG_SERVICE == 1)) */
+<span class="lineNum">     994 </span><span class="lineNoCov">          0 : }</span>
+<a name="995"><span class="lineNum">     995 </span>            : </a>
+<span class="lineNum">     996 </span>            : static inline void
+<span class="lineNum">     997 </span><span class="lineCov">        184 : checkForChangedTriggers(IedServer self, DataAttribute* dataAttribute)</span>
+<span class="lineNum">     998 </span>            : {
+<span class="lineNum">     999 </span>            : #if (CONFIG_IEC61850_REPORT_SERVICE == 1) || (CONFIG_INCLUDE_GOOSE_SUPPORT == 1)
+<span class="lineNum">    1000 </span><span class="lineCov">        184 :     if (dataAttribute-&gt;triggerOptions &amp; TRG_OPT_DATA_CHANGED) {</span>
+<span class="lineNum">    1001 </span>            : 
+<span class="lineNum">    1002 </span>            : #if (CONFIG_INCLUDE_GOOSE_SUPPORT == 1)
+<span class="lineNum">    1003 </span><span class="lineCov">         92 :         MmsMapping_triggerGooseObservers(self-&gt;mmsMapping, dataAttribute-&gt;mmsValue);</span>
+<span class="lineNum">    1004 </span>            : #endif
+<span class="lineNum">    1005 </span>            : 
+<span class="lineNum">    1006 </span>            : #if (CONFIG_IEC61850_REPORT_SERVICE == 1)
+<span class="lineNum">    1007 </span><span class="lineCov">         92 :         MmsMapping_triggerReportObservers(self-&gt;mmsMapping, dataAttribute-&gt;mmsValue,</span>
+<span class="lineNum">    1008 </span>            :                 REPORT_CONTROL_VALUE_CHANGED);
+<span class="lineNum">    1009 </span>            : #endif
+<span class="lineNum">    1010 </span>            : 
+<span class="lineNum">    1011 </span>            : #if (CONFIG_IEC61850_LOG_SERVICE == 1)
+<span class="lineNum">    1012 </span><span class="lineCov">         92 :         MmsMapping_triggerLogging(self-&gt;mmsMapping, dataAttribute-&gt;mmsValue,</span>
+<span class="lineNum">    1013 </span>            :                 LOG_CONTROL_VALUE_CHANGED);
+<span class="lineNum">    1014 </span>            : #endif
+<span class="lineNum">    1015 </span>            :     }
+<span class="lineNum">    1016 </span>            : 
+<span class="lineNum">    1017 </span><span class="lineCov">         92 :     else if (dataAttribute-&gt;triggerOptions &amp; TRG_OPT_QUALITY_CHANGED) {</span>
+<span class="lineNum">    1018 </span>            : 
+<span class="lineNum">    1019 </span>            : #if (CONFIG_INCLUDE_GOOSE_SUPPORT == 1)
+<span class="lineNum">    1020 </span><span class="lineNoCov">          0 :         MmsMapping_triggerGooseObservers(self-&gt;mmsMapping, dataAttribute-&gt;mmsValue);</span>
+<span class="lineNum">    1021 </span>            : #endif
+<span class="lineNum">    1022 </span>            : 
+<span class="lineNum">    1023 </span>            : #if (CONFIG_IEC61850_REPORT_SERVICE == 1)
+<span class="lineNum">    1024 </span><span class="lineNoCov">          0 :         MmsMapping_triggerReportObservers(self-&gt;mmsMapping, dataAttribute-&gt;mmsValue,</span>
+<span class="lineNum">    1025 </span>            :                 REPORT_CONTROL_QUALITY_CHANGED);
+<span class="lineNum">    1026 </span>            : #endif
+<span class="lineNum">    1027 </span>            : 
+<span class="lineNum">    1028 </span>            : #if (CONFIG_IEC61850_LOG_SERVICE == 1)
+<span class="lineNum">    1029 </span><span class="lineNoCov">          0 :         MmsMapping_triggerLogging(self-&gt;mmsMapping, dataAttribute-&gt;mmsValue,</span>
+<span class="lineNum">    1030 </span>            :                 LOG_CONTROL_QUALITY_CHANGED);
+<span class="lineNum">    1031 </span>            : #endif
+<span class="lineNum">    1032 </span>            : 
+<span class="lineNum">    1033 </span>            :     }
+<span class="lineNum">    1034 </span>            : #endif /* (CONFIG_IEC61850_REPORT_SERVICE== 1) || (CONFIG_INCLUDE_GOOSE_SUPPORT == 1) */
+<span class="lineNum">    1035 </span>            : 
+<span class="lineNum">    1036 </span>            : 
+<span class="lineNum">    1037 </span><span class="lineCov">        184 : }</span>
+<a name="1038"><span class="lineNum">    1038 </span>            : </a>
+<span class="lineNum">    1039 </span>            : void
+<span class="lineNum">    1040 </span><span class="lineNoCov">          0 : IedServer_updateAttributeValue(IedServer self, DataAttribute* dataAttribute, MmsValue* value)</span>
+<span class="lineNum">    1041 </span>            : {
+<span class="lineNum">    1042 </span>            :     assert(self != NULL);
+<span class="lineNum">    1043 </span>            :     assert(dataAttribute != NULL);
+<span class="lineNum">    1044 </span>            :     assert(MmsValue_getType(dataAttribute-&gt;mmsValue) == MmsValue_getType(value));
+<span class="lineNum">    1045 </span>            : 
+<span class="lineNum">    1046 </span><span class="lineNoCov">          0 :     if (MmsValue_equals(dataAttribute-&gt;mmsValue, value))</span>
+<span class="lineNum">    1047 </span><span class="lineNoCov">          0 :         checkForUpdateTrigger(self, dataAttribute);</span>
+<span class="lineNum">    1048 </span>            :     else {
+<span class="lineNum">    1049 </span>            : 
+<span class="lineNum">    1050 </span><span class="lineNoCov">          0 :         if (dataAttribute-&gt;type == IEC61850_BOOLEAN) {</span>
+<span class="lineNum">    1051 </span>            :             /* Special treatment because of transient option */
+<span class="lineNum">    1052 </span><span class="lineNoCov">          0 :             IedServer_updateBooleanAttributeValue(self, dataAttribute, MmsValue_getBoolean(value));</span>
+<span class="lineNum">    1053 </span>            :         }
+<span class="lineNum">    1054 </span>            :         else {
+<span class="lineNum">    1055 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1056 </span><span class="lineNoCov">          0 :             Semaphore_wait(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1057 </span>            : #endif
+<span class="lineNum">    1058 </span>            : 
+<span class="lineNum">    1059 </span><span class="lineNoCov">          0 :             MmsValue_update(dataAttribute-&gt;mmsValue, value);</span>
+<span class="lineNum">    1060 </span>            : 
+<span class="lineNum">    1061 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1062 </span><span class="lineNoCov">          0 :             Semaphore_post(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1063 </span>            : #endif
+<span class="lineNum">    1064 </span>            : 
+<span class="lineNum">    1065 </span><span class="lineNoCov">          0 :             checkForChangedTriggers(self, dataAttribute);</span>
+<span class="lineNum">    1066 </span>            :         }
+<span class="lineNum">    1067 </span>            :     }
+<span class="lineNum">    1068 </span><span class="lineNoCov">          0 : }</span>
+<a name="1069"><span class="lineNum">    1069 </span>            : </a>
+<span class="lineNum">    1070 </span>            : void
+<span class="lineNum">    1071 </span><span class="lineCov">         92 : IedServer_updateFloatAttributeValue(IedServer self, DataAttribute* dataAttribute, float value)</span>
+<span class="lineNum">    1072 </span>            : {
+<span class="lineNum">    1073 </span>            :     assert(MmsValue_getType(dataAttribute-&gt;mmsValue) == MMS_FLOAT);
+<span class="lineNum">    1074 </span>            :     assert(dataAttribute != NULL);
+<span class="lineNum">    1075 </span>            :     assert(self != NULL);
+<span class="lineNum">    1076 </span>            : 
+<span class="lineNum">    1077 </span><span class="lineCov">         92 :     float currentValue = MmsValue_toFloat(dataAttribute-&gt;mmsValue);</span>
+<span class="lineNum">    1078 </span>            : 
+<span class="lineNum">    1079 </span><span class="lineCov">         92 :     if (currentValue == value) {</span>
+<span class="lineNum">    1080 </span><span class="lineNoCov">          0 :         checkForUpdateTrigger(self, dataAttribute);</span>
+<span class="lineNum">    1081 </span>            :     }
+<span class="lineNum">    1082 </span>            :     else {
+<span class="lineNum">    1083 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1084 </span><span class="lineCov">         92 :         Semaphore_wait(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1085 </span>            : #endif
+<span class="lineNum">    1086 </span><span class="lineCov">         92 :         MmsValue_setFloat(dataAttribute-&gt;mmsValue, value);</span>
+<span class="lineNum">    1087 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1088 </span><span class="lineCov">         92 :         Semaphore_post(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1089 </span>            : #endif
+<span class="lineNum">    1090 </span><span class="lineCov">         92 :         checkForChangedTriggers(self, dataAttribute);</span>
+<span class="lineNum">    1091 </span>            :     }
+<span class="lineNum">    1092 </span><span class="lineCov">         92 : }</span>
+<a name="1093"><span class="lineNum">    1093 </span>            : </a>
+<span class="lineNum">    1094 </span>            : void
+<span class="lineNum">    1095 </span><span class="lineNoCov">          0 : IedServer_updateInt32AttributeValue(IedServer self, DataAttribute* dataAttribute, int32_t value)</span>
+<span class="lineNum">    1096 </span>            : {
+<span class="lineNum">    1097 </span>            :     assert(MmsValue_getType(dataAttribute-&gt;mmsValue) == MMS_INTEGER);
+<span class="lineNum">    1098 </span>            :     assert(dataAttribute != NULL);
+<span class="lineNum">    1099 </span>            :     assert(self != NULL);
+<span class="lineNum">    1100 </span>            : 
+<span class="lineNum">    1101 </span><span class="lineNoCov">          0 :     int32_t currentValue = MmsValue_toInt32(dataAttribute-&gt;mmsValue);</span>
+<span class="lineNum">    1102 </span>            : 
+<span class="lineNum">    1103 </span><span class="lineNoCov">          0 :     if (currentValue == value) {</span>
+<span class="lineNum">    1104 </span><span class="lineNoCov">          0 :         checkForUpdateTrigger(self, dataAttribute);</span>
+<span class="lineNum">    1105 </span>            :     }
+<span class="lineNum">    1106 </span>            :     else {
+<span class="lineNum">    1107 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1108 </span><span class="lineNoCov">          0 :         Semaphore_wait(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1109 </span>            : #endif
+<span class="lineNum">    1110 </span><span class="lineNoCov">          0 :         MmsValue_setInt32(dataAttribute-&gt;mmsValue, value);</span>
+<span class="lineNum">    1111 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1112 </span><span class="lineNoCov">          0 :         Semaphore_post(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1113 </span>            : #endif
+<span class="lineNum">    1114 </span>            : 
+<span class="lineNum">    1115 </span><span class="lineNoCov">          0 :         checkForChangedTriggers(self, dataAttribute);</span>
+<span class="lineNum">    1116 </span>            :     }
+<span class="lineNum">    1117 </span><span class="lineNoCov">          0 : }</span>
+<a name="1118"><span class="lineNum">    1118 </span>            : </a>
+<span class="lineNum">    1119 </span>            : void
+<span class="lineNum">    1120 </span><span class="lineNoCov">          0 : IedServer_updateDbposValue(IedServer self, DataAttribute* dataAttribute, Dbpos value)</span>
+<span class="lineNum">    1121 </span>            : {
+<span class="lineNum">    1122 </span><span class="lineNoCov">          0 :     Dbpos currentValue = Dbpos_fromMmsValue(dataAttribute-&gt;mmsValue);</span>
+<span class="lineNum">    1123 </span>            : 
+<span class="lineNum">    1124 </span><span class="lineNoCov">          0 :     if (currentValue == value) {</span>
+<span class="lineNum">    1125 </span><span class="lineNoCov">          0 :         checkForUpdateTrigger(self, dataAttribute);</span>
+<span class="lineNum">    1126 </span>            :     }
+<span class="lineNum">    1127 </span>            :     else {
+<span class="lineNum">    1128 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1129 </span><span class="lineNoCov">          0 :         Semaphore_wait(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1130 </span>            : #endif
+<span class="lineNum">    1131 </span><span class="lineNoCov">          0 :         Dbpos_toMmsValue(dataAttribute-&gt;mmsValue, value);</span>
+<span class="lineNum">    1132 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1133 </span><span class="lineNoCov">          0 :         Semaphore_post(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1134 </span>            : #endif
+<span class="lineNum">    1135 </span>            : 
+<span class="lineNum">    1136 </span><span class="lineNoCov">          0 :         checkForChangedTriggers(self, dataAttribute);</span>
+<span class="lineNum">    1137 </span>            :     }
+<span class="lineNum">    1138 </span><span class="lineNoCov">          0 : }</span>
+<a name="1139"><span class="lineNum">    1139 </span>            : </a>
+<span class="lineNum">    1140 </span>            : void
+<span class="lineNum">    1141 </span><span class="lineNoCov">          0 : IedServer_updateInt64AttributeValue(IedServer self, DataAttribute* dataAttribute, int64_t value)</span>
+<span class="lineNum">    1142 </span>            : {
+<span class="lineNum">    1143 </span>            :     assert(MmsValue_getType(dataAttribute-&gt;mmsValue) == MMS_INTEGER);
+<span class="lineNum">    1144 </span>            :     assert(dataAttribute != NULL);
+<span class="lineNum">    1145 </span>            :     assert(self != NULL);
+<span class="lineNum">    1146 </span>            : 
+<span class="lineNum">    1147 </span><span class="lineNoCov">          0 :     int64_t currentValue = MmsValue_toInt64(dataAttribute-&gt;mmsValue);</span>
+<span class="lineNum">    1148 </span>            : 
+<span class="lineNum">    1149 </span><span class="lineNoCov">          0 :     if (currentValue == value) {</span>
+<span class="lineNum">    1150 </span><span class="lineNoCov">          0 :         checkForUpdateTrigger(self, dataAttribute);</span>
+<span class="lineNum">    1151 </span>            :     }
+<span class="lineNum">    1152 </span>            :     else {
+<span class="lineNum">    1153 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1154 </span><span class="lineNoCov">          0 :         Semaphore_wait(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1155 </span>            : #endif
+<span class="lineNum">    1156 </span><span class="lineNoCov">          0 :         MmsValue_setInt64(dataAttribute-&gt;mmsValue, value);</span>
+<span class="lineNum">    1157 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1158 </span><span class="lineNoCov">          0 :         Semaphore_post(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1159 </span>            : #endif
+<span class="lineNum">    1160 </span>            : 
+<span class="lineNum">    1161 </span><span class="lineNoCov">          0 :         checkForChangedTriggers(self, dataAttribute);</span>
+<span class="lineNum">    1162 </span>            :     }
+<span class="lineNum">    1163 </span><span class="lineNoCov">          0 : }</span>
+<a name="1164"><span class="lineNum">    1164 </span>            : </a>
+<span class="lineNum">    1165 </span>            : void
+<span class="lineNum">    1166 </span><span class="lineNoCov">          0 : IedServer_updateUnsignedAttributeValue(IedServer self, DataAttribute* dataAttribute, uint32_t value)</span>
+<span class="lineNum">    1167 </span>            : {
+<span class="lineNum">    1168 </span>            :     assert(MmsValue_getType(dataAttribute-&gt;mmsValue) == MMS_UNSIGNED);
+<span class="lineNum">    1169 </span>            :     assert(dataAttribute != NULL);
+<span class="lineNum">    1170 </span>            :     assert(self != NULL);
+<span class="lineNum">    1171 </span>            : 
+<span class="lineNum">    1172 </span><span class="lineNoCov">          0 :     uint32_t currentValue = MmsValue_toUint32(dataAttribute-&gt;mmsValue);</span>
+<span class="lineNum">    1173 </span>            : 
+<span class="lineNum">    1174 </span><span class="lineNoCov">          0 :     if (currentValue == value) {</span>
+<span class="lineNum">    1175 </span><span class="lineNoCov">          0 :         checkForUpdateTrigger(self, dataAttribute);</span>
+<span class="lineNum">    1176 </span>            :     }
+<span class="lineNum">    1177 </span>            :     else {
+<span class="lineNum">    1178 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1179 </span><span class="lineNoCov">          0 :         Semaphore_wait(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1180 </span>            : #endif
+<span class="lineNum">    1181 </span><span class="lineNoCov">          0 :         MmsValue_setUint32(dataAttribute-&gt;mmsValue, value);</span>
+<span class="lineNum">    1182 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1183 </span><span class="lineNoCov">          0 :         Semaphore_post(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1184 </span>            : #endif
+<span class="lineNum">    1185 </span>            : 
+<span class="lineNum">    1186 </span><span class="lineNoCov">          0 :         checkForChangedTriggers(self, dataAttribute);</span>
+<span class="lineNum">    1187 </span>            :     }
+<span class="lineNum">    1188 </span><span class="lineNoCov">          0 : }</span>
+<a name="1189"><span class="lineNum">    1189 </span>            : </a>
+<span class="lineNum">    1190 </span>            : void
+<span class="lineNum">    1191 </span><span class="lineNoCov">          0 : IedServer_updateBitStringAttributeValue(IedServer self, DataAttribute* dataAttribute, uint32_t value)</span>
+<span class="lineNum">    1192 </span>            : {
+<span class="lineNum">    1193 </span>            :     assert(MmsValue_getType(dataAttribute-&gt;mmsValue) == MMS_BIT_STRING);
+<span class="lineNum">    1194 </span>            :     assert(dataAttribute != NULL);
+<span class="lineNum">    1195 </span>            :     assert(self != NULL);
+<span class="lineNum">    1196 </span>            : 
+<span class="lineNum">    1197 </span><span class="lineNoCov">          0 :     uint32_t currentValue = MmsValue_getBitStringAsInteger(dataAttribute-&gt;mmsValue);</span>
+<span class="lineNum">    1198 </span>            : 
+<span class="lineNum">    1199 </span><span class="lineNoCov">          0 :     if (currentValue == value) {</span>
+<span class="lineNum">    1200 </span><span class="lineNoCov">          0 :         checkForUpdateTrigger(self, dataAttribute);</span>
+<span class="lineNum">    1201 </span>            :     }
+<span class="lineNum">    1202 </span>            :     else {
+<span class="lineNum">    1203 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1204 </span><span class="lineNoCov">          0 :         Semaphore_wait(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1205 </span>            : #endif
+<span class="lineNum">    1206 </span><span class="lineNoCov">          0 :         MmsValue_setBitStringFromInteger(dataAttribute-&gt;mmsValue, value);</span>
+<span class="lineNum">    1207 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1208 </span><span class="lineNoCov">          0 :         Semaphore_post(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1209 </span>            : #endif
+<span class="lineNum">    1210 </span>            : 
+<span class="lineNum">    1211 </span><span class="lineNoCov">          0 :         checkForChangedTriggers(self, dataAttribute);</span>
+<span class="lineNum">    1212 </span>            :     }
+<span class="lineNum">    1213 </span><span class="lineNoCov">          0 : }</span>
+<a name="1214"><span class="lineNum">    1214 </span>            : </a>
+<span class="lineNum">    1215 </span>            : void
+<span class="lineNum">    1216 </span><span class="lineNoCov">          0 : IedServer_updateBooleanAttributeValue(IedServer self, DataAttribute* dataAttribute, bool value)</span>
+<span class="lineNum">    1217 </span>            : {
+<span class="lineNum">    1218 </span>            :     assert(self != NULL);
+<span class="lineNum">    1219 </span>            :     assert(dataAttribute != NULL);
+<span class="lineNum">    1220 </span>            :     assert(MmsValue_getType(dataAttribute-&gt;mmsValue) == MMS_BOOLEAN);
+<span class="lineNum">    1221 </span>            : 
+<span class="lineNum">    1222 </span><span class="lineNoCov">          0 :     bool currentValue = MmsValue_getBoolean(dataAttribute-&gt;mmsValue);</span>
+<span class="lineNum">    1223 </span>            : 
+<span class="lineNum">    1224 </span><span class="lineNoCov">          0 :     if (currentValue == value) {</span>
+<span class="lineNum">    1225 </span><span class="lineNoCov">          0 :         checkForUpdateTrigger(self, dataAttribute);</span>
+<span class="lineNum">    1226 </span>            :     }
+<span class="lineNum">    1227 </span>            :     else {
+<span class="lineNum">    1228 </span>            : 
+<span class="lineNum">    1229 </span><span class="lineNoCov">          0 :         bool callCheckTriggers = true;</span>
+<span class="lineNum">    1230 </span>            : 
+<span class="lineNum">    1231 </span><span class="lineNoCov">          0 :         if (dataAttribute-&gt;triggerOptions &amp; TRG_OPT_TRANSIENT) {</span>
+<span class="lineNum">    1232 </span><span class="lineNoCov">          0 :             if (currentValue == true)</span>
+<span class="lineNum">    1233 </span><span class="lineNoCov">          0 :                 callCheckTriggers = false;</span>
+<span class="lineNum">    1234 </span>            :         }
+<span class="lineNum">    1235 </span>            : 
+<span class="lineNum">    1236 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1237 </span><span class="lineNoCov">          0 :         Semaphore_wait(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1238 </span>            : #endif
+<span class="lineNum">    1239 </span><span class="lineNoCov">          0 :         MmsValue_setBoolean(dataAttribute-&gt;mmsValue, value);</span>
+<span class="lineNum">    1240 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1241 </span><span class="lineNoCov">          0 :         Semaphore_post(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1242 </span>            : #endif
+<span class="lineNum">    1243 </span>            : 
+<span class="lineNum">    1244 </span><span class="lineNoCov">          0 :         if (callCheckTriggers)</span>
+<span class="lineNum">    1245 </span><span class="lineNoCov">          0 :             checkForChangedTriggers(self, dataAttribute);</span>
+<span class="lineNum">    1246 </span>            :     }
+<span class="lineNum">    1247 </span><span class="lineNoCov">          0 : }</span>
+<a name="1248"><span class="lineNum">    1248 </span>            : </a>
+<span class="lineNum">    1249 </span>            : void
+<span class="lineNum">    1250 </span><span class="lineNoCov">          0 : IedServer_updateVisibleStringAttributeValue(IedServer self, DataAttribute* dataAttribute, char *value)</span>
+<span class="lineNum">    1251 </span>            : {
+<span class="lineNum">    1252 </span>            :     assert(MmsValue_getType(dataAttribute-&gt;mmsValue) == MMS_VISIBLE_STRING);
+<span class="lineNum">    1253 </span>            :     assert(dataAttribute != NULL);
+<span class="lineNum">    1254 </span>            :     assert(self != NULL);
+<span class="lineNum">    1255 </span>            : 
+<span class="lineNum">    1256 </span><span class="lineNoCov">          0 :     const char *currentValue = MmsValue_toString(dataAttribute-&gt;mmsValue);</span>
+<span class="lineNum">    1257 </span>            : 
+<span class="lineNum">    1258 </span><span class="lineNoCov">          0 :     if (!strcmp(currentValue ,value)) {</span>
+<span class="lineNum">    1259 </span><span class="lineNoCov">          0 :         checkForUpdateTrigger(self, dataAttribute);</span>
+<span class="lineNum">    1260 </span>            :     }
+<span class="lineNum">    1261 </span>            :     else {
+<span class="lineNum">    1262 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1263 </span><span class="lineNoCov">          0 :         Semaphore_wait(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1264 </span>            : #endif
+<span class="lineNum">    1265 </span><span class="lineNoCov">          0 :         MmsValue_setVisibleString(dataAttribute-&gt;mmsValue, value);</span>
+<span class="lineNum">    1266 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1267 </span><span class="lineNoCov">          0 :         Semaphore_post(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1268 </span>            : #endif
+<span class="lineNum">    1269 </span>            : 
+<span class="lineNum">    1270 </span><span class="lineNoCov">          0 :         checkForChangedTriggers(self, dataAttribute);</span>
+<span class="lineNum">    1271 </span>            :     }
+<span class="lineNum">    1272 </span><span class="lineNoCov">          0 : }</span>
+<a name="1273"><span class="lineNum">    1273 </span>            : </a>
+<span class="lineNum">    1274 </span>            : void
+<span class="lineNum">    1275 </span><span class="lineNoCov">          0 : IedServer_updateUTCTimeAttributeValue(IedServer self, DataAttribute* dataAttribute, uint64_t value)</span>
+<span class="lineNum">    1276 </span>            : {
+<span class="lineNum">    1277 </span>            :     assert(MmsValue_getType(dataAttribute-&gt;mmsValue) == MMS_UTC_TIME);
+<span class="lineNum">    1278 </span>            :     assert(dataAttribute != NULL);
+<span class="lineNum">    1279 </span>            :     assert(self != NULL);
+<span class="lineNum">    1280 </span>            : 
+<span class="lineNum">    1281 </span><span class="lineNoCov">          0 :     uint64_t currentValue = MmsValue_getUtcTimeInMs(dataAttribute-&gt;mmsValue);</span>
+<span class="lineNum">    1282 </span>            : 
+<span class="lineNum">    1283 </span><span class="lineNoCov">          0 :     if (currentValue == value) {</span>
+<span class="lineNum">    1284 </span><span class="lineNoCov">          0 :         checkForUpdateTrigger(self, dataAttribute);</span>
+<span class="lineNum">    1285 </span>            :     }
+<span class="lineNum">    1286 </span>            :     else {
+<span class="lineNum">    1287 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1288 </span><span class="lineNoCov">          0 :         Semaphore_wait(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1289 </span>            : #endif
+<span class="lineNum">    1290 </span><span class="lineNoCov">          0 :         MmsValue_setUtcTimeMs(dataAttribute-&gt;mmsValue, value);</span>
+<span class="lineNum">    1291 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1292 </span><span class="lineNoCov">          0 :         Semaphore_post(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1293 </span>            : #endif
+<span class="lineNum">    1294 </span>            : 
+<span class="lineNum">    1295 </span><span class="lineNoCov">          0 :         checkForChangedTriggers(self, dataAttribute);</span>
+<span class="lineNum">    1296 </span>            :     }
+<span class="lineNum">    1297 </span><span class="lineNoCov">          0 : }</span>
+<a name="1298"><span class="lineNum">    1298 </span>            : </a>
+<span class="lineNum">    1299 </span>            : void
+<span class="lineNum">    1300 </span><span class="lineCov">         92 : IedServer_updateTimestampAttributeValue(IedServer self, DataAttribute* dataAttribute, Timestamp* timestamp)</span>
+<span class="lineNum">    1301 </span>            : {
+<span class="lineNum">    1302 </span>            :     assert(MmsValue_getType(dataAttribute-&gt;mmsValue) == MMS_UTC_TIME);
+<span class="lineNum">    1303 </span>            :     assert(dataAttribute != NULL);
+<span class="lineNum">    1304 </span>            :     assert(self != NULL);
+<span class="lineNum">    1305 </span>            : 
+<span class="lineNum">    1306 </span><span class="lineCov">         92 :     if (memcmp(dataAttribute-&gt;mmsValue-&gt;value.utcTime, timestamp-&gt;val, 8) == 0) {</span>
+<span class="lineNum">    1307 </span><span class="lineNoCov">          0 :         checkForUpdateTrigger(self, dataAttribute);</span>
+<span class="lineNum">    1308 </span>            :     }
+<span class="lineNum">    1309 </span>            :     else {
+<span class="lineNum">    1310 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1311 </span><span class="lineCov">         92 :         Semaphore_wait(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1312 </span>            : #endif
+<span class="lineNum">    1313 </span><span class="lineCov">         92 :         MmsValue_setUtcTimeByBuffer(dataAttribute-&gt;mmsValue, timestamp-&gt;val);</span>
+<span class="lineNum">    1314 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1315 </span><span class="lineCov">         92 :         Semaphore_post(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1316 </span>            : #endif
+<span class="lineNum">    1317 </span>            : 
+<span class="lineNum">    1318 </span><span class="lineCov">         92 :         checkForChangedTriggers(self, dataAttribute);</span>
+<span class="lineNum">    1319 </span>            :     }
+<span class="lineNum">    1320 </span><span class="lineCov">         92 : }</span>
+<a name="1321"><span class="lineNum">    1321 </span>            : </a>
+<span class="lineNum">    1322 </span>            : void
+<span class="lineNum">    1323 </span><span class="lineNoCov">          0 : IedServer_updateQuality(IedServer self, DataAttribute* dataAttribute, Quality quality)</span>
+<span class="lineNum">    1324 </span>            : {
+<span class="lineNum">    1325 </span>            :     assert(strcmp(dataAttribute-&gt;name, &quot;q&quot;) == 0);
+<span class="lineNum">    1326 </span>            :     assert(MmsValue_getType(dataAttribute-&gt;mmsValue) == MMS_BIT_STRING);
+<span class="lineNum">    1327 </span>            :     assert(MmsValue_getBitStringSize(dataAttribute-&gt;mmsValue) &gt;= 12);
+<span class="lineNum">    1328 </span>            :     assert(MmsValue_getBitStringSize(dataAttribute-&gt;mmsValue) &lt;= 15);
+<span class="lineNum">    1329 </span>            : 
+<span class="lineNum">    1330 </span><span class="lineNoCov">          0 :     uint32_t oldQuality = MmsValue_getBitStringAsInteger(dataAttribute-&gt;mmsValue);</span>
+<span class="lineNum">    1331 </span>            : 
+<span class="lineNum">    1332 </span><span class="lineNoCov">          0 :     if (oldQuality != (uint32_t) quality) {</span>
+<span class="lineNum">    1333 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1334 </span><span class="lineNoCov">          0 :         Semaphore_wait(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1335 </span>            : #endif
+<span class="lineNum">    1336 </span><span class="lineNoCov">          0 :         MmsValue_setBitStringFromInteger(dataAttribute-&gt;mmsValue, (uint32_t) quality);</span>
+<span class="lineNum">    1337 </span>            : 
+<span class="lineNum">    1338 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1339 </span><span class="lineNoCov">          0 :         Semaphore_post(self-&gt;dataModelLock);</span>
+<span class="lineNum">    1340 </span>            : #endif
+<span class="lineNum">    1341 </span>            : 
+<span class="lineNum">    1342 </span>            : #if (CONFIG_INCLUDE_GOOSE_SUPPORT == 1)
+<span class="lineNum">    1343 </span><span class="lineNoCov">          0 :         MmsMapping_triggerGooseObservers(self-&gt;mmsMapping, dataAttribute-&gt;mmsValue);</span>
+<span class="lineNum">    1344 </span>            : #endif
+<span class="lineNum">    1345 </span>            : 
+<span class="lineNum">    1346 </span>            : #if (CONFIG_IEC61850_REPORT_SERVICE == 1)
+<span class="lineNum">    1347 </span><span class="lineNoCov">          0 :         if (dataAttribute-&gt;triggerOptions &amp; TRG_OPT_QUALITY_CHANGED)</span>
+<span class="lineNum">    1348 </span><span class="lineNoCov">          0 :             MmsMapping_triggerReportObservers(self-&gt;mmsMapping, dataAttribute-&gt;mmsValue,</span>
+<span class="lineNum">    1349 </span>            :                                 REPORT_CONTROL_QUALITY_CHANGED);
+<span class="lineNum">    1350 </span>            : #endif
+<span class="lineNum">    1351 </span>            : 
+<span class="lineNum">    1352 </span>            : #if (CONFIG_IEC61850_LOG_SERVICE == 1)
+<span class="lineNum">    1353 </span><span class="lineNoCov">          0 :         if (dataAttribute-&gt;triggerOptions &amp; TRG_OPT_QUALITY_CHANGED)</span>
+<span class="lineNum">    1354 </span><span class="lineNoCov">          0 :             MmsMapping_triggerLogging(self-&gt;mmsMapping, dataAttribute-&gt;mmsValue,</span>
+<span class="lineNum">    1355 </span>            :                     LOG_CONTROL_QUALITY_CHANGED);
+<span class="lineNum">    1356 </span>            : #endif
+<span class="lineNum">    1357 </span>            : 
+<span class="lineNum">    1358 </span>            :     }
+<span class="lineNum">    1359 </span>            : 
+<span class="lineNum">    1360 </span>            : 
+<span class="lineNum">    1361 </span><span class="lineNoCov">          0 : }</span>
+<a name="1362"><span class="lineNum">    1362 </span>            : </a>
+<span class="lineNum">    1363 </span>            : void
+<span class="lineNum">    1364 </span><span class="lineNoCov">          0 : IedServer_useGooseVlanTag(IedServer self, LogicalNode* ln, const char* gcbName, bool useVlanTag)</span>
+<span class="lineNum">    1365 </span>            : {
+<span class="lineNum">    1366 </span>            : #if (CONFIG_INCLUDE_GOOSE_SUPPORT == 1)
+<span class="lineNum">    1367 </span><span class="lineNoCov">          0 :     MmsMapping_useGooseVlanTag(self-&gt;mmsMapping, ln, gcbName, useVlanTag);</span>
+<span class="lineNum">    1368 </span>            : #endif /* (CONFIG_INCLUDE_GOOSE_SUPPORT == 1) */
+<span class="lineNum">    1369 </span><span class="lineNoCov">          0 : }</span>
+<a name="1370"><span class="lineNum">    1370 </span>            : </a>
+<span class="lineNum">    1371 </span>            : void
+<span class="lineNum">    1372 </span><span class="lineNoCov">          0 : IedServer_setGooseInterfaceIdEx(IedServer self, LogicalNode* ln, const char* gcbName, const char* interfaceId)</span>
+<span class="lineNum">    1373 </span>            : {
+<span class="lineNum">    1374 </span>            : #if (CONFIG_INCLUDE_GOOSE_SUPPORT == 1)
+<span class="lineNum">    1375 </span><span class="lineNoCov">          0 :     MmsMapping_setGooseInterfaceId(self-&gt;mmsMapping, ln, gcbName, interfaceId);</span>
+<span class="lineNum">    1376 </span>            : #endif /* (CONFIG_INCLUDE_GOOSE_SUPPORT == 1) */
+<span class="lineNum">    1377 </span><span class="lineNoCov">          0 : }</span>
+<a name="1378"><span class="lineNum">    1378 </span>            : </a>
+<span class="lineNum">    1379 </span>            : void
+<span class="lineNum">    1380 </span><span class="lineNoCov">          0 : IedServer_enableGoosePublishing(IedServer self)</span>
+<span class="lineNum">    1381 </span>            : {
+<span class="lineNum">    1382 </span>            : #if (CONFIG_INCLUDE_GOOSE_SUPPORT == 1)
+<span class="lineNum">    1383 </span><span class="lineNoCov">          0 :     MmsMapping_enableGoosePublishing(self-&gt;mmsMapping);</span>
+<span class="lineNum">    1384 </span>            : #endif /* (CONFIG_INCLUDE_GOOSE_SUPPORT == 1) */
+<span class="lineNum">    1385 </span><span class="lineNoCov">          0 : }</span>
+<a name="1386"><span class="lineNum">    1386 </span>            : </a>
+<span class="lineNum">    1387 </span>            : void
+<span class="lineNum">    1388 </span><span class="lineNoCov">          0 : IedServer_disableGoosePublishing(IedServer self)</span>
+<span class="lineNum">    1389 </span>            : {
+<span class="lineNum">    1390 </span>            : #if (CONFIG_INCLUDE_GOOSE_SUPPORT == 1)
+<span class="lineNum">    1391 </span><span class="lineNoCov">          0 :     MmsMapping_disableGoosePublishing(self-&gt;mmsMapping);</span>
+<span class="lineNum">    1392 </span>            : #endif /* (CONFIG_INCLUDE_GOOSE_SUPPORT == 1) */
+<span class="lineNum">    1393 </span><span class="lineNoCov">          0 : }</span>
+<a name="1394"><span class="lineNum">    1394 </span>            : </a>
+<span class="lineNum">    1395 </span>            : void
+<span class="lineNum">    1396 </span><span class="lineNoCov">          0 : IedServer_setWriteAccessPolicy(IedServer self, FunctionalConstraint fc, AccessPolicy policy)</span>
+<span class="lineNum">    1397 </span>            : {
+<span class="lineNum">    1398 </span><span class="lineNoCov">          0 :     if (policy == ACCESS_POLICY_ALLOW) {</span>
+<span class="lineNum">    1399 </span><span class="lineNoCov">          0 :         switch (fc) {</span>
+<span class="lineNum">    1400 </span>            :         case IEC61850_FC_DC:
+<span class="lineNum">    1401 </span><span class="lineNoCov">          0 :             self-&gt;writeAccessPolicies |= ALLOW_WRITE_ACCESS_DC;</span>
+<span class="lineNum">    1402 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1403 </span>            :         case IEC61850_FC_CF:
+<span class="lineNum">    1404 </span><span class="lineNoCov">          0 :             self-&gt;writeAccessPolicies |= ALLOW_WRITE_ACCESS_CF;</span>
+<span class="lineNum">    1405 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1406 </span>            :         case IEC61850_FC_SP:
+<span class="lineNum">    1407 </span><span class="lineNoCov">          0 :             self-&gt;writeAccessPolicies |= ALLOW_WRITE_ACCESS_SP;</span>
+<span class="lineNum">    1408 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1409 </span>            :         case IEC61850_FC_SV:
+<span class="lineNum">    1410 </span><span class="lineNoCov">          0 :             self-&gt;writeAccessPolicies |= ALLOW_WRITE_ACCESS_SV;</span>
+<span class="lineNum">    1411 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1412 </span>            :         case IEC61850_FC_SE:
+<span class="lineNum">    1413 </span><span class="lineNoCov">          0 :             self-&gt;writeAccessPolicies |= ALLOW_WRITE_ACCESS_SE;</span>
+<span class="lineNum">    1414 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1415 </span>            :         default: /* ignore - request is invalid */
+<span class="lineNum">    1416 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1417 </span>            :         }
+<span class="lineNum">    1418 </span>            :     }
+<span class="lineNum">    1419 </span>            :     else {
+<span class="lineNum">    1420 </span><span class="lineNoCov">          0 :         switch (fc) {</span>
+<span class="lineNum">    1421 </span>            :         case IEC61850_FC_DC:
+<span class="lineNum">    1422 </span><span class="lineNoCov">          0 :             self-&gt;writeAccessPolicies &amp;= ~ALLOW_WRITE_ACCESS_DC;</span>
+<span class="lineNum">    1423 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1424 </span>            :         case IEC61850_FC_CF:
+<span class="lineNum">    1425 </span><span class="lineNoCov">          0 :             self-&gt;writeAccessPolicies &amp;= ~ALLOW_WRITE_ACCESS_CF;</span>
+<span class="lineNum">    1426 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1427 </span>            :         case IEC61850_FC_SP:
+<span class="lineNum">    1428 </span><span class="lineNoCov">          0 :             self-&gt;writeAccessPolicies &amp;= ~ALLOW_WRITE_ACCESS_SP;</span>
+<span class="lineNum">    1429 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1430 </span>            :         case IEC61850_FC_SV:
+<span class="lineNum">    1431 </span><span class="lineNoCov">          0 :             self-&gt;writeAccessPolicies &amp;= ~ALLOW_WRITE_ACCESS_SV;</span>
+<span class="lineNum">    1432 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1433 </span>            :         case IEC61850_FC_SE:
+<span class="lineNum">    1434 </span><span class="lineNoCov">          0 :             self-&gt;writeAccessPolicies &amp;= ~ALLOW_WRITE_ACCESS_SE;</span>
+<span class="lineNum">    1435 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1436 </span>            :         default: /* ignore - request is invalid */
+<span class="lineNum">    1437 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1438 </span>            :         }
+<span class="lineNum">    1439 </span>            :     }
+<span class="lineNum">    1440 </span><span class="lineNoCov">          0 : }</span>
+<a name="1441"><span class="lineNum">    1441 </span>            : </a>
+<span class="lineNum">    1442 </span>            : void
+<span class="lineNum">    1443 </span><span class="lineNoCov">          0 : IedServer_handleWriteAccess(IedServer self, DataAttribute* dataAttribute, WriteAccessHandler handler, void* parameter)</span>
+<span class="lineNum">    1444 </span>            : {
+<span class="lineNum">    1445 </span><span class="lineNoCov">          0 :     if (dataAttribute == NULL) {</span>
+<span class="lineNum">    1446 </span>            :         if (DEBUG_IED_SERVER)
+<span class="lineNum">    1447 </span>            :             printf(&quot;IED_SERVER: IedServer_handleWriteAccess - dataAttribute == NULL!\n&quot;);
+<span class="lineNum">    1448 </span>            :     }
+<span class="lineNum">    1449 </span>            :     else {
+<span class="lineNum">    1450 </span><span class="lineNoCov">          0 :         MmsMapping_installWriteAccessHandler(self-&gt;mmsMapping, dataAttribute, handler, parameter);</span>
+<span class="lineNum">    1451 </span>            :     }
+<span class="lineNum">    1452 </span><span class="lineNoCov">          0 : }</span>
+<a name="1453"><span class="lineNum">    1453 </span>            : </a>
+<span class="lineNum">    1454 </span>            : void
+<span class="lineNum">    1455 </span><span class="lineNoCov">          0 : IedServer_setReadAccessHandler(IedServer self, ReadAccessHandler handler, void* parameter)</span>
+<span class="lineNum">    1456 </span>            : {
+<span class="lineNum">    1457 </span><span class="lineNoCov">          0 :     MmsMapping_installReadAccessHandler(self-&gt;mmsMapping, handler, parameter);</span>
+<span class="lineNum">    1458 </span><span class="lineNoCov">          0 : }</span>
+<a name="1459"><span class="lineNum">    1459 </span>            : </a>
+<span class="lineNum">    1460 </span>            : void
+<span class="lineNum">    1461 </span><span class="lineCov">          1 : IedServer_setConnectionIndicationHandler(IedServer self, IedConnectionIndicationHandler handler, void* parameter)</span>
+<span class="lineNum">    1462 </span>            : {
+<span class="lineNum">    1463 </span><span class="lineCov">          1 :     MmsMapping_setConnectionIndicationHandler(self-&gt;mmsMapping, handler, parameter);</span>
+<span class="lineNum">    1464 </span><span class="lineCov">          1 : }</span>
+<a name="1465"><span class="lineNum">    1465 </span>            : </a>
+<span class="lineNum">    1466 </span>            : MmsValue*
+<span class="lineNum">    1467 </span><span class="lineNoCov">          0 : IedServer_getFunctionalConstrainedData(IedServer self, DataObject* dataObject, FunctionalConstraint fc)</span>
+<span class="lineNum">    1468 </span>            : {
+<span class="lineNum">    1469 </span>            :     char buffer[128]; /* buffer for variable name string */
+<span class="lineNum">    1470 </span><span class="lineNoCov">          0 :     char* currentStart = buffer + 127;</span>
+<span class="lineNum">    1471 </span><span class="lineNoCov">          0 :     currentStart[0] = 0;</span>
+<span class="lineNum">    1472 </span><span class="lineNoCov">          0 :     MmsValue* value = NULL;</span>
+<span class="lineNum">    1473 </span>            : 
+<span class="lineNum">    1474 </span>            :     int nameLen;
+<span class="lineNum">    1475 </span>            : 
+<span class="lineNum">    1476 </span><span class="lineNoCov">          0 :     while (dataObject-&gt;modelType == DataObjectModelType) {</span>
+<span class="lineNum">    1477 </span><span class="lineNoCov">          0 :         nameLen = strlen(dataObject-&gt;name);</span>
+<span class="lineNum">    1478 </span><span class="lineNoCov">          0 :         currentStart -= nameLen;</span>
+<span class="lineNum">    1479 </span><span class="lineNoCov">          0 :         memcpy(currentStart, dataObject-&gt;name, nameLen);</span>
+<span class="lineNum">    1480 </span><span class="lineNoCov">          0 :         currentStart--;</span>
+<span class="lineNum">    1481 </span><span class="lineNoCov">          0 :         *currentStart = '$';</span>
+<span class="lineNum">    1482 </span>            : 
+<span class="lineNum">    1483 </span><span class="lineNoCov">          0 :         if (dataObject-&gt;parent-&gt;modelType == DataObjectModelType)</span>
+<span class="lineNum">    1484 </span><span class="lineNoCov">          0 :             dataObject = (DataObject*) dataObject-&gt;parent;</span>
+<span class="lineNum">    1485 </span>            :         else
+<span class="lineNum">    1486 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1487 </span>            :     }
+<span class="lineNum">    1488 </span>            : 
+<span class="lineNum">    1489 </span><span class="lineNoCov">          0 :     char* fcString = FunctionalConstraint_toString(fc);</span>
+<span class="lineNum">    1490 </span>            : 
+<span class="lineNum">    1491 </span><span class="lineNoCov">          0 :     currentStart--;</span>
+<span class="lineNum">    1492 </span><span class="lineNoCov">          0 :     *currentStart = fcString[1];</span>
+<span class="lineNum">    1493 </span><span class="lineNoCov">          0 :     currentStart--;</span>
+<span class="lineNum">    1494 </span><span class="lineNoCov">          0 :     *currentStart = fcString[0];</span>
+<span class="lineNum">    1495 </span><span class="lineNoCov">          0 :     currentStart--;</span>
+<span class="lineNum">    1496 </span><span class="lineNoCov">          0 :     *currentStart = '$';</span>
+<span class="lineNum">    1497 </span>            : 
+<span class="lineNum">    1498 </span><span class="lineNoCov">          0 :     LogicalNode* ln = (LogicalNode*) dataObject-&gt;parent;</span>
+<span class="lineNum">    1499 </span>            : 
+<span class="lineNum">    1500 </span><span class="lineNoCov">          0 :     nameLen = strlen(ln-&gt;name);</span>
+<span class="lineNum">    1501 </span>            : 
+<span class="lineNum">    1502 </span><span class="lineNoCov">          0 :     currentStart -= nameLen;</span>
+<span class="lineNum">    1503 </span><span class="lineNoCov">          0 :     memcpy(currentStart, ln-&gt;name, nameLen);</span>
+<span class="lineNum">    1504 </span>            : 
+<span class="lineNum">    1505 </span><span class="lineNoCov">          0 :     LogicalDevice* ld = (LogicalDevice*) ln-&gt;parent;</span>
+<span class="lineNum">    1506 </span>            : 
+<span class="lineNum">    1507 </span>            :     char domainName[65];
+<span class="lineNum">    1508 </span>            : 
+<span class="lineNum">    1509 </span><span class="lineNoCov">          0 :     if ((strlen(self-&gt;model-&gt;name) + strlen(ld-&gt;name)) &gt; 64) {</span>
+<span class="lineNum">    1510 </span>            : 
+<span class="lineNum">    1511 </span>            :         if (DEBUG_IED_SERVER)
+<span class="lineNum">    1512 </span>            :             printf(&quot;IED_SERVER: LD name too long!\n&quot;);
+<span class="lineNum">    1513 </span>            : 
+<span class="lineNum">    1514 </span><span class="lineNoCov">          0 :         goto exit_function;</span>
+<span class="lineNum">    1515 </span>            :     }
+<span class="lineNum">    1516 </span>            : 
+<span class="lineNum">    1517 </span><span class="lineNoCov">          0 :     strncpy(domainName, self-&gt;model-&gt;name, 64);</span>
+<span class="lineNum">    1518 </span><span class="lineNoCov">          0 :     strncat(domainName, ld-&gt;name, 64);</span>
+<span class="lineNum">    1519 </span>            : 
+<span class="lineNum">    1520 </span><span class="lineNoCov">          0 :     MmsDomain* domain = MmsDevice_getDomain(self-&gt;mmsDevice, domainName);</span>
+<span class="lineNum">    1521 </span>            : 
+<span class="lineNum">    1522 </span><span class="lineNoCov">          0 :     if (domain == NULL) {</span>
+<span class="lineNum">    1523 </span>            : 
+<span class="lineNum">    1524 </span>            :         if (DEBUG_IED_SERVER)
+<span class="lineNum">    1525 </span>            :             printf(&quot;IED_SERVER: internal error - domain does not exist!\n&quot;);
+<span class="lineNum">    1526 </span>            : 
+<span class="lineNum">    1527 </span><span class="lineNoCov">          0 :         goto exit_function;</span>
+<span class="lineNum">    1528 </span>            :     }
+<span class="lineNum">    1529 </span>            : 
+<span class="lineNum">    1530 </span><span class="lineNoCov">          0 :     value = MmsServer_getValueFromCache(self-&gt;mmsServer, domain, currentStart);</span>
+<span class="lineNum">    1531 </span>            : 
+<span class="lineNum">    1532 </span>            : exit_function:
+<span class="lineNum">    1533 </span><span class="lineNoCov">          0 :     return value;</span>
+<span class="lineNum">    1534 </span>            : }
+<a name="1535"><span class="lineNum">    1535 </span>            : </a>
+<span class="lineNum">    1536 </span>            : void
+<span class="lineNum">    1537 </span><span class="lineNoCov">          0 : IedServer_changeActiveSettingGroup(IedServer self, SettingGroupControlBlock* sgcb, uint8_t newActiveSg)</span>
+<span class="lineNum">    1538 </span>            : {
+<span class="lineNum">    1539 </span>            : #if (CONFIG_IEC61850_SETTING_GROUPS == 1)
+<span class="lineNum">    1540 </span><span class="lineNoCov">          0 :     MmsMapping_changeActiveSettingGroup(self-&gt;mmsMapping, sgcb, newActiveSg);</span>
+<span class="lineNum">    1541 </span>            : #endif
+<span class="lineNum">    1542 </span><span class="lineNoCov">          0 : }</span>
+<a name="1543"><span class="lineNum">    1543 </span>            : </a>
+<span class="lineNum">    1544 </span>            : uint8_t
+<span class="lineNum">    1545 </span><span class="lineNoCov">          0 : IedServer_getActiveSettingGroup(IedServer self, SettingGroupControlBlock* sgcb)</span>
+<span class="lineNum">    1546 </span>            : {
+<span class="lineNum">    1547 </span><span class="lineNoCov">          0 :     return sgcb-&gt;actSG;</span>
+<span class="lineNum">    1548 </span>            : }
+<a name="1549"><span class="lineNum">    1549 </span>            : </a>
+<span class="lineNum">    1550 </span>            : void
+<span class="lineNum">    1551 </span><span class="lineNoCov">          0 : IedServer_setActiveSettingGroupChangedHandler(IedServer self, SettingGroupControlBlock* sgcb,</span>
+<span class="lineNum">    1552 </span>            :         ActiveSettingGroupChangedHandler handler, void* parameter)
+<span class="lineNum">    1553 </span>            : {
+<span class="lineNum">    1554 </span>            : #if (CONFIG_IEC61850_SETTING_GROUPS == 1)
+<span class="lineNum">    1555 </span><span class="lineNoCov">          0 :     MmsMapping_setSgChangedHandler(self-&gt;mmsMapping, sgcb, handler, parameter);</span>
+<span class="lineNum">    1556 </span>            : #endif
+<span class="lineNum">    1557 </span><span class="lineNoCov">          0 : }</span>
+<a name="1558"><span class="lineNum">    1558 </span>            : </a>
+<span class="lineNum">    1559 </span>            : void
+<span class="lineNum">    1560 </span><span class="lineNoCov">          0 : IedServer_setEditSettingGroupChangedHandler(IedServer self, SettingGroupControlBlock* sgcb,</span>
+<span class="lineNum">    1561 </span>            :         EditSettingGroupChangedHandler handler, void* parameter)
+<span class="lineNum">    1562 </span>            : {
+<span class="lineNum">    1563 </span>            : #if (CONFIG_IEC61850_SETTING_GROUPS == 1)
+<span class="lineNum">    1564 </span><span class="lineNoCov">          0 :     MmsMapping_setEditSgChangedHandler(self-&gt;mmsMapping, sgcb, handler, parameter);</span>
+<span class="lineNum">    1565 </span>            : #endif
+<span class="lineNum">    1566 </span><span class="lineNoCov">          0 : }</span>
+<a name="1567"><span class="lineNum">    1567 </span>            : </a>
+<span class="lineNum">    1568 </span>            : void
+<span class="lineNum">    1569 </span><span class="lineNoCov">          0 : IedServer_setEditSettingGroupConfirmationHandler(IedServer self, SettingGroupControlBlock* sgcb,</span>
+<span class="lineNum">    1570 </span>            :         EditSettingGroupConfirmationHandler handler, void* parameter)
+<span class="lineNum">    1571 </span>            : {
+<span class="lineNum">    1572 </span>            : #if (CONFIG_IEC61850_SETTING_GROUPS == 1)
+<span class="lineNum">    1573 </span><span class="lineNoCov">          0 :     MmsMapping_setConfirmEditSgHandler(self-&gt;mmsMapping, sgcb, handler, parameter);</span>
+<span class="lineNum">    1574 </span>            : #endif
+<span class="lineNum">    1575 </span><span class="lineNoCov">          0 : }</span>
+<a name="1576"><span class="lineNum">    1576 </span>            : </a>
+<span class="lineNum">    1577 </span>            : void
+<span class="lineNum">    1578 </span><span class="lineNoCov">          0 : IedServer_setLogStorage(IedServer self, const char* logRef, LogStorage logStorage)</span>
+<span class="lineNum">    1579 </span>            : {
+<span class="lineNum">    1580 </span>            : #if (CONFIG_IEC61850_LOG_SERVICE == 1)
+<span class="lineNum">    1581 </span><span class="lineNoCov">          0 :     MmsMapping_setLogStorage(self-&gt;mmsMapping, logRef, logStorage);</span>
+<span class="lineNum">    1582 </span>            : #endif
+<span class="lineNum">    1583 </span><span class="lineNoCov">          0 : }</span>
+<a name="1584"><span class="lineNum">    1584 </span>            : </a>
+<span class="lineNum">    1585 </span>            : void
+<span class="lineNum">    1586 </span><span class="lineCov">          1 : IedServer_setServerIdentity(IedServer self, const char* vendor, const char* model, const char* revision)</span>
+<span class="lineNum">    1587 </span>            : {
+<span class="lineNum">    1588 </span>            : #if (CONFIG_IEC61850_SUPPORT_SERVER_IDENTITY == 1)
+<span class="lineNum">    1589 </span>            : 
+<span class="lineNum">    1590 </span><span class="lineCov">          1 :     if (self-&gt;vendorName)</span>
+<span class="lineNum">    1591 </span><span class="lineNoCov">          0 :         GLOBAL_FREEMEM(self-&gt;vendorName);</span>
+<span class="lineNum">    1592 </span>            : 
+<span class="lineNum">    1593 </span><span class="lineCov">          1 :     if (self-&gt;modelName)</span>
+<span class="lineNum">    1594 </span><span class="lineNoCov">          0 :         GLOBAL_FREEMEM(self-&gt;modelName);</span>
+<span class="lineNum">    1595 </span>            : 
+<span class="lineNum">    1596 </span><span class="lineCov">          1 :     if (self-&gt;revision)</span>
+<span class="lineNum">    1597 </span><span class="lineNoCov">          0 :         GLOBAL_FREEMEM(self-&gt;revision);</span>
+<span class="lineNum">    1598 </span>            : 
+<span class="lineNum">    1599 </span><span class="lineCov">          1 :     self-&gt;vendorName = StringUtils_copyString(vendor);</span>
+<span class="lineNum">    1600 </span><span class="lineCov">          1 :     self-&gt;modelName = StringUtils_copyString(model);</span>
+<span class="lineNum">    1601 </span><span class="lineCov">          1 :     self-&gt;revision = StringUtils_copyString(revision);</span>
+<span class="lineNum">    1602 </span>            : 
+<span class="lineNum">    1603 </span><span class="lineCov">          1 :     MmsServer_setServerIdentity(self-&gt;mmsServer, self-&gt;vendorName, self-&gt;modelName, self-&gt;revision);</span>
+<span class="lineNum">    1604 </span>            : #endif
+<span class="lineNum">    1605 </span><span class="lineCov">          1 : }</span>
+<a name="1606"><span class="lineNum">    1606 </span>            : </a>
+<span class="lineNum">    1607 </span>            : ClientConnection
+<span class="lineNum">    1608 </span><span class="lineNoCov">          0 : private_IedServer_getClientConnectionByHandle(IedServer self, void* serverConnectionHandle)</span>
+<span class="lineNum">    1609 </span>            : {
+<span class="lineNum">    1610 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1611 </span><span class="lineNoCov">          0 :     Semaphore_wait(self-&gt;clientConnectionsLock);</span>
+<span class="lineNum">    1612 </span>            : #endif
+<span class="lineNum">    1613 </span>            : 
+<span class="lineNum">    1614 </span><span class="lineNoCov">          0 :     LinkedList element = LinkedList_getNext(self-&gt;clientConnections);</span>
+<span class="lineNum">    1615 </span><span class="lineNoCov">          0 :     ClientConnection matchingConnection = NULL;</span>
+<span class="lineNum">    1616 </span>            : 
+<span class="lineNum">    1617 </span><span class="lineNoCov">          0 :     while (element != NULL) {</span>
+<span class="lineNum">    1618 </span><span class="lineNoCov">          0 :         ClientConnection connection = (ClientConnection) element-&gt;data;</span>
+<span class="lineNum">    1619 </span>            : 
+<span class="lineNum">    1620 </span><span class="lineNoCov">          0 :         if (private_ClientConnection_getServerConnectionHandle(connection) == serverConnectionHandle) {</span>
+<span class="lineNum">    1621 </span><span class="lineNoCov">          0 :             matchingConnection = connection;</span>
+<span class="lineNum">    1622 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1623 </span>            :         }
+<span class="lineNum">    1624 </span>            : 
+<span class="lineNum">    1625 </span><span class="lineNoCov">          0 :         element = LinkedList_getNext(element);</span>
+<span class="lineNum">    1626 </span>            :     }
+<span class="lineNum">    1627 </span>            : 
+<span class="lineNum">    1628 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1629 </span><span class="lineNoCov">          0 :     Semaphore_post(self-&gt;clientConnectionsLock);</span>
+<span class="lineNum">    1630 </span>            : #endif
+<span class="lineNum">    1631 </span>            : 
+<span class="lineNum">    1632 </span><span class="lineNoCov">          0 :     return matchingConnection;</span>
+<span class="lineNum">    1633 </span>            : }
+<a name="1634"><span class="lineNum">    1634 </span>            : </a>
+<span class="lineNum">    1635 </span>            : void
+<span class="lineNum">    1636 </span><span class="lineNoCov">          0 : private_IedServer_addNewClientConnection(IedServer self, ClientConnection newClientConnection)</span>
+<span class="lineNum">    1637 </span>            : {
+<span class="lineNum">    1638 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1639 </span><span class="lineNoCov">          0 :     Semaphore_wait(self-&gt;clientConnectionsLock);</span>
+<span class="lineNum">    1640 </span>            : #endif
+<span class="lineNum">    1641 </span>            : 
+<span class="lineNum">    1642 </span><span class="lineNoCov">          0 :     LinkedList_add(self-&gt;clientConnections, (void*) newClientConnection);</span>
+<span class="lineNum">    1643 </span>            : 
+<span class="lineNum">    1644 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1645 </span><span class="lineNoCov">          0 :     Semaphore_post(self-&gt;clientConnectionsLock);</span>
+<span class="lineNum">    1646 </span>            : #endif
+<span class="lineNum">    1647 </span><span class="lineNoCov">          0 : }</span>
+<a name="1648"><span class="lineNum">    1648 </span>            : </a>
+<span class="lineNum">    1649 </span>            : void
+<span class="lineNum">    1650 </span><span class="lineNoCov">          0 : private_IedServer_removeClientConnection(IedServer self, ClientConnection clientConnection)</span>
+<span class="lineNum">    1651 </span>            : {
+<span class="lineNum">    1652 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1653 </span><span class="lineNoCov">          0 :     Semaphore_wait(self-&gt;clientConnectionsLock);</span>
+<span class="lineNum">    1654 </span>            : #endif
+<span class="lineNum">    1655 </span>            : 
+<span class="lineNum">    1656 </span><span class="lineNoCov">          0 :     LinkedList_remove(self-&gt;clientConnections, clientConnection);</span>
+<span class="lineNum">    1657 </span>            : 
+<span class="lineNum">    1658 </span>            : #if (CONFIG_MMS_THREADLESS_STACK != 1)
+<span class="lineNum">    1659 </span><span class="lineNoCov">          0 :     Semaphore_post(self-&gt;clientConnectionsLock);</span>
+<span class="lineNum">    1660 </span>            : #endif
+<span class="lineNum">    1661 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1662 </span>            : 
+<a name="1663"><span class="lineNum">    1663 </span>            : </a>
+<span class="lineNum">    1664 </span>            : void
+<span class="lineNum">    1665 </span><span class="lineNoCov">          0 : IedServer_setGooseInterfaceId(IedServer self, const char* interfaceId)</span>
+<span class="lineNum">    1666 </span>            : {
+<span class="lineNum">    1667 </span>            : #if (CONFIG_INCLUDE_GOOSE_SUPPORT == 1)
+<span class="lineNum">    1668 </span><span class="lineNoCov">          0 :     self-&gt;mmsMapping-&gt;gooseInterfaceId = interfaceId;</span>
+<span class="lineNum">    1669 </span>            : #endif
+<span class="lineNum">    1670 </span><span class="lineNoCov">          0 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,749 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - libiec51850_basic_io.info - server/mms_get_namelist_service.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">server</a> - mms_get_namelist_service.c<span style="font-size: 80%;"> (source / <a href="mms_get_namelist_service.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">libiec51850_basic_io.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">243</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-06 13:44:44</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *  mms_get_namelist_service.c
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *  Copyright 2013, 2014, 2015 Michael Zillgith
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  *  This file is part of libIEC61850.
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  libIEC61850 is free software: you can redistribute it and/or modify
+<span class="lineNum">       9 </span>            :  *  it under the terms of the GNU General Public License as published by
+<span class="lineNum">      10 </span>            :  *  the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">      11 </span>            :  *  (at your option) any later version.
+<span class="lineNum">      12 </span>            :  *
+<span class="lineNum">      13 </span>            :  *  libIEC61850 is distributed in the hope that it will be useful,
+<span class="lineNum">      14 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      15 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      16 </span>            :  *  GNU General Public License for more details.
+<span class="lineNum">      17 </span>            :  *
+<span class="lineNum">      18 </span>            :  *  You should have received a copy of the GNU General Public License
+<span class="lineNum">      19 </span>            :  *  along with libIEC61850.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      20 </span>            :  *
+<span class="lineNum">      21 </span>            :  *  See COPYING file for the complete license text.
+<span class="lineNum">      22 </span>            :  */
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : #include &quot;libiec61850_platform_includes.h&quot;
+<span class="lineNum">      25 </span>            : #include &quot;mms_server_internal.h&quot;
+<span class="lineNum">      26 </span>            : #include &quot;ber_encoder.h&quot;
+<span class="lineNum">      27 </span>            : #include &quot;ber_decode.h&quot;
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : #if (MMS_GET_NAME_LIST == 1)
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : /**********************************************************************************************
+<span class="lineNum">      32 </span>            :  * MMS GetNameList Service
+<span class="lineNum">      33 </span>            :  *********************************************************************************************/
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : #ifndef CONFIG_MMS_SORT_NAME_LIST
+<span class="lineNum">      36 </span>            : #define CONFIG_MMS_SORT_NAME_LIST 1
+<span class="lineNum">      37 </span>            : #endif
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : #define OBJECT_CLASS_NAMED_VARIABLE 0
+<span class="lineNum">      40 </span>            : #define OBJECT_CLASS_NAMED_VARIABLE_LIST 2
+<span class="lineNum">      41 </span>            : #define OBJECT_CLASS_JOURNAL 8
+<span class="lineNum">      42 </span>            : #define OBJECT_CLASS_DOMAIN 9
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : #define OBJECT_SCOPE_VMD 0
+<span class="lineNum">      45 </span>            : #define OBJECT_SCOPE_DOMAIN 1
+<span class="lineNum">      46 </span>            : #define OBJECT_SCOPE_ASSOCIATION 2
+<a name="47"><span class="lineNum">      47 </span>            : </a>
+<span class="lineNum">      48 </span>            : static LinkedList
+<span class="lineNum">      49 </span><span class="lineNoCov">          0 : getDomainNames(MmsServerConnection connection)</span>
+<span class="lineNum">      50 </span>            : {
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 :     MmsDevice* device = MmsServer_getDevice(connection-&gt;server);</span>
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span><span class="lineNoCov">          0 :     LinkedList list = LinkedList_create();</span>
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            :     int i;
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :     for (i = 0; i &lt; device-&gt;domainCount; i++) {</span>
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :         LinkedList_add(list, device-&gt;domains[i]-&gt;domainName);</span>
+<span class="lineNum">      59 </span>            :     }
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :     return list;</span>
+<span class="lineNum">      62 </span>            : }
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span>            : #if (CONFIG_MMS_SUPPORT_VMD_SCOPE_NAMED_VARIABLES == 1)
+<span class="lineNum">      65 </span>            : static LinkedList
+<span class="lineNum">      66 </span>            : getNameListVMDSpecific(MmsServerConnection connection)
+<span class="lineNum">      67 </span>            : {
+<span class="lineNum">      68 </span>            :     MmsDevice* device = MmsServer_getDevice(connection-&gt;server);
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span>            :     LinkedList list = LinkedList_create();
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            :     int i;
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            :     for (i = 0; i &lt; device-&gt;namedVariablesCount; i++) {
+<span class="lineNum">      75 </span>            :         LinkedList_add(list, device-&gt;namedVariables[i]-&gt;name);
+<span class="lineNum">      76 </span>            :     }
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span>            :     return list;
+<span class="lineNum">      79 </span>            : }
+<span class="lineNum">      80 </span>            : #endif /* (CONFIG_MMS_SUPPORT_VMD_SCOPE_NAMED_VARIABLES == 1) */
+<span class="lineNum">      81 </span>            : 
+<a name="82"><span class="lineNum">      82 </span>            : #if (CONFIG_MMS_SORT_NAME_LIST == 1)</a>
+<span class="lineNum">      83 </span>            : static void
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 : sortIndex(int* index, int size, MmsVariableSpecification** namedVariables)</span>
+<span class="lineNum">      85 </span>            : {
+<span class="lineNum">      86 </span>            :     int n;
+<span class="lineNum">      87 </span>            :     int i;
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :     for (n = size; n &gt; 1; n = n - 1) {</span>
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; n - 1; i = i + 1) {</span>
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :             if (StringUtils_compareStrings(namedVariables[index[i]]-&gt;name, namedVariables[index[i + 1]]-&gt;name) &gt; 0) {</span>
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :                 int storedIndex = index[i];</span>
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :                 index[i] = index[i + 1];</span>
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :                 index[i + 1] = storedIndex;</span>
+<span class="lineNum">      95 </span>            :             }
+<span class="lineNum">      96 </span>            :         }
+<span class="lineNum">      97 </span>            :     }
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      99 </span>            : #endif /* (CONFIG_MMS_SORT_NAME_LIST == 1) */
+<span class="lineNum">     100 </span>            : 
+<a name="101"><span class="lineNum">     101 </span>            : #if (CONFIG_MMS_SUPPORT_FLATTED_NAME_SPACE == 1)</a>
+<span class="lineNum">     102 </span>            : static char*
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 : appendMmsSubVariable(char* name, char* child)</span>
+<span class="lineNum">     104 </span>            : {
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :     int nameLen = strlen(name);</span>
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :     int childLen = strlen(child);</span>
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :     int newSize = nameLen + childLen + 2;</span>
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :     char* newName = (char*) GLOBAL_MALLOC(newSize);</span>
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :     int bufPos = 0;</span>
+<span class="lineNum">     113 </span>            :     int i;
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :     for (i = 0; i &lt; nameLen; i++) {</span>
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :         newName[bufPos++] = name[i];</span>
+<span class="lineNum">     116 </span>            :     }
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :     newName[bufPos++] = '$';</span>
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :     for (i = 0; i &lt; childLen; i++) {</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :         newName[bufPos++] = child[i];</span>
+<span class="lineNum">     121 </span>            :     }
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :     newName[bufPos] = 0;</span>
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :     return newName;</span>
+<span class="lineNum">     126 </span>            : }
+<a name="127"><span class="lineNum">     127 </span>            : </a>
+<span class="lineNum">     128 </span>            : static LinkedList
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 : addSubNamedVaribleNamesToList(LinkedList nameList, char* prefix, MmsVariableSpecification* variable)</span>
+<span class="lineNum">     130 </span>            : {
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :     LinkedList listElement = nameList;</span>
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :     if (variable-&gt;type == MMS_STRUCTURE) {</span>
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span>            :         int i;
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :         MmsVariableSpecification** variables = variable-&gt;typeSpec.structure.elements;</span>
+<span class="lineNum">     138 </span>            : 
+<span class="lineNum">     139 </span>            : #if (CONFIG_MMS_SORT_NAME_LIST == 1)
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :         int* index = (int*) GLOBAL_MALLOC(sizeof(int) * variable-&gt;typeSpec.structure.elementCount);</span>
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; variable-&gt;typeSpec.structure.elementCount; i++)</span>
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :             index[i] = i;</span>
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :         sortIndex(index, variable-&gt;typeSpec.structure.elementCount, variables);</span>
+<span class="lineNum">     146 </span>            : #endif /* (CONFIG_MMS_SORT_NAME_LIST == 1) */
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; variable-&gt;typeSpec.structure.elementCount; i++) {</span>
+<span class="lineNum">     149 </span>            : #if (CONFIG_MMS_SORT_NAME_LIST == 1)
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :             char* variableName = appendMmsSubVariable(prefix, variables[index[i]]-&gt;name);</span>
+<span class="lineNum">     151 </span>            : #else
+<span class="lineNum">     152 </span>            :             char* variableName = appendMmsSubVariable(prefix, variables[i]-&gt;name);
+<span class="lineNum">     153 </span>            : #endif /* (CONFIG_MMS_SORT_NAME_LIST == 1) */
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :             listElement = LinkedList_insertAfter(listElement, variableName);</span>
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span>            : #if (CONFIG_MMS_SORT_NAME_LIST == 1)
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :             listElement = addSubNamedVaribleNamesToList(listElement, variableName, variables[index[i]]);</span>
+<span class="lineNum">     159 </span>            : #else
+<span class="lineNum">     160 </span>            :             listElement = addSubNamedVaribleNamesToList(listElement, variableName, variables[i]);
+<span class="lineNum">     161 </span>            : #endif /* (CONFIG_MMS_SORT_NAME_LIST == 1) */
+<span class="lineNum">     162 </span>            :         }
+<span class="lineNum">     163 </span>            : 
+<span class="lineNum">     164 </span>            : #if (CONFIG_MMS_SORT_NAME_LIST == 1)
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :         GLOBAL_FREEMEM(index);</span>
+<span class="lineNum">     166 </span>            : #endif
+<span class="lineNum">     167 </span>            :     }
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :     return listElement;</span>
+<span class="lineNum">     170 </span>            : }
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span>            : #endif /* (CONFIG_MMS_SUPPORT_FLATTED_NAME_SPACE == 1) */
+<a name="173"><span class="lineNum">     173 </span>            : </a>
+<span class="lineNum">     174 </span>            : static LinkedList
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 : getJournalListDomainSpecific(MmsServerConnection connection, char* domainName)</span>
+<span class="lineNum">     176 </span>            : {
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :     MmsDevice* device = MmsServer_getDevice(connection-&gt;server);</span>
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :     LinkedList nameList = NULL;</span>
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :     MmsDomain* domain = MmsDevice_getDomain(device, domainName);</span>
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :     if (domain != NULL) {</span>
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :         nameList = LinkedList_create();</span>
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :         if (domain-&gt;journals != NULL) {</span>
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span><span class="lineNoCov">          0 :             LinkedList journalList = domain-&gt;journals;</span>
+<span class="lineNum">     189 </span>            : 
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :             while ((journalList = LinkedList_getNext(journalList)) != NULL) {</span>
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :                 MmsJournal journal = (MmsJournal) LinkedList_getData(journalList);</span>
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :                 LinkedList_add(nameList, (void*) journal-&gt;name);</span>
+<span class="lineNum">     195 </span>            :             }
+<span class="lineNum">     196 </span>            : 
+<span class="lineNum">     197 </span>            :         }
+<span class="lineNum">     198 </span>            :     }
+<span class="lineNum">     199 </span>            : 
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :     return nameList;</span>
+<span class="lineNum">     201 </span>            : }
+<a name="202"><span class="lineNum">     202 </span>            : </a>
+<span class="lineNum">     203 </span>            : static LinkedList
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 : getNameListDomainSpecific(MmsServerConnection connection, char* domainName)</span>
+<span class="lineNum">     205 </span>            : {
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :     MmsDevice* device = MmsServer_getDevice(connection-&gt;server);</span>
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :     LinkedList nameList = NULL;</span>
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :     MmsDomain* domain = MmsDevice_getDomain(device, domainName);</span>
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :     if (domain != NULL) {</span>
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :         nameList = LinkedList_create();</span>
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :         MmsVariableSpecification** variables = domain-&gt;namedVariables;</span>
+<span class="lineNum">     215 </span>            : 
+<span class="lineNum">     216 </span>            :         int i;
+<span class="lineNum">     217 </span>            : 
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :         LinkedList element = nameList;</span>
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span>            : #if (CONFIG_MMS_SORT_NAME_LIST == 1)
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :         int* index = (int*) GLOBAL_MALLOC(sizeof(int) * domain-&gt;namedVariablesCount);</span>
+<span class="lineNum">     222 </span>            : 
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; domain-&gt;namedVariablesCount; i++)</span>
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :             index[i] = i;</span>
+<span class="lineNum">     225 </span>            : 
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :         sortIndex(index, domain-&gt;namedVariablesCount, domain-&gt;namedVariables);</span>
+<span class="lineNum">     227 </span>            : #endif /* (CONFIG_MMS_SORT_NAME_LIST == 1) */
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; domain-&gt;namedVariablesCount; i++) {</span>
+<span class="lineNum">     230 </span>            : 
+<span class="lineNum">     231 </span>            : #if (CONFIG_MMS_SORT_NAME_LIST == 1)
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :             element = LinkedList_insertAfter(element, StringUtils_copyString(variables[index[i]]-&gt;name));</span>
+<span class="lineNum">     233 </span>            : #else
+<span class="lineNum">     234 </span>            :             element = LinkedList_insertAfter(element, StringUtils_copyString(variables[i]-&gt;name));
+<span class="lineNum">     235 </span>            : #endif
+<span class="lineNum">     236 </span>            : 
+<span class="lineNum">     237 </span>            : #if (CONFIG_MMS_SUPPORT_FLATTED_NAME_SPACE == 1)
+<span class="lineNum">     238 </span>            : #if (CONFIG_MMS_SORT_NAME_LIST == 1)
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :             char* prefix = variables[index[i]]-&gt;name;</span>
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :             element = addSubNamedVaribleNamesToList(element, prefix, variables[index[i]]);</span>
+<span class="lineNum">     241 </span>            : #else
+<span class="lineNum">     242 </span>            :             char* prefix = variables[i]-&gt;name;
+<span class="lineNum">     243 </span>            :             element = addSubNamedVaribleNamesToList(element, prefix, variables[i]);
+<span class="lineNum">     244 </span>            : #endif /* (CONFIG_MMS_SORT_NAME_LIST == 1) */
+<span class="lineNum">     245 </span>            : #endif /* (CONFIG_MMS_SUPPORT_FLATTED_NAME_SPACE == 1) */
+<span class="lineNum">     246 </span>            : 
+<span class="lineNum">     247 </span>            :         }
+<span class="lineNum">     248 </span>            : 
+<span class="lineNum">     249 </span>            : #if (CONFIG_MMS_SORT_NAME_LIST == 1)
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :         GLOBAL_FREEMEM(index);</span>
+<span class="lineNum">     251 </span>            : #endif
+<span class="lineNum">     252 </span>            :     }
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :     return nameList;</span>
+<span class="lineNum">     255 </span>            : }
+<span class="lineNum">     256 </span>            : 
+<span class="lineNum">     257 </span>            : #if (MMS_DATA_SET_SERVICE == 1)
+<a name="258"><span class="lineNum">     258 </span>            : </a>
+<span class="lineNum">     259 </span>            : static LinkedList
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 : createStringsFromNamedVariableList(LinkedList variableLists)</span>
+<span class="lineNum">     261 </span>            : {
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :     LinkedList nameList = LinkedList_create();</span>
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :     LinkedList variableListsElement = LinkedList_getNext(variableLists);</span>
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :     while (variableListsElement != NULL) {</span>
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :         MmsNamedVariableList variableList =</span>
+<span class="lineNum">     267 </span>            :                 (MmsNamedVariableList) variableListsElement-&gt;data;
+<span class="lineNum">     268 </span>            : 
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :         LinkedList_add(nameList,</span>
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :                 StringUtils_copyString(MmsNamedVariableList_getName(variableList)));</span>
+<span class="lineNum">     271 </span>            : 
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :         variableListsElement = LinkedList_getNext(variableListsElement);</span>
+<span class="lineNum">     273 </span>            :     }
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :     return nameList;</span>
+<span class="lineNum">     275 </span>            : }
+<a name="276"><span class="lineNum">     276 </span>            : </a>
+<span class="lineNum">     277 </span>            : static LinkedList
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 : getNamedVariableListsDomainSpecific(MmsServerConnection connection, char* domainName)</span>
+<span class="lineNum">     279 </span>            : {
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :     MmsDevice* device = MmsServer_getDevice(connection-&gt;server);</span>
+<span class="lineNum">     281 </span>            : 
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :     LinkedList nameList = NULL;</span>
+<span class="lineNum">     283 </span>            : 
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :     MmsDomain* domain = MmsDevice_getDomain(device, domainName);</span>
+<span class="lineNum">     285 </span>            : 
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :     if (domain != NULL) {</span>
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :         LinkedList variableLists = MmsDomain_getNamedVariableLists(domain);</span>
+<span class="lineNum">     288 </span>            : 
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :         nameList = createStringsFromNamedVariableList(variableLists);</span>
+<span class="lineNum">     290 </span>            :     }
+<span class="lineNum">     291 </span>            : 
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :     return nameList;</span>
+<span class="lineNum">     293 </span>            : }
+<a name="294"><span class="lineNum">     294 </span>            : </a>
+<span class="lineNum">     295 </span>            : static LinkedList
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 : getNamedVariableListsVMDSpecific(MmsServerConnection connection)</span>
+<span class="lineNum">     297 </span>            : {
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 :     MmsDevice* device = MmsServer_getDevice(connection-&gt;server);</span>
+<span class="lineNum">     299 </span>            : 
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 :     LinkedList nameList = NULL;</span>
+<span class="lineNum">     301 </span>            : 
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :     LinkedList variableLists = MmsDevice_getNamedVariableLists(device);</span>
+<span class="lineNum">     303 </span>            : 
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :     nameList = createStringsFromNamedVariableList(variableLists);</span>
+<span class="lineNum">     305 </span>            : 
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :     return nameList;</span>
+<span class="lineNum">     307 </span>            : }
+<span class="lineNum">     308 </span>            : 
+<a name="309"><span class="lineNum">     309 </span>            : #if (MMS_DYNAMIC_DATA_SETS == 1)</a>
+<span class="lineNum">     310 </span>            : static LinkedList
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 : getNamedVariableListAssociationSpecific(MmsServerConnection connection)</span>
+<span class="lineNum">     312 </span>            : {
+<span class="lineNum">     313 </span><span class="lineNoCov">          0 :     LinkedList nameList = NULL;</span>
+<span class="lineNum">     314 </span>            : 
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :     LinkedList variableLists = MmsServerConnection_getNamedVariableLists(connection);</span>
+<span class="lineNum">     316 </span>            : 
+<span class="lineNum">     317 </span><span class="lineNoCov">          0 :     nameList = createStringsFromNamedVariableList(variableLists);</span>
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 :     return nameList;</span>
+<span class="lineNum">     320 </span>            : }
+<span class="lineNum">     321 </span>            : #endif /* (MMS_DYNAMIC_DATA_SETS == 1) */
+<span class="lineNum">     322 </span>            : 
+<span class="lineNum">     323 </span>            : #endif /* (MMS_DATA_SET_SERVICE == 1) */
+<a name="324"><span class="lineNum">     324 </span>            : </a>
+<span class="lineNum">     325 </span>            : static void
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 : createNameListResponse(</span>
+<span class="lineNum">     327 </span>            :         MmsServerConnection connection,
+<span class="lineNum">     328 </span>            :         uint32_t invokeId,
+<span class="lineNum">     329 </span>            :         LinkedList nameList,
+<span class="lineNum">     330 </span>            :         ByteBuffer* response,
+<span class="lineNum">     331 </span>            :         char* continueAfter)
+<span class="lineNum">     332 </span>            : {
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :     LinkedList startElement = NULL;</span>
+<span class="lineNum">     334 </span>            : 
+<span class="lineNum">     335 </span><span class="lineNoCov">          0 :     if (continueAfter != NULL) {</span>
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :         LinkedList element = nameList;</span>
+<span class="lineNum">     337 </span>            : 
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :         while ((element = LinkedList_getNext(element)) != NULL) {</span>
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 :             if (strcmp((char*) (element-&gt;data), continueAfter) == 0) {</span>
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :                 startElement = element;</span>
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     342 </span>            :             }
+<span class="lineNum">     343 </span>            :         }
+<span class="lineNum">     344 </span>            : 
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 :         if (startElement == NULL) {</span>
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :             mmsMsg_createServiceErrorPdu(invokeId, response, MMS_ERROR_ACCESS_OBJECT_NON_EXISTENT);</span>
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :             return;</span>
+<span class="lineNum">     348 </span>            :         }
+<span class="lineNum">     349 </span>            :     }
+<span class="lineNum">     350 </span>            : 
+<span class="lineNum">     351 </span>            :     /* determine number of identifiers to include in response */
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :     if (startElement == NULL)</span>
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 :         startElement = nameList;</span>
+<span class="lineNum">     354 </span>            : 
+<span class="lineNum">     355 </span><span class="lineNoCov">          0 :     int nameCount = 0;</span>
+<span class="lineNum">     356 </span><span class="lineNoCov">          0 :     int estimatedMmsPduLength = 27; /* estimated overhead size of PDU encoding */</span>
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :     int maxPduSize = connection-&gt;maxPduSize;</span>
+<span class="lineNum">     358 </span>            : 
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :     bool moreFollows = false;</span>
+<span class="lineNum">     360 </span>            : 
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :     LinkedList element = startElement;</span>
+<span class="lineNum">     362 </span>            : 
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :     uint32_t identifierListSize = 0;</span>
+<span class="lineNum">     364 </span>            : 
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :     while ((element = LinkedList_getNext(element)) != NULL) {</span>
+<span class="lineNum">     366 </span>            :         int elementLength;
+<span class="lineNum">     367 </span>            : 
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :         elementLength = BerEncoder_determineEncodedStringSize((char*) element-&gt;data);</span>
+<span class="lineNum">     369 </span>            : 
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :         if ((estimatedMmsPduLength + elementLength) &gt; maxPduSize) {</span>
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :             moreFollows = true;</span>
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     373 </span>            :         }
+<span class="lineNum">     374 </span>            :         else {
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :             estimatedMmsPduLength += elementLength;</span>
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :             identifierListSize += elementLength;</span>
+<span class="lineNum">     377 </span><span class="lineNoCov">          0 :             nameCount++;</span>
+<span class="lineNum">     378 </span>            :         }
+<span class="lineNum">     379 </span>            : 
+<span class="lineNum">     380 </span>            :     }
+<span class="lineNum">     381 </span>            : 
+<span class="lineNum">     382 </span><span class="lineNoCov">          0 :     uint32_t listOfIdentifierSize = 1 + BerEncoder_determineLengthSize(identifierListSize) + identifierListSize;</span>
+<span class="lineNum">     383 </span>            : 
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :     uint32_t getNameListSize = listOfIdentifierSize;</span>
+<span class="lineNum">     385 </span>            : 
+<span class="lineNum">     386 </span><span class="lineNoCov">          0 :     if (moreFollows == false)</span>
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 :         getNameListSize += 3;</span>
+<span class="lineNum">     388 </span>            : 
+<span class="lineNum">     389 </span><span class="lineNoCov">          0 :     uint32_t confirmedServiceResponseSize = 1 + BerEncoder_determineLengthSize(getNameListSize) + getNameListSize;</span>
+<span class="lineNum">     390 </span>            : 
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :     uint32_t invokeIdSize = BerEncoder_UInt32determineEncodedSize((uint32_t) invokeId) + 2;</span>
+<span class="lineNum">     392 </span>            : 
+<span class="lineNum">     393 </span><span class="lineNoCov">          0 :     uint32_t confirmedResponsePDUSize = confirmedServiceResponseSize + invokeIdSize;</span>
+<span class="lineNum">     394 </span>            : 
+<span class="lineNum">     395 </span>            :     /* encode response */
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :     element = startElement;</span>
+<span class="lineNum">     397 </span>            : 
+<span class="lineNum">     398 </span><span class="lineNoCov">          0 :     uint8_t* buffer = response-&gt;buffer;</span>
+<span class="lineNum">     399 </span><span class="lineNoCov">          0 :     int bufPos = 0;</span>
+<span class="lineNum">     400 </span>            : 
+<span class="lineNum">     401 </span><span class="lineNoCov">          0 :     bufPos = BerEncoder_encodeTL(0xa1, confirmedResponsePDUSize, buffer, bufPos);</span>
+<span class="lineNum">     402 </span>            : 
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 :     bufPos = BerEncoder_encodeTL(0x02, invokeIdSize - 2, buffer, bufPos);</span>
+<span class="lineNum">     404 </span><span class="lineNoCov">          0 :     bufPos = BerEncoder_encodeUInt32(invokeId, buffer, bufPos);</span>
+<span class="lineNum">     405 </span>            : 
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 :     bufPos = BerEncoder_encodeTL(0xa1, getNameListSize, buffer, bufPos);</span>
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :     bufPos = BerEncoder_encodeTL(0xa0, identifierListSize, buffer, bufPos);</span>
+<span class="lineNum">     408 </span>            : 
+<span class="lineNum">     409 </span><span class="lineNoCov">          0 :     int i = 0;</span>
+<span class="lineNum">     410 </span>            : 
+<span class="lineNum">     411 </span><span class="lineNoCov">          0 :     while ((element = LinkedList_getNext(element)) != NULL) {</span>
+<span class="lineNum">     412 </span><span class="lineNoCov">          0 :         bufPos = BerEncoder_encodeStringWithTag(0x1a, (char*) element-&gt;data, buffer, bufPos);</span>
+<span class="lineNum">     413 </span>            : 
+<span class="lineNum">     414 </span><span class="lineNoCov">          0 :         i++;</span>
+<span class="lineNum">     415 </span>            : 
+<span class="lineNum">     416 </span><span class="lineNoCov">          0 :         if (i == nameCount)</span>
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     418 </span>            :     }
+<span class="lineNum">     419 </span>            : 
+<span class="lineNum">     420 </span><span class="lineNoCov">          0 :     if (moreFollows == false)</span>
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 :         bufPos = BerEncoder_encodeBoolean(0x81, moreFollows, buffer, bufPos);</span>
+<span class="lineNum">     422 </span>            : 
+<span class="lineNum">     423 </span><span class="lineNoCov">          0 :     response-&gt;size = bufPos;</span>
+<span class="lineNum">     424 </span>            : 
+<span class="lineNum">     425 </span>            :     if (DEBUG_MMS_SERVER)
+<span class="lineNum">     426 </span>            :         printf(&quot;MMS_SERVER: getNameList: encoded %i bytes\n&quot;, response-&gt;size);
+<span class="lineNum">     427 </span>            : }
+<a name="428"><span class="lineNum">     428 </span>            : </a>
+<span class="lineNum">     429 </span>            : void
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 : mmsServer_handleGetNameListRequest(</span>
+<span class="lineNum">     431 </span>            :         MmsServerConnection connection,
+<span class="lineNum">     432 </span>            :         uint8_t* buffer, int bufPos, int maxBufPos,
+<span class="lineNum">     433 </span>            :         uint32_t invokeId,
+<span class="lineNum">     434 </span>            :         ByteBuffer* response)
+<span class="lineNum">     435 </span>            : {
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 :     int objectClass = -1;</span>
+<span class="lineNum">     437 </span>            : 
+<span class="lineNum">     438 </span><span class="lineNoCov">          0 :     int objectScope = -1;</span>
+<span class="lineNum">     439 </span>            : 
+<span class="lineNum">     440 </span><span class="lineNoCov">          0 :     char* domainId = NULL;</span>
+<span class="lineNum">     441 </span>            :     int domainIdLength;
+<span class="lineNum">     442 </span>            : 
+<span class="lineNum">     443 </span><span class="lineNoCov">          0 :     char* continueAfter = NULL;</span>
+<span class="lineNum">     444 </span>            :     int continueAfterLength;
+<span class="lineNum">     445 </span>            : 
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :     while (bufPos &lt; maxBufPos) {</span>
+<span class="lineNum">     447 </span><span class="lineNoCov">          0 :         uint8_t tag = buffer[bufPos++];</span>
+<span class="lineNum">     448 </span>            :         int length;
+<span class="lineNum">     449 </span>            : 
+<span class="lineNum">     450 </span><span class="lineNoCov">          0 :         bufPos = BerDecoder_decodeLength(buffer, &amp;length, bufPos, maxBufPos);</span>
+<span class="lineNum">     451 </span>            : 
+<span class="lineNum">     452 </span><span class="lineNoCov">          0 :         if (bufPos &lt; 0) {</span>
+<span class="lineNum">     453 </span><span class="lineNoCov">          0 :             mmsMsg_createMmsRejectPdu(&amp;invokeId, MMS_ERROR_REJECT_INVALID_PDU, response);</span>
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :             return;</span>
+<span class="lineNum">     455 </span>            :         }
+<span class="lineNum">     456 </span>            : 
+<span class="lineNum">     457 </span><span class="lineNoCov">          0 :         switch (tag)</span>
+<span class="lineNum">     458 </span>            :         {
+<span class="lineNum">     459 </span>            : 
+<span class="lineNum">     460 </span>            :         case 0xa0: /* objectClass */
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :             bufPos++;</span>
+<span class="lineNum">     462 </span><span class="lineNoCov">          0 :             length = buffer[bufPos++];</span>
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :             objectClass = BerDecoder_decodeUint32(buffer, length, bufPos);</span>
+<span class="lineNum">     464 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     465 </span>            : 
+<span class="lineNum">     466 </span>            :         case 0xa1: /* objectScope */
+<span class="lineNum">     467 </span>            :             {
+<span class="lineNum">     468 </span><span class="lineNoCov">          0 :                 uint8_t objectScopeTag = buffer[bufPos++];</span>
+<span class="lineNum">     469 </span><span class="lineNoCov">          0 :                 bufPos = BerDecoder_decodeLength(buffer, &amp;length, bufPos, maxBufPos);</span>
+<span class="lineNum">     470 </span>            : 
+<span class="lineNum">     471 </span><span class="lineNoCov">          0 :                 if (bufPos &lt; 0) {</span>
+<span class="lineNum">     472 </span><span class="lineNoCov">          0 :                     mmsMsg_createMmsRejectPdu(&amp;invokeId, MMS_ERROR_REJECT_INVALID_PDU, response);</span>
+<span class="lineNum">     473 </span><span class="lineNoCov">          0 :                     return;</span>
+<span class="lineNum">     474 </span>            :                 }
+<span class="lineNum">     475 </span>            : 
+<span class="lineNum">     476 </span><span class="lineNoCov">          0 :                 switch (objectScopeTag)</span>
+<span class="lineNum">     477 </span>            :                 {
+<span class="lineNum">     478 </span>            :                 case 0x80: /* vmd-specific */
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :                     objectScope = OBJECT_SCOPE_VMD;</span>
+<span class="lineNum">     480 </span><span class="lineNoCov">          0 :                     break;</span>
+<span class="lineNum">     481 </span>            :                 case 0x81: /* domain-specific */
+<span class="lineNum">     482 </span><span class="lineNoCov">          0 :                     domainIdLength = length;</span>
+<span class="lineNum">     483 </span><span class="lineNoCov">          0 :                     domainId = (char*) (buffer + bufPos);</span>
+<span class="lineNum">     484 </span><span class="lineNoCov">          0 :                     objectScope = OBJECT_SCOPE_DOMAIN;</span>
+<span class="lineNum">     485 </span><span class="lineNoCov">          0 :                     break;</span>
+<span class="lineNum">     486 </span>            :                 case 0x82: /* association-specific */
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 :                     objectScope = OBJECT_SCOPE_ASSOCIATION;</span>
+<span class="lineNum">     488 </span><span class="lineNoCov">          0 :                     break;</span>
+<span class="lineNum">     489 </span>            :                 case 0x00: /* indefinite length end tag -&gt; ignore */
+<span class="lineNum">     490 </span><span class="lineNoCov">          0 :                     break;</span>
+<span class="lineNum">     491 </span>            :                 default:
+<span class="lineNum">     492 </span><span class="lineNoCov">          0 :                     mmsMsg_createMmsRejectPdu(&amp;invokeId, MMS_ERROR_REJECT_UNRECOGNIZED_MODIFIER, response);</span>
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 :                     return;</span>
+<span class="lineNum">     494 </span>            :                 }
+<span class="lineNum">     495 </span>            :             }
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     497 </span>            : 
+<span class="lineNum">     498 </span>            :         case 0x82: /* continueAfter */
+<span class="lineNum">     499 </span><span class="lineNoCov">          0 :             continueAfter = (char*) (buffer + bufPos);</span>
+<span class="lineNum">     500 </span><span class="lineNoCov">          0 :             continueAfterLength = length;</span>
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     502 </span>            : 
+<span class="lineNum">     503 </span>            :         case 0x00: /* indefinite length end tag -&gt; ignore */
+<span class="lineNum">     504 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     505 </span>            : 
+<span class="lineNum">     506 </span>            :         default:
+<span class="lineNum">     507 </span>            :             /* ignore unknown tag */
+<span class="lineNum">     508 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     509 </span>            :         }
+<span class="lineNum">     510 </span>            : 
+<span class="lineNum">     511 </span><span class="lineNoCov">          0 :         bufPos += length;</span>
+<span class="lineNum">     512 </span>            :     }
+<span class="lineNum">     513 </span>            : 
+<span class="lineNum">     514 </span>            :     char continueAfterIdMemory[130];
+<span class="lineNum">     515 </span><span class="lineNoCov">          0 :     char* continueAfterId = NULL;</span>
+<span class="lineNum">     516 </span>            : 
+<span class="lineNum">     517 </span><span class="lineNoCov">          0 :     if (continueAfter != NULL) {</span>
+<span class="lineNum">     518 </span><span class="lineNoCov">          0 :         continueAfterId = continueAfterIdMemory;</span>
+<span class="lineNum">     519 </span><span class="lineNoCov">          0 :         memcpy(continueAfterId, continueAfter, continueAfterLength);</span>
+<span class="lineNum">     520 </span><span class="lineNoCov">          0 :         continueAfterId[continueAfterLength] = 0;</span>
+<span class="lineNum">     521 </span>            : 
+<span class="lineNum">     522 </span>            :         if (DEBUG_MMS_SERVER)
+<span class="lineNum">     523 </span>            :             printf(&quot;MMS_SERVER: getNameListRequest - continue after: (%s)\n&quot;, continueAfterId);
+<span class="lineNum">     524 </span>            :     }
+<span class="lineNum">     525 </span>            : 
+<span class="lineNum">     526 </span><span class="lineNoCov">          0 :     if (objectScope == OBJECT_SCOPE_DOMAIN) {</span>
+<span class="lineNum">     527 </span>            :         char domainSpecificName[130];
+<span class="lineNum">     528 </span>            : 
+<span class="lineNum">     529 </span><span class="lineNoCov">          0 :         memcpy(domainSpecificName, domainId, domainIdLength);</span>
+<span class="lineNum">     530 </span><span class="lineNoCov">          0 :         domainSpecificName[domainIdLength] = 0;</span>
+<span class="lineNum">     531 </span>            : 
+<span class="lineNum">     532 </span><span class="lineNoCov">          0 :         if (objectClass == OBJECT_CLASS_NAMED_VARIABLE) {</span>
+<span class="lineNum">     533 </span>            :             if (DEBUG_MMS_SERVER)
+<span class="lineNum">     534 </span>            :                 printf(&quot;MMS_SERVER: get namelist for (%s)\n&quot;, domainSpecificName);
+<span class="lineNum">     535 </span>            : 
+<span class="lineNum">     536 </span><span class="lineNoCov">          0 :             LinkedList nameList = getNameListDomainSpecific(connection, domainSpecificName);</span>
+<span class="lineNum">     537 </span>            : 
+<span class="lineNum">     538 </span><span class="lineNoCov">          0 :             if (nameList == NULL)</span>
+<span class="lineNum">     539 </span><span class="lineNoCov">          0 :                 mmsMsg_createServiceErrorPdu(invokeId, response, MMS_ERROR_ACCESS_OBJECT_NON_EXISTENT);</span>
+<span class="lineNum">     540 </span>            :             else {
+<span class="lineNum">     541 </span><span class="lineNoCov">          0 :                 createNameListResponse(connection, invokeId, nameList, response, continueAfterId);</span>
+<span class="lineNum">     542 </span><span class="lineNoCov">          0 :                 LinkedList_destroy(nameList);</span>
+<span class="lineNum">     543 </span>            :             }
+<span class="lineNum">     544 </span>            :         }
+<span class="lineNum">     545 </span><span class="lineNoCov">          0 :         else if (objectClass == OBJECT_CLASS_JOURNAL) {</span>
+<span class="lineNum">     546 </span><span class="lineNoCov">          0 :             LinkedList nameList = getJournalListDomainSpecific(connection, domainSpecificName);</span>
+<span class="lineNum">     547 </span>            : 
+<span class="lineNum">     548 </span><span class="lineNoCov">          0 :             if (nameList == NULL)</span>
+<span class="lineNum">     549 </span><span class="lineNoCov">          0 :                 mmsMsg_createServiceErrorPdu(invokeId, response, MMS_ERROR_ACCESS_OBJECT_NON_EXISTENT);</span>
+<span class="lineNum">     550 </span>            :             else {
+<span class="lineNum">     551 </span>            : #if (CONFIG_MMS_SORT_NAME_LIST == 1)
+<span class="lineNum">     552 </span><span class="lineNoCov">          0 :                 StringUtils_sortList(nameList);</span>
+<span class="lineNum">     553 </span>            : #endif
+<span class="lineNum">     554 </span>            : 
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :                 createNameListResponse(connection, invokeId, nameList, response, continueAfterId);</span>
+<span class="lineNum">     556 </span><span class="lineNoCov">          0 :                 LinkedList_destroyStatic(nameList);</span>
+<span class="lineNum">     557 </span>            :             }
+<span class="lineNum">     558 </span>            :         }
+<span class="lineNum">     559 </span>            : #if (MMS_DATA_SET_SERVICE == 1)
+<span class="lineNum">     560 </span><span class="lineNoCov">          0 :         else if (objectClass == OBJECT_CLASS_NAMED_VARIABLE_LIST) {</span>
+<span class="lineNum">     561 </span><span class="lineNoCov">          0 :             LinkedList nameList = getNamedVariableListsDomainSpecific(connection, domainSpecificName);</span>
+<span class="lineNum">     562 </span>            : 
+<span class="lineNum">     563 </span><span class="lineNoCov">          0 :             if (nameList == NULL)</span>
+<span class="lineNum">     564 </span><span class="lineNoCov">          0 :                 mmsMsg_createServiceErrorPdu(invokeId, response, MMS_ERROR_ACCESS_OBJECT_NON_EXISTENT);</span>
+<span class="lineNum">     565 </span>            :             else {
+<span class="lineNum">     566 </span>            : 
+<span class="lineNum">     567 </span>            : #if (CONFIG_MMS_SORT_NAME_LIST == 1)
+<span class="lineNum">     568 </span><span class="lineNoCov">          0 :                 StringUtils_sortList(nameList);</span>
+<span class="lineNum">     569 </span>            : #endif
+<span class="lineNum">     570 </span>            : 
+<span class="lineNum">     571 </span><span class="lineNoCov">          0 :                 createNameListResponse(connection, invokeId, nameList, response, continueAfter);</span>
+<span class="lineNum">     572 </span><span class="lineNoCov">          0 :                 LinkedList_destroy(nameList);</span>
+<span class="lineNum">     573 </span>            :             }
+<span class="lineNum">     574 </span>            :         }
+<span class="lineNum">     575 </span>            : #endif /* (MMS_DATA_SET_SERVICE == 1) */
+<span class="lineNum">     576 </span>            : 
+<span class="lineNum">     577 </span>            :         else {
+<span class="lineNum">     578 </span>            :             if (DEBUG_MMS_SERVER)
+<span class="lineNum">     579 </span>            :                 printf(&quot;MMS_SERVER: getNameList domain specific objectClass %i not supported!\n&quot;, objectClass);
+<span class="lineNum">     580 </span>            : 
+<span class="lineNum">     581 </span><span class="lineNoCov">          0 :             mmsMsg_createServiceErrorPdu(invokeId, response, MMS_ERROR_ACCESS_OBJECT_ACCESS_UNSUPPORTED);</span>
+<span class="lineNum">     582 </span>            :         }
+<span class="lineNum">     583 </span>            :     }
+<span class="lineNum">     584 </span>            : 
+<span class="lineNum">     585 </span><span class="lineNoCov">          0 :     else if (objectScope == OBJECT_SCOPE_VMD) { /* vmd-specific */</span>
+<span class="lineNum">     586 </span>            : 
+<span class="lineNum">     587 </span><span class="lineNoCov">          0 :         if (objectClass == OBJECT_CLASS_DOMAIN) {</span>
+<span class="lineNum">     588 </span>            : 
+<span class="lineNum">     589 </span><span class="lineNoCov">          0 :             LinkedList nameList = getDomainNames(connection);</span>
+<span class="lineNum">     590 </span>            : 
+<span class="lineNum">     591 </span>            : #if (CONFIG_MMS_SORT_NAME_LIST == 1)
+<span class="lineNum">     592 </span><span class="lineNoCov">          0 :             StringUtils_sortList(nameList);</span>
+<span class="lineNum">     593 </span>            : #endif
+<span class="lineNum">     594 </span>            : 
+<span class="lineNum">     595 </span><span class="lineNoCov">          0 :             createNameListResponse(connection, invokeId, nameList, response, continueAfter);</span>
+<span class="lineNum">     596 </span>            : 
+<span class="lineNum">     597 </span><span class="lineNoCov">          0 :             LinkedList_destroyStatic(nameList);</span>
+<span class="lineNum">     598 </span>            :         }
+<span class="lineNum">     599 </span>            : 
+<span class="lineNum">     600 </span>            : #if (CONFIG_MMS_SUPPORT_VMD_SCOPE_NAMED_VARIABLES == 1)
+<span class="lineNum">     601 </span>            :         else if (objectClass == OBJECT_CLASS_NAMED_VARIABLE) {
+<span class="lineNum">     602 </span>            :             LinkedList nameList = getNameListVMDSpecific(connection);
+<span class="lineNum">     603 </span>            : 
+<span class="lineNum">     604 </span>            :             createNameListResponse(connection, invokeId, nameList, response, continueAfter);
+<span class="lineNum">     605 </span>            : 
+<span class="lineNum">     606 </span>            :             LinkedList_destroyStatic(nameList);
+<span class="lineNum">     607 </span>            :         }
+<span class="lineNum">     608 </span>            : #endif /* (CONFIG_MMS_SUPPORT_VMD_SCOPE_NAMED_VARIABLES == 1) */
+<span class="lineNum">     609 </span>            : 
+<span class="lineNum">     610 </span>            : #if (MMS_DATA_SET_SERVICE == 1)
+<span class="lineNum">     611 </span><span class="lineNoCov">          0 :         else if (objectClass == OBJECT_CLASS_NAMED_VARIABLE_LIST) {</span>
+<span class="lineNum">     612 </span><span class="lineNoCov">          0 :             LinkedList nameList = getNamedVariableListsVMDSpecific(connection);</span>
+<span class="lineNum">     613 </span>            : 
+<span class="lineNum">     614 </span>            : #if (CONFIG_MMS_SORT_NAME_LIST == 1)
+<span class="lineNum">     615 </span><span class="lineNoCov">          0 :             StringUtils_sortList(nameList);</span>
+<span class="lineNum">     616 </span>            : #endif
+<span class="lineNum">     617 </span>            : 
+<span class="lineNum">     618 </span><span class="lineNoCov">          0 :             createNameListResponse(connection, invokeId, nameList, response, continueAfter);</span>
+<span class="lineNum">     619 </span>            : 
+<span class="lineNum">     620 </span><span class="lineNoCov">          0 :             LinkedList_destroy(nameList);</span>
+<span class="lineNum">     621 </span>            :         }
+<span class="lineNum">     622 </span>            : #endif /* (MMS_DATA_SET_SERVICE == 1) */
+<span class="lineNum">     623 </span>            : 
+<span class="lineNum">     624 </span><span class="lineNoCov">          0 :         else if (objectClass == OBJECT_CLASS_JOURNAL) {</span>
+<span class="lineNum">     625 </span>            : 
+<span class="lineNum">     626 </span>            :             /* response with empty list */
+<span class="lineNum">     627 </span>            : 
+<span class="lineNum">     628 </span><span class="lineNoCov">          0 :             LinkedList nameList = LinkedList_create();</span>
+<span class="lineNum">     629 </span>            : 
+<span class="lineNum">     630 </span><span class="lineNoCov">          0 :             createNameListResponse(connection, invokeId, nameList, response, continueAfter);</span>
+<span class="lineNum">     631 </span>            : 
+<span class="lineNum">     632 </span><span class="lineNoCov">          0 :             LinkedList_destroy(nameList);</span>
+<span class="lineNum">     633 </span>            :         }
+<span class="lineNum">     634 </span>            : 
+<span class="lineNum">     635 </span>            :         else {
+<span class="lineNum">     636 </span>            :             if (DEBUG_MMS_SERVER)
+<span class="lineNum">     637 </span>            :                 printf(&quot;MMS_SERVER: getNameList VMD specific objectClass %i not supported!\n&quot;, objectClass);
+<span class="lineNum">     638 </span>            : 
+<span class="lineNum">     639 </span><span class="lineNoCov">          0 :             mmsMsg_createServiceErrorPdu(invokeId, response, MMS_ERROR_ACCESS_OBJECT_ACCESS_UNSUPPORTED);</span>
+<span class="lineNum">     640 </span>            :         }
+<span class="lineNum">     641 </span>            :     }
+<span class="lineNum">     642 </span>            : 
+<span class="lineNum">     643 </span>            : #if (MMS_DATA_SET_SERVICE == 1)
+<span class="lineNum">     644 </span>            : #if (MMS_DYNAMIC_DATA_SETS == 1)
+<span class="lineNum">     645 </span><span class="lineNoCov">          0 :     else if (objectScope == OBJECT_SCOPE_ASSOCIATION) { /* association-specific */</span>
+<span class="lineNum">     646 </span>            : 
+<span class="lineNum">     647 </span><span class="lineNoCov">          0 :         if (objectClass == OBJECT_CLASS_NAMED_VARIABLE_LIST) {</span>
+<span class="lineNum">     648 </span><span class="lineNoCov">          0 :             LinkedList nameList = getNamedVariableListAssociationSpecific(connection);</span>
+<span class="lineNum">     649 </span>            : 
+<span class="lineNum">     650 </span>            : #if (CONFIG_MMS_SORT_NAME_LIST == 1)
+<span class="lineNum">     651 </span><span class="lineNoCov">          0 :             StringUtils_sortList(nameList);</span>
+<span class="lineNum">     652 </span>            : #endif
+<span class="lineNum">     653 </span>            : 
+<span class="lineNum">     654 </span><span class="lineNoCov">          0 :             createNameListResponse(connection, invokeId, nameList, response, continueAfter);</span>
+<span class="lineNum">     655 </span>            : 
+<span class="lineNum">     656 </span><span class="lineNoCov">          0 :             LinkedList_destroy(nameList);</span>
+<span class="lineNum">     657 </span>            :         }
+<span class="lineNum">     658 </span>            :         else
+<span class="lineNum">     659 </span><span class="lineNoCov">          0 :             mmsMsg_createServiceErrorPdu(invokeId, response, MMS_ERROR_ACCESS_OBJECT_ACCESS_UNSUPPORTED);</span>
+<span class="lineNum">     660 </span>            :     }
+<span class="lineNum">     661 </span>            : #endif /* (MMS_DYNAMIC_DATA_SETS == 1) */
+<span class="lineNum">     662 </span>            : #endif /* (MMS_DATA_SET_SERVICE == 1) */
+<span class="lineNum">     663 </span>            : 
+<span class="lineNum">     664 </span>            :     else {
+<span class="lineNum">     665 </span>            :         if (DEBUG_MMS_SERVER)
+<span class="lineNum">     666 </span>            :             printf(&quot;MMS_SERVER:  getNameList(%i) not supported!\n&quot;, objectScope);
+<span class="lineNum">     667 </span>            : 
+<span class="lineNum">     668 </span><span class="lineNoCov">          0 :         mmsMsg_createServiceErrorPdu(invokeId, response, MMS_ERROR_ACCESS_OBJECT_ACCESS_UNSUPPORTED);</span>
+<span class="lineNum">     669 </span>            :     }
+<span class="lineNum">     670 </span>            : 
+<span class="lineNum">     671 </span>            : }
+<span class="lineNum">     672 </span>            : 
+<span class="lineNum">     673 </span>            : #endif /* (MMS_GET_NAME_LIST == 1) */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,23 @@
+project: idl2jni, dcps_test {
+
+  idlflags += -SS
+  idl2jniflags += -SS
+
+  IDL_Files {
+    $(TAO_ROOT)/tests/Hello/Test.idl
+  }
+
+  Idl2Jni_Files {
+    $(TAO_ROOT)/tests/Hello/Test.idl
+  }
+
+  Java_Files {
+    Client.java << Test/Hello.java
+  }
+
+  specific {
+    jarname = hello_java_client
+  }
+
+  postclean += <%rm%> Test
+}

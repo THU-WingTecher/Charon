@@ -1,0 +1,525 @@
+Fri Mar  6 19:26:43 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * dds/FACE/FaceTSS.h:
+        * tests/FACE/Messenger/Subscriber/Subscriber.cpp:
+
+          Update FACE connection status in case of errors in the listener.
+          Test FACE::TS::Get_Connection_Parameters() on the receive side.
+
+Fri Mar  6 16:37:46 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * bin/dcps_tests.lst:
+        * tests/DCPS/ManualAssertLiveliness/subscriber.cpp:
+
+          No need to set non-default history QoS, allows this test
+          to run on the minimum profile build.
+
+Fri Mar  6 15:21:50 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * dds/DCPS/SafetyProfilePool.h:
+
+          Use ACE_Atomic_Op to make it thread-safe.
+
+        * tests/DCPS/ManyTopicMultiProcess/DataReaderListener.h:
+        * tests/DCPS/ManyTopicMultiProcess/DataReaderListener.cpp:
+        * tests/DCPS/ManyTopicMultiProcess/DataReaderListener1.cpp:
+        * tests/DCPS/ManyTopicMultiProcess/DataReaderListener4.cpp:
+        * tests/DCPS/ManyTopicMultiProcess/Writer.h:
+        * tests/DCPS/ManyTopicMultiProcess/Writer.cpp:
+        * tests/DCPS/ManyTopicMultiProcess/common.h:
+        * tests/DCPS/ManyTopicMultiProcess/publisher.cpp:
+        * tests/DCPS/ManyTopicMultiProcess/run_test.pl:
+        * tests/DCPS/ManyTopicMultiProcess/subscriber.cpp:
+
+          Overhauled this test:
+          - adhere to coding standards
+          - avoid random sleeps (no rand() on safety profile)
+          - put common code in common.h instead of repeating it
+          - don't write *subscriber_finished.txt until it's actually done
+
+Mon Mar  2 15:13:24 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * dds/FACE/FaceTSS.h:
+        * dds/FACE/FaceTSS.cpp:
+
+          Fixed missing include and workaround for broken STL on SunCC.
+
+Fri Feb 27 23:01:41 UTC 2015  Jeff Schmitz  <schmitzj@ociweb.com>
+
+        * dds/DCPS/DomainParticipantImpl.h:
+
+          Add missing include.
+
+Fri Feb 27 22:55:08 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * FACE/common.hpp:
+        * dds/FACE/FaceTSS.h:
+        * dds/FACE/FaceTSS.cpp:
+        * dds/FACE/config/QosSettings.h:
+        * tests/FACE/Messenger/Publisher/Publisher.cpp:
+
+          Implemented FACE::TS::Get_Connection_Parameters().
+
+Thu Feb 26 23:02:28 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * dds/DCPS/transport/framework/TransportRegistry.inl:
+
+          Clear out TransportRegistry during destruction for
+          the case where Service_Participant::shutdown() is
+          not called first.
+
+Wed Feb 25 23:20:10 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * dds/DCPS/RTPS/RtpsDiscovery.cpp:
+        * dds/DCPS/RTPS/Spdp.h:
+        * dds/DCPS/RTPS/Spdp.cpp:
+
+          With safety profile enabled, getpid() may always return
+          -1, which is not good for the GUID generation algorithm.
+          Assist it in generating GUIDs based on which port we find
+          available for use by SPDP.
+
+Wed Feb 25 22:07:10 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * dds/DCPS/Service_Participant.cpp:
+
+          Need to set initial ownership strength to 0 when
+          OPENDDS_NO_OWNERSHIP_KIND_EXCLUSIVE is defined.
+
+Wed Feb 25 20:41:41 UTC 2015  Jeff Schmitz  <schmitzj@ociweb.com>
+
+        * dds/DCPS/Service_Participant.cpp:
+
+          Set initial_DataWriterQos_.ownership_strength even when
+          OPENDDS_NO_OWNERSHIP_KIND_EXCLUSIVE is defined
+
+Wed Feb 25 15:27:09 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * tests/DCPS/LivelinessTest/common.h:
+
+          Include RTPS libs in static build.
+
+Tue Feb 24 21:45:31 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * bin/dcps_tests.lst:
+        * tests/DCPS/FooTest5/rtps.ini:
+
+          Updated test configs for safety profile.
+
+Tue Feb 24 16:52:25 UTC 2015  Jeff Schmitz  <schmitzj@ociweb.com>
+
+        * bin/dcps_tests.lst:
+
+          Test DCPS reliability with history KEEP_LAST 1
+
+Tue Feb 24 15:22:55 UTC 2015  Peter Oschwald  <oschwaldp@ociweb.com>
+
+        * dds/DCPS/transport/tcp/TcpTransport.cpp:
+
+          Added connections lock around add_pending_connection in
+          connect_datalink to protect the pending_connections collection.
+
+Tue Feb 24 15:05:39 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * tests/DCPS/LivelinessTest/rtps_disc.ini:
+
+          Fixed typo in test ini file.
+
+Mon Feb 23 21:38:14 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * bin/dcps_tests.lst:
+        * tests/DCPS/FooTest4_0/run_test.pl:
+        * tests/DCPS/FooTest5_0/rtps_disc.ini:
+        * tests/DCPS/FooTest5_0/run_test.pl:
+        * tests/DCPS/Instances/run_test.pl:
+        * tests/DCPS/LivelinessTest/rtps_disc.ini:
+        * tests/DCPS/LivelinessTest/run_test.pl:
+        * tests/DCPS/ManualAssertLiveliness/run_test.pl:
+        * tests/DCPS/Reliability/run_test.pl:
+        * tests/DCPS/ViewState/run_test.pl:
+
+          Updated tests to run with safety profile now that we allow
+          ownership_profile=1 with ownership_kind_exclusive=0 in the
+          safety profile builds.
+
+Sat Feb 21 00:09:24 UTC 2015  Jeff Schmitz  <schmitzj@ociweb.com>
+
+        * dds/DCPS/Service_Participant.h:
+        * dds/DCPS/Service_Participant.cpp:
+
+          Use filename rather than global config_fname.
+
+Fri Feb 20 23:03:28 UTC 2015  Jeff Schmitz  <schmitzj@ociweb.com>
+
+        * tests/DCPS/Reliability/pub/Publisher.cpp:
+        * tests/DCPS/Reliability/sub/Subscriber.cpp:
+
+          Check args after domain participant factory consumes args.
+
+Fri Feb 20 21:33:34 UTC 2015  Peter Oschwald  <oschwaldp@ociweb.com>
+
+        * dds/DCPS/transport/framework/TransportSendStrategy.cpp:
+
+          Notify the Synch thread of work available when send_stop
+          only does a partial send and flips into MODE_QUEUE
+
+Fri Feb 20 15:06:50 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * FACE/TS_FACE.mpc:
+
+          Removed this file.  Fixes an MPC warning.
+
+Thu Feb 19 15:32:45 UTC 2015  Jeff Schmitz  <schmitzj@ociweb.com>
+
+        * FACE/TS_FACE.mpc:
+        * dds/FACE/OpenDDS_FACE.mpc:
+
+          Install dir specification.
+
+        * tests/DCPS/Reliability/pub/Publisher.cpp:
+        * tests/DCPS/Reliability/sub/Subscriber.cpp:
+
+          Compile error in strcmp.
+
+Wed Feb 18 21:57:40 UTC 2015  Peter Oschwald  <oschwaldp@ociweb.com>
+
+        * dds/DCPS/WriteDataContainer.cpp:
+
+          Changed error message to warning and only if debugging enabled.
+
+Wed Feb 18 21:36:44 UTC 2015  Peter Oschwald  <oschwaldp@ociweb.com>
+
+        * dds/DCPS/WriteDataContainer.cpp:
+
+          Removing TODO's to check whether locking was necessary in
+          WriteDataContainer::obtain_buffer after determining locking
+          is correct as is, lock_ is held outside obtain_buffer call
+          which seems to also protect instances_.
+
+Wed Feb 18 21:31:48 UTC 2015  Jeff Schmitz  <schmitzj@ociweb.com>
+
+        * tests/DCPS/Reliability/Boilerplate.h:
+        * tests/DCPS/Reliability/Boilerplate.cpp:
+        * tests/DCPS/Reliability/pub/Publisher.cpp:
+        * tests/DCPS/Reliability/run_test.pl:
+        * tests/DCPS/Reliability/sub/Subscriber.cpp:
+
+          Set history QOS kind and depth based on command-line arg.
+
+Wed Feb 18 21:24:32 UTC 2015  Peter Oschwald  <oschwaldp@ociweb.com>
+
+        * dds/DCPS/DataSampleElement.h:
+        * dds/DCPS/DataSampleElement.inl:
+        * dds/DCPS/WriteDataContainer.cpp:
+
+          Cleaned up some members no longer used in DataSampleElement
+          as well as where they were set in WriteDataContainer.
+          Samples are no longer 'loaned' to the DataWriter therefore
+          ability to set samples to delivered or dropped is unnecessary.
+
+Wed Feb 18 21:12:25 UTC 2015  Jeff Schmitz  <schmitzj@ociweb.com>
+
+        * dds/FACE/FaceTSS.h:
+        * tests/DCPS/Reliability/pub/Publisher.cpp:
+
+          Parenthesize, fix fuzz.
+
+
+Wed Feb 18 21:11:33 UTC 2015  Jeff Schmitz  <schmitzj@ociweb.com>
+
+        * dds/FACE/FaceTSS.h:
+
+
+Wed Feb 18 17:16:00 UTC 2015  Jeff Schmitz  <schmitzj@ociweb.com>
+
+        * dds/FACE/FaceTSS.h:
+
+          Convert timeout retcode to face.
+
+        * tests/FACE/Reliability/Publisher/Publisher.cpp:
+
+          Resend on timeout.
+
+        * tests/FACE/Reliability/Subscriber/Subscriber.cpp:
+
+          Don't require 0 to be the first message.
+
+Tue Feb 17 21:13:58 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * dds/FACE/config/Parser.cpp:
+
+          Updated use of std::map for compatibility with SunCC.
+
+Tue Feb 17 19:45:35 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * bin/dcps_tests.lst:
+        * tests/FACE/Messenger/face_config.ini:
+        * tests/FACE/Partition/face_config.ini:
+        * tests/FACE/Reliability/face_config.ini:
+
+          Updated test configs for the new FACE tests.
+
+Tue Feb 17 19:44:39 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * tests/FACE/Messenger/Publisher/Publisher.cpp:
+        * tests/FACE/Messenger/Subscriber/Subscriber.cpp:
+        * tests/FACE/Partition/Publisher/Publisher.cpp:
+        * tests/FACE/Partition/Subscriber/Subscriber.cpp:
+        * tests/FACE/Reliability/Publisher/Publisher.cpp:
+        * tests/FACE/Reliability/Subscriber/Subscriber.cpp:
+
+          Added #includes for static build compatibility.
+
+Mon Feb 16 23:44:00 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * MPC/config/dcps_default_discovery.mpb:
+
+          Need a dependency on the tcp lib here for static builds (non-safety).
+
+        * dds/FACE/FaceTSS.h:
+        * dds/FACE/FaceTSS.cpp:
+        * dds/FACE/OpenDDS_FACE.mpc:
+
+          Fixed warnings due to 32bit/64bit int mismatch.
+
+Mon Feb 16 23:19:42 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * FACE/common.hpp:
+        * dds/DCPS/Discovery.cpp:
+        * dds/DCPS/DomainParticipantImpl.cpp:
+        * dds/FACE/FaceTSS.h:
+        * dds/FACE/FaceTSS.cpp:
+        * tests/FACE/Messenger/Publisher/Publisher.cpp:
+        * tests/FACE/Messenger/Subscriber/Subscriber.cpp:
+        * tests/FACE/Partition/Publisher/Publisher.cpp:
+        * tests/FACE/Partition/Subscriber/Subscriber.cpp:
+        * tests/FACE/Reliability/Publisher/Publisher.cpp:
+        * tests/FACE/Reliability/Subscriber/Subscriber.cpp:
+
+          More post-merge build fixes.  Changed FACE's enumerator NO_ERROR
+          to RC_NO_ERROR (RC is for Return Code).  NO_ERROR is too common of
+          a term and all-caps tend to be used for macros, this happens to
+          collide with macros defined in system headers.
+
+Mon Feb 16 22:08:04 UTC 2015  Paul Calabrese  <calabrese_p@ociweb.com>
+
+        * tests/DCPS/ConfigTransports/common.h:
+        * tests/DCPS/ConfigTransports/common.cpp:
+        * tests/DCPS/ConfigTransports/publisher.cpp:
+        * tests/DCPS/ConfigTransports/subscriber.cpp:
+
+          Add some locking to avoid some shutdown problems where other
+          threads can interfere when shutting down.  This appears to
+          fix the majority of the problems observed with this test.
+
+Mon Feb 16 21:30:05 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * MPC/config/opendds_face.mpb:
+        * dds/DCPS/Service_Participant.h:
+        * dds/DCPS/Service_Participant.cpp:
+        * dds/FACE/OpenDDS_FACE.mpc:
+
+          Fixes for wchar builds.
+
+Mon Feb 16 21:21:28 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * bin/PerlDDS/Run_Test.pm:
+        * dds/CORBA/tao/Object.cpp:
+        * dds/CORBA/tao/OctetSeqC.cpp:
+        * dds/FACE/FaceTSS.cpp:
+        * dds/FACE/config/ConnectionSettings.cpp:
+        * dds/FACE/config/QosSettings.h:
+        * dds/FACE/config/QosSettings.cpp:
+        * dds/FACE/config/TopicSettings.cpp:
+        * tests/DCPS/BuiltInTopicTest/monitor.cpp:
+        * tests/FACE/Partition/Publisher/Publisher.cpp:
+        * tests/FACE/Reliability/Subscriber/Subscriber.cpp:
+        * tests/FACE/Unit/QosSettingsTest.cpp:
+        * tests/Utils/ExceptionStreams.h:
+
+          Fixed fuzz errors.
+
+Mon Feb 16 19:34:23 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * tests/FACE/Messenger/Publisher/Publisher.cpp:
+        * tests/FACE/Messenger/Subscriber/Subscriber.cpp:
+        * tests/FACE/Partition/Publisher/Publisher.cpp:
+        * tests/FACE/Partition/Subscriber/Subscriber.cpp:
+        * tests/FACE/Reliability/Publisher/Publisher.cpp:
+        * tests/FACE/Reliability/Subscriber/Subscriber.cpp:
+        * tests/FACE/Unit/QosSettingsTest.cpp:
+
+          Use ACE_TMAIN for portability.
+
+        * bin/dcps_tests.lst:
+
+          Exclude TcpReconnect test when ownership profile is disabled.
+
+Mon Feb 16 19:05:23 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * FACE/common.hpp:
+
+          Fixed build error.
+
+Mon Feb 16 17:50:20 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * Merged branch FACE to trunk, adding initial support for the
+          Future Airborne Capability Environment (v2.1) in the top-level
+          FACE directory (public headers) and the dds/FACE directory
+          (implementation).  OpenDDS can be built to work on the restricted
+          platform of FACE's safety base profile by setting the MPC feature
+          no_opendds_safety_profile=0 and building with a corresponding
+          FACE-enabled version of ACE.
+          For details for the changes made on this branch see the change log
+          archived at docs/history/ChangeLog-FACE.
+
+Fri Feb 13 21:31:16 UTC 2015  Jeff Schmitz  <schmitzj@ociweb.com>
+
+        * ChangeLog:
+
+          Reset for post 3.7
+
+        * NEWS:
+
+          Add 3.7 section.
+
+Fri Feb 13 21:09:37 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * dds/DCPS/transport/framework/ReceiveListenerSet.inl:
+        * dds/DCPS/transport/framework/ReceiveListenerSet.cpp:
+        * dds/DCPS/transport/framework/TransportReceiveListener.h:
+
+          Avoid holding the ReceiveListenerSet's lock during the data_received()
+          call to the listener.  This allows listeners more flexibility in what
+          they can do, for example writing data to the same DataLink.
+          This change requires reference counting in the TRL interface.
+
+        * dds/DCPS/Recorder.h:
+        * dds/DCPS/Recorder.cpp:
+        * dds/DCPS/RecorderImpl.h:
+        * dds/DCPS/Replayer.h:
+        * dds/DCPS/Replayer.cpp:
+        * dds/DCPS/ReplayerImpl.h:
+        * dds/DCPS/Service_Participant.h:
+        * dds/DCPS/Service_Participant.cpp:
+
+          The above change brought to light the fact that Recorder and Replayer
+          end up with two reference counts, one from RcObject and one from IDL
+          local object (via EntityImpl).  Resolved this in favor of IDL local
+          object's reference count which required a minor API change (going from
+          _rch to _var as the handle type).
+
+        * dds/DCPS/DataReaderImpl.h:
+        * dds/DCPS/DataReaderImpl.cpp:
+        * dds/DCPS/DomainParticipantImpl.h:
+        * dds/DCPS/DomainParticipantImpl.cpp:
+        * dds/DCPS/RTPS/Sedp.h:
+        * dds/DCPS/RTPS/Sedp.cpp:
+
+          Updated to account for the changes above.
+          Sedp's Reader objects are now heap allocated and refcounted.
+
+        * tests/DCPS/RecorderReplayer/Relay.cpp:
+        * tests/transport/rtps/subscriber.cpp:
+        * tests/transport/rtps_reliability/rtps_reliability.cpp:
+        * tests/transport/simple/SimpleDataReader.h:
+
+          Updated tests with the new required methods and _rch to _var.
+
+Wed Feb 11 19:22:54 UTC 2015  Justin Wilson  <wilsonj@ociweb.com>
+
+        * dds/idl/CPPTemplate.txt:
+
+          Added lock to prevent corruption of allocator.
+
+Wed Feb 11 20:47:02 UTC 2015  Peter Oschwald  <oschwaldp@ociweb.com>
+
+        * tests/DCPS/SharedTransport/TestCase.cpp:
+
+          Rolling back changes to test.
+
+Wed Feb 11 19:54:43 UTC 2015  Peter Oschwald  <oschwaldp@ociweb.com>
+
+        * tests/DCPS/SharedTransport/TestCase.cpp:
+
+          Modified test to report data loss for non reliable dw/dr
+          combinations, but not return an error as data loss is possible.
+
+Tue Feb 10 22:17:34 UTC 2015  Peter Oschwald  <oschwaldp@ociweb.com>
+
+        * tests/DCPS/FooTest3_0/PubDriver.cpp:
+        * tests/DCPS/FooTest3_0/SubDriver.cpp:
+        * tests/DCPS/FooTest3_0/run_test.pl:
+
+          Synchronize on sub_ready.txt from the PubDriver side.
+          Unlink files at the end of test.
+
+        * tests/DCPS/TcpReconnect/stub.cpp:
+
+          Removed unused arg.  Fixed stub filename for w_char builds.
+
+Tue Feb 10 21:25:58 UTC 2015  Peter Oschwald  <oschwaldp@ociweb.com>
+
+        * tests/DCPS/ManyToMany/Writer.cpp:
+
+          Fixed issue when using wait_for_match to wait for matches to
+          go down to zero, which previously didn't wait.
+
+Tue Feb 10 20:10:54 UTC 2015  Peter Oschwald  <oschwaldp@ociweb.com>
+
+        * tests/DCPS/TcpReconnect/stub.cpp:
+
+          Fixed error in w_char build.
+
+Tue Feb 10 18:14:34 UTC 2015  Adam Mitz  <mitza@ociweb.com>
+
+        * tests/DCPS/TcpReconnect/publisher.cpp:
+        * tests/DCPS/TcpReconnect/run_test.pl:
+        * tests/DCPS/TcpReconnect/stub.cpp:
+
+          Adapted to allow publisher to send a "signal" to stub on Win32.
+
+Tue Feb 10 17:45:44 UTC 2015  Peter Oschwald  <oschwaldp@ociweb.com>
+
+        * tests/DCPS/TcpReconnect/publisher.cpp:
+        * tests/DCPS/TcpReconnect/run_test.pl:
+        * tests/DCPS/TcpReconnect/stub.cpp:
+
+          Add synchronization of waiting until the stub process is ready
+          before starting the writer.
+
+          Add support for builds using subdirectories for their executables.
+
+Mon Feb  9 21:16:48 UTC 2015  Peter Oschwald  <oschwaldp@ociweb.com>
+
+        * dds/DCPS/DataWriterImpl.cpp:
+
+          Added transport debug logging.
+
+        * tests/DCPS/TcpReconnect/Args.h:
+        * tests/DCPS/TcpReconnect/DataReaderListener.h:
+        * tests/DCPS/TcpReconnect/DataReaderListener.cpp:
+        * tests/DCPS/TcpReconnect/Messenger.idl:
+        * tests/DCPS/TcpReconnect/TcpReconnect.mpc:
+        * tests/DCPS/TcpReconnect/Writer.h:
+        * tests/DCPS/TcpReconnect/Writer.cpp:
+        * tests/DCPS/TcpReconnect/publisher.cpp:
+        * tests/DCPS/TcpReconnect/run_test.pl:
+        * tests/DCPS/TcpReconnect/subscriber.cpp:
+
+          Refactored TcpReconnect test to allow publisher to spawn and
+          kill the stub process instead of the perl script.  This allows
+          more deterministic timing for the disconnect and reconnect testing.
+          Also changed test validation logic to no longer validate that all
+          messages were received, but rather that during each phase of the
+          test messages were received -- suggesting that the reconnect was
+          successful.  Test phases were added to the messages being sent and
+          the phase is incremented each time the disconnect/reconnect occurs.
+          Validation on receiving all messages does not work due to forced
+          killing of the connection in which in flight messages might be lost.
+
+Local Variables:
+mode: change-log
+add-log-time-format: (lambda () (progn (setq tz (getenv "TZ")) (set-time-zone-rule "UTC") (setq time (format-time-string "%a %b %e %H:%M:%S %Z %Y" (current-time))) (set-time-zone-rule tz) time))
+indent-tabs-mode: nil
+End:

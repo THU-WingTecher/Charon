@@ -1,0 +1,26 @@
+project(*Publisher) : dcpsexe, dcps_test, dcps_cm, dcps_tcp {
+  requires += no_opendds_safety_profile
+  exename = publisher
+
+  Idl_Files {
+  }
+
+  Source_Files {
+    publisher.cpp
+    Writer.cpp
+    DataWriterListener.cpp
+  }
+}
+
+project(*Subscriber) : dcpsexe, dcps_test, dcps_cm, dcps_tcp {
+  requires += no_opendds_safety_profile
+  exename = subscriber
+
+  Idl_Files {
+  }
+
+  Source_Files {
+    subscriber.cpp
+    DataReaderListener.cpp
+  }
+}

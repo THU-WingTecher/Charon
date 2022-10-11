@@ -1,0 +1,8 @@
+This test builds upon the Messenger_Imr test.
+
+Status: Still under development.
+
+This test incarnates multiple instances of ImRified InfoRepo's and
+ties them all together into a single IOGR. This can be used as
+a FT strategy for clients to automatically switch over to a backup
+InfoRepo in case of an InfoRepo instance crash.

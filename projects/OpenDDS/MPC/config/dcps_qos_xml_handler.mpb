@@ -1,0 +1,4 @@
+project: ace_xml_utils, dcps {
+  after += OpenDDS_QOS_XML_XSC_Handler
+  libs  += OpenDDS_QOS_XML_XSC_Handler
+}

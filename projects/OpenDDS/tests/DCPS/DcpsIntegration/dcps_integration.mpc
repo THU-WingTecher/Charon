@@ -1,0 +1,24 @@
+project(*topic): dcpsexe, dcps_test, dcps_transports_for_test {
+  exename   = topic_test
+  libs     += DcpsFooType
+  libpaths += ../FooType
+  after    += DcpsFooType
+
+  Source_Files {
+    topic.cpp
+    DomainParticipantListener.cpp
+    TopicListener.cpp
+  }
+}
+
+project(*infrastructure): dcpsexe, dcps_test, dcps_transports_for_test {
+  exename   = infrastructure_test
+  libs     += DcpsFooType
+  libpaths += ../FooType
+  after    += DcpsFooType
+
+  Source_Files {
+    infrastructure.cpp
+    DomainParticipantListener.cpp
+  }
+}

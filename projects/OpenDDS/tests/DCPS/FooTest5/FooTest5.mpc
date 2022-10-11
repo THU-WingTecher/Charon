@@ -1,0 +1,28 @@
+project(DcpsFooTest5Publisher): dcpsexe, dcps_test, dcps_transports_for_test, dds_model {
+  exename   = publisher
+  libpaths += ../FooType5
+  libs     +=  DcpsFooType5
+  after    += DcpsFooType5
+
+  Source_Files {
+    publisher.cpp
+    Writer.cpp
+    common.cpp
+    InstanceDataMap.cpp
+  }
+}
+
+
+project(DcpsFooTest5Subscriber): dcpsexe, dcps_test, dcps_transports_for_test {
+  exename   = subscriber
+  libpaths += ../FooType5
+  libs     +=  DcpsFooType5
+  after    += DcpsFooType5
+
+  Source_Files {
+    subscriber.cpp
+    DataReaderListener.cpp
+    common.cpp
+    InstanceDataMap.cpp
+  }
+}

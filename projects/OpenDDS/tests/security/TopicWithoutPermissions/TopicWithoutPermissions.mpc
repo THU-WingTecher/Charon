@@ -1,0 +1,11 @@
+project(Security*): dcps_test, opendds_security, dcps_rtps_udp {
+  exename = *
+
+  Source_Files {
+    TopicWithoutPermissions.cpp
+  }
+
+  TypeSupport_Files {
+    StockQuoter.idl
+  }
+}

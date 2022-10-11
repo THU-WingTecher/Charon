@@ -1,0 +1,278 @@
+#include "tao/ShortSeq.pidl"
+#include "tao/StringSeq.pidl"
+
+const unsigned long tao_version = __TAO_IDL;
+
+#ifdef __OPENDDS_IDL  // need to hide this from tao_idl
+const unsigned long dds_version = __OPENDDS_IDL;
+#endif
+
+module enumunion {
+
+  enum EnumType {A1, A2, A3};
+
+  union UnionType switch (EnumType) {
+    case A2: short s;
+    case A1: boolean b;
+    case A3: string str;
+  };
+};
+
+module Xyz {
+
+  const octet c0 = 42;
+  const char c1 = 'a';
+  const wchar c2 = L'b';
+  const short c3 = -1000;
+  const unsigned short c4 = 1000;
+  const long c5 = -200000;
+  const unsigned long c6 = 200000;
+  const long long c7 = -8 * 1000 * 1000 * 1000;
+  const unsigned long long c8 = 8 * 1000 * 1000 * 1000;
+  const boolean c9 = TRUE;
+  const float c10 = 3.1416;
+  const double c11 = 2.17;
+// TAO_IDL_FE doesn't allow =>  const long double c12 = 1.0;
+  const string c13 = "Hello, \"world\".";
+// Generated code won't compile with !ACE_HAS_WCHAR =>
+//   const wstring c14 = L"Hello, wide world.";
+
+  typedef short ArrayOfShorts[5];
+
+  typedef short ArrayOfShorts2[3];
+  typedef short TwoDimArrayOfShorts2[3][4];
+  typedef short MultiDimArrayOfShorts[2][3][4];
+
+  struct StructOfMultiDimArrayOfShorts {
+    MultiDimArrayOfShorts mds;
+  };
+
+  typedef string MultiDimArray[2][3][4][5];
+
+  struct StructOfMultiDimArray {
+    MultiDimArray mda;
+  };
+
+  typedef ArrayOfShorts2 ArrayOfArrayOfShorts2[3];
+  struct StructOfArrayOfArrayOfShorts2 {
+    ArrayOfArrayOfShorts2 f1;
+  };
+
+  // +4
+  enum ColorX { redx, greenx, bluex, yellowx };
+  typedef ColorX ArrayOfColorX[5];
+  struct StructofArrayOfColorX {
+    ArrayOfColorX x1;
+  };
+
+  const ColorX c15 = greenx;
+
+  // +4+6
+  typedef sequence<unsigned short,3> UShortSeq;
+
+  typedef sequence<ArrayOfShorts> ArrayOfShortsSeq;
+
+  // +12
+  typedef sequence<short> ShortSeq;
+  @topic
+  struct AStruct {
+    @key long v1;
+    ShortSeq v2s; //,2 -- was bounded with
+  };
+
+  typedef AStruct ArrayOfAStruct[3];
+  struct StructContainingArrayOfAStruct {
+    ArrayOfAStruct f1;
+  };
+
+  union AUnion;
+
+  union AUnion switch (ColorX) {
+    case redx:
+    case yellowx:
+      string rsv;
+    case greenx:
+      AStruct gsv;
+    default:
+      unsigned short usv;
+  };
+
+  struct StructAUnion {
+    AUnion sau_f1;
+  };
+
+  typedef sequence<AUnion,3> AUnionSeq;
+
+  typedef sequence<char, 2> AcharSeq;
+  typedef sequence<string, 4> AStringSeq; // BoundedSeqOfUnboundedString
+
+  typedef sequence<AcharSeq> AcharSeqSeq;
+
+  typedef char MyChar;
+  typedef sequence<MyChar, 5> AMyCharSeq;
+
+  // Test for https://github.com/objectcomputing/OpenDDS/issues/3268
+  @topic
+  struct OnlyAMyCharSeq {
+    AMyCharSeq only_member;
+  };
+
+  typedef string<100> BoundedString;
+  typedef sequence<BoundedString> UnboundedSeqOfBoundedString;
+  typedef sequence<BoundedString, 10> BoundedSeqOfBoundedString;
+  typedef sequence<string> UnboundedSeqOfUnboundedString;
+
+  struct BoundedStringStruct {
+    BoundedString a;
+  };
+
+  struct BoundedSeqStruct {
+    AStringSeq seq;
+  };
+
+  // +4+(3*12)
+  typedef sequence<AStruct,3> AStructSeqX;
+
+  typedef AStructSeqX ArrayOfAStructSeq[3];
+
+  @topic
+  struct StructContainingArrayOfAStructSeq {
+    ArrayOfAStructSeq f1;
+  };
+
+  // not currently supported by the TAO IDL compiler; even without -Gdcps
+  //typedef fixed<10,4> AFixed;
+
+  typedef octet OctetArray[3];
+
+  // Example user defined "Foo" structure
+  @topic
+  struct Foo {
+    @key long key;  //4
+    //ArrayOfShorts shorts;
+    octet octer; //+1 > 5
+    @key ColorX xcolor; //+4 > 9
+    OctetArray ooo; //+3 > 12
+    UShortSeq ushrtseq; //+4+6 > 22
+    AStruct thestruct; //+4+8 > 34
+    AStructSeqX theStructSeq; //+4+36 > 74
+    //string<5> theString; //+4+5 > 83
+    string theString;
+    ArrayOfAStruct structArray; //+36 > 119
+    float x; //+4 > 123
+    float y; //+4 = 127
+    AUnion theUnion; //+4+4 =135
+  };
+
+  // regression test for typedef'ed enum (metaclass_generator.cpp)
+  enum TestEnum {TE_1, TE_2};
+  typedef TestEnum TypedefTestEnum;
+  struct StructWithTypedefedEnum {
+    TypedefTestEnum tte;
+  };
+
+  // regression test for boolean-discriminated union (marshal_generator.cpp)
+  union TestUnion switch (boolean) {
+  case FALSE:
+    TestEnum te;
+  case TRUE:
+    StructWithTypedefedEnum swte;
+  };
+
+  union TestUnion2 switch (boolean) {
+  case FALSE:
+    octet o;
+  };
+
+  union TestUnion3 switch (boolean) {
+  case TRUE:
+    octet o;
+  };
+
+  union TestUnion4 switch (boolean) {
+  default:
+    octet o;
+  };
+
+  union TestUnion5 switch (boolean) {
+  case FALSE:
+    TestEnum te;
+  default:
+    octet o;
+  };
+
+  union TestUnion6 switch (boolean) {
+  case TRUE:
+    TestEnum te;
+  default:
+    octet o;
+  };
+};
+
+const Xyz::TestEnum enumConst = Xyz::TE_2;
+
+module N1 {
+  struct FwdDeclStruct;
+};
+
+module N1 {
+  typedef sequence<N1::FwdDeclStruct> FwdDeclSameNamespaceStructs;
+  struct FwdDeclStructSeqWrapper {
+    FwdDeclSameNamespaceStructs wrapped;
+  };
+};
+
+module N2 {
+  typedef sequence<N1::FwdDeclStruct> FwdDeclDiffNamespaceStructs;
+  struct FwdDeclStructSeqWrapper {
+    FwdDeclDiffNamespaceStructs wrapped;
+  };
+};
+
+module N1 {
+  struct FwdDeclStruct {
+    long v1;
+  };
+};
+
+module N1 {
+  typedef sequence<N1::FwdDeclStruct> FwdDeclSameNamespaceAfterDefStructs;
+};
+
+//Need to verify that we can have a "Foo" (or in this case, a "Bar") outside
+//of a module in IDL.
+@topic
+struct Bar {
+  unsigned long data;
+};
+
+typedef long B41[2][3];
+typedef long B42[2];
+typedef long B43[4];
+typedef string B44[2];
+typedef Bar B45[2];
+typedef Xyz::ColorX B46[2];
+
+union B85 switch (long) {
+  case 1: B42 b_85_1;
+  case 2: B43 b_85_2;
+  case 3: B41 b_85_3;
+};
+
+union B86 switch (long) {
+  case 1: B44 b_85_1;
+  case 2: B43 b_85_2;
+  case 3: B41 b_85_3;
+};
+
+union B87 switch (long) {
+  case 1: B45 b_85_1;
+  case 2: B43 b_85_2;
+  case 3: B41 b_85_3;
+};
+
+union B88 switch (long) {
+  case 1: B46 b_85_1;
+  case 2: B43 b_85_2;
+  case 3: B41 b_85_3;
+};

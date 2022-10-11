@@ -1,0 +1,116 @@
+Starting with release 1.2, OpenDDS provides Java bindings.  Java applications
+can make use of the complete OpenDDS middleware just like C++ applications.
+
+See the README.md file in the $DDS_ROOT directory (one level above here) for a
+general overview of OpenDDS.
+
+
+======================================================================
+* Prerequisites
+
+  - JDK (Java Development Kit) for Java SE 5 and up
+
+    If you are using a 64-bit JDK, make sure all the native libraries are also
+    built for 64-bit.  Similarly, a 32-bit JDK must be matched with 32-bit
+    native libraries.
+
+    If using a recent JDK version (9 and higher) that includes the JPMS
+    (Java Platform Module System), disable the MPC feature java_pre_jpms.
+    The OpenDDS configure script will attempt to detect the Java version and
+    set the MPC feature automatically.
+
+  - C++ Compiler
+
+    These instructions assume that you will be using the "native" compiler for
+    your chosen platform, namely:
+    Windows  => Microsoft Visual C++ <http://msdn.microsoft.com/en-us/visualc>
+    Linux    => GNU Compiler Collection (GCC) <http://gcc.gnu.org>
+    Mac OS   => AppleClang included with Xcode
+
+    Other combinations are possible (gcc on Windows, for example) but
+    these have not been tested and will not be covered by this document.
+
+    On Linux and Mac OS, GNU Make is also required.  It will almost
+    certainly be installed by default on Linux (if not use your
+    platform's package management system).
+
+    On Mac OS El Capitan, Yosemite, Mavericks onward, the required build tools
+    can be installed by typing the following command from termial.
+
+       xcode-select --install
+
+  - Perl v5.8 or later
+
+    On Unix platforms, perl will be pre-installed or easily installed by the
+    platform's package management system.
+    On Windows install ActiveState's ActivePerl.  Download it for free from
+    <http://www.activestate.com/downloads> -> scroll down to "ActivePerl" and
+    click "Get Current Release" -> select the "Download" link.
+
+  - The ACE ORB (TAO), which includes ACE and MPC as subprojects
+
+    OpenDDS requires the use of TAO.  Three "branches" of TAO are supported:
+
+    - OCI TAO 2.2a <http://download.ociweb.com/TAO-2.2a>
+    - DOC Group    <http://download.dre.vanderbilt.edu>
+
+    Note: TAO can be automatically downloaded by the configure script, so
+    downloading it separately is not strictly necessary.
+
+    From each branch only the current patch release (OCI) or beta/micro release
+    (DOC) is supported.  The "current" releases are the latest public releases
+    of TAO at the time of the OpenDDS release.  These are listed in the "TAO"
+    section of the OpenDDS README.md file (in the parent directory).
+
+    For responsive support from OCI it is recommended that the latest version
+    of the OCI release of TAO used for OpenDDS development and testing be used.
+
+    The detailed instructions below are written assuming OCI TAO 2.2a is used.
+
+======================================================================
+* Building OpenDDS, including dependencies and Java bindings
+
+  1. Set up the build environment
+
+     Unix    => Any shell should be OK.  Make sure you can run "perl", "make",
+                and your C++ compiler (g++ or CC) -- i.e. they are found on
+                the PATH.
+     Windows => Run the Visual Studio Command Prompt
+
+  2. Extract source code archives
+
+     Unix    => Start with the .tar.gz archives of OpenDDS
+     Windows => Start with the .zip archives of OpenDDS
+
+     Extract to the location of your chosing.  On Windows it is simpler to
+     use paths with no spaces (true on Unix too but spaces are rarely seen).
+     The top level of the OpenDDS distribution is a directory that contains
+     the subdirectory named dds.
+
+  3. Configure and build OpenDDS
+
+     Build as in $DDS_ROOT/install, but add --java option
+
+     Unix    => cd $DDS_ROOT
+                ./configure --java
+                make
+     Windows => cd $DDS_ROOT
+                configure --java
+                Start Visual Studio by executing the generated solution from the command prompt
+                Select Build -> Build Solution
+
+
+  4. Run a test Java application to verify the build
+
+     Note: first set environment via the setenv script.
+
+     Unix    => cd $DDS_ROOT/java/tests/multirepo
+                ./run_test.pl
+     Windows => cd %DDS_ROOT%\java\tests\multirepo
+                run_test.pl
+                (for release mode, add -ExeSubDir Release)
+
+======================================================================
+* Next Steps: Developing Java applications with OpenDDS
+
+  See the README.md file in this directory.

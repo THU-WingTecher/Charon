@@ -1,0 +1,35 @@
+//
+//
+
+project(*publisher): dcpsexe, dcps_test, dcps_transports_for_test {
+  exename   = publisher
+
+  after    += DcpsFooType
+  libs     += DcpsFooType
+
+  includes += ../FooType
+  libpaths += ../FooType
+
+  Source_Files {
+    Publisher.cpp
+    ParticipantTask.cpp
+    ProgressIndicator.cpp
+  }
+}
+
+project(*subscriber): dcpsexe, dcps_test, dcps_transports_for_test, content_subscription {
+  exename   = subscriber
+  requires += content_filtered_topic
+
+  after    += DcpsFooType
+  libs     += DcpsFooType
+
+  includes += ../FooType
+  libpaths += ../FooType
+
+  Source_Files {
+    Subscriber.cpp
+    SubscriberListenerImpl.cpp
+    ProgressIndicator.cpp
+  }
+}

@@ -1,0 +1,26 @@
+HKCR
+{
+	ComTest.CharonComTest.1 = s 'CharonComTest Class'
+	{
+		CLSID = s '{8FAEEEE1-AAA5-4B77-8CBA-BFDCE3E3C7E8}'
+	}
+	ComTest.CharonComTest = s 'CharonComTest Class'
+	{
+		CLSID = s '{8FAEEEE1-AAA5-4B77-8CBA-BFDCE3E3C7E8}'
+		CurVer = s 'ComTest.CharonComTest.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {8FAEEEE1-AAA5-4B77-8CBA-BFDCE3E3C7E8} = s 'CharonComTest Class'
+		{
+			ProgID = s 'ComTest.CharonComTest.1'
+			VersionIndependentProgID = s 'ComTest.CharonComTest'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{BA7F9B7B-ABB3-46BD-9594-5F643A5BED35}'
+		}
+	}
+}

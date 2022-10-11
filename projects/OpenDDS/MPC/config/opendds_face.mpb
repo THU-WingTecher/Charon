@@ -1,0 +1,17 @@
+project: dcps, dcps_ts_defaults {
+  requires += built_in_topics
+  avoids += uses_wchar
+  libs  += OpenDDS_FACE
+  after += OpenDDS_FACE
+
+  dcps_ts_flags += -GfaceTS -Lface
+  idlflags += -SS -Wb,no_fixed_err
+
+  // Do not include *.idl files as inputs to tao_idl
+  IDL_Files {
+  }
+
+  Modify_Custom(TypeSupport) {
+    header_pre_extension += C
+  }
+}

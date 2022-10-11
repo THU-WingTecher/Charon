@@ -1,0 +1,44 @@
+project(*idl): opendds_face {
+  idlflags      += -Wb,export_include=FaceMessenger_Export.h \
+                   -Wb,export_macro=FaceMessenger_Export
+  dcps_ts_flags += -Wb,export_include=FaceMessenger_Export.h \
+                   -Wb,export_macro=FaceMessenger_Export
+  dynamicflags  += FACEMESSENGER_BUILD_DLL
+
+  TypeSupport_Files {
+    FaceMessage.idl
+  }
+
+  Source_Files {
+  }
+}
+
+project(*publisher) : dcps_rtps_udp, opendds_face {
+  exename   = publisher
+  after    += *idl
+  libs     += *idl
+
+  Source_Files {
+    Publisher.cpp
+  }
+}
+
+project(*subscriber) : dcps_rtps_udp, opendds_face {
+  exename   = subscriber
+  after    += *idl
+  libs     += *idl
+
+  Source_Files {
+    Subscriber.cpp
+  }
+}
+
+project(*callbacksubscriber) : dcps_rtps_udp, opendds_face {
+  exename   = callback_subscriber
+  after    += *idl
+  libs     += *idl
+
+  Source_Files {
+    CallbackSubscriber.cpp
+  }
+}

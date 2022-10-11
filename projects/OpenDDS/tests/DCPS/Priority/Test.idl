@@ -1,0 +1,16 @@
+
+module Test {
+
+typedef sequence<octet> OctetSeq;
+
+#pragma DCPS_DATA_TYPE "Test::Data"
+#pragma DCPS_DATA_KEY  "Test::Data key"
+  struct Data {
+    long key;
+    long value;
+    boolean priority;
+    long before_value;
+    OctetSeq baggage;
+  };
+
+};

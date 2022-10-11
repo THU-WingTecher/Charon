@@ -1,0 +1,52 @@
+# This is used by gitrelease.pl to correct commit individual author info for
+# the generation of the AUTHORS file
+#
+# See https://git-scm.com/docs/gitmailmap for how this works
+#
+# To fix GitHub noreply email addresses, match the real name and email to
+# what's printed by:
+#   git shortlog --summary --numbered --email
+
+Justin Wilson <wilsonj@objectcomputing.com> <jrw972@gmail.com>
+Justin Wilson <wilsonj@objectcomputing.com> Justin R. Wilson
+
+Jeff Schmitz <schmitzj@ociweb.com> <jeffrey.j.schmitz@gmail.com>
+Jeff Schmitz <schmitzj@ociweb.com> iamtheschmitzer <schmitzj@ociweb.com>
+
+Brian Johnson <johnsonb@ociweb.com> johnsonb <johnsonb@ociweb.com>
+
+Paul Calabrese <calabrep@objectcomputing.com> <calabrese_p@ociweb.com>
+
+Huang-Ming Huang <huangh@ociweb.com> <huangming.huang@gmail.com>
+
+Fred Hornsey <hornseyf@objectcomputing.com> <fred@hornsey.us>
+Fred Hornsey <hornseyf@objectcomputing.com> Frederick Hornsey
+
+Doug Lewis <lewisdo@objectcomputing.com> unknown <lewisdo@objectcomputing.com>
+
+Jeremy Bratton <brattonj@objectcomputing.com> brattonj
+
+ceneblock <ceneblock@users.noreply.github.com> <ceneblock@ceneblock.com>
+
+Chip Jones <jonesc@objectcomputing.com> <chiphj@gmail.com>
+Chip Jones <jonesc@objectcomputing.com> jonesc-oci <51006990+jonesc-oci@users.noreply.github.com>
+
+Mike Kuznetsov <kuznetsovm@objectcomputing.com> kuznetsovm@objectcomputing.com
+Mike Kuznetsov <kuznetsovm@objectcomputing.com> kuznetsovmoci <55456623+kuznetsovmoci@users.noreply.github.com>
+
+Jiang Li <lij@objectcomputing.com> lij-oci <55156341+lij-oci@users.noreply.github.com>
+
+Chad Elliott <elliottc@objectcomputing.com> <elliott_c@ociweb.com>
+Chad Elliott <elliottc@objectcomputing.com> ocielliottc
+
+Gary Wilson <wilsong@objectcomputing.com> wilsongOCI
+
+Clayton Calabrese <calabresec@objectcomputing.com> ClaytonCalabrese
+Clayton Calabrese <calabresec@objectcomputing.com> <calabreseclayton@gmail.com>
+
+Mark Pollack <pollackm@objectcomputing.com> <mpollack360@gmail.com>
+
+Tim Pollock <pollockt@objectcomputing.com> pollocktoci <70289169+pollocktoci@users.noreply.github.com>
+
+<mesnierp@objectcomputing.com> <mesnier_p@ociweb.com>
+Phil Mesnier <mesnierp@objectcomputing.com> Phil <mesnierp@objectcomputing.com>
